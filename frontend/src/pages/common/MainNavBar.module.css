@@ -1,0 +1,36 @@
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    width: 90%;
+}
+
+img {
+    height: 120px;
+    margin-right: 20px;
+}
+
+img:hover {
+    height: 140px;
+}
+
+nav > a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 14rem;
+    height: 8rem;
+    text-decoration: none;
+    color: darkkhaki;
+    font-weight: bold;
+    text-align: center;
+    font-size: 20px;
+  }
+  
+  nav > a:hover {
+    /* background: rgb(31, 30, 22); */
+    color: rgb(230, 221, 105);
+    font-size: 24px;
+    cursor: pointer;
+  }
