@@ -1,21 +1,18 @@
 //  ========== Component imports  ========== //
 
-import React from "react";
+import React from 'react'
+import { NavLink, useNavigate } from "react-router-dom";
 import MainNavBar from "../common/MainNavBar";
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= JSX BELOW ============================= //
 ///////////////////////////////////////////////////////////////////////
 
-export default function Home() {
-
-
+export default function Gallery() {
   return (
-    <>
-      <MainNavBar />
-      
-      <h1>Orbis History Maps</h1>
-      <p>This will be the Home Page</p>
-    </>
-  );
+    <div>
+        <MainNavBar />
+        This will be the Gallery
+    </div>
+  )
 }

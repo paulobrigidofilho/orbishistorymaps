@@ -1,21 +1,19 @@
 //  ========== Component imports  ========== //
 
-import React from "react";
-import MainNavBar from "../common/MainNavBar";
+import React from 'react';
+import RegisterForm from '../../auth/RegisterForm'; // Import RegisterForm component
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= JSX BELOW ============================= //
 ///////////////////////////////////////////////////////////////////////
 
-export default function Home() {
-
-
+function Register() {
   return (
-    <>
-      <MainNavBar />
-      
-      <h1>Orbis History Maps</h1>
-      <p>This will be the Home Page</p>
-    </>
+    <div>
+      <h1>Register</h1>
+      <RegisterForm /> {/* Render the RegisterForm component */}
+    </div>
   );
 }
+
+export default Register;

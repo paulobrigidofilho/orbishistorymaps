@@ -1,21 +1,17 @@
 //  ========== Component imports  ========== //
 
-import React from "react";
-import MainNavBar from "../common/MainNavBar";
+import React from 'react'
+import MainNavBar from '../common/MainNavBar'
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= JSX BELOW ============================= //
 ///////////////////////////////////////////////////////////////////////
 
-export default function Home() {
-
-
+export default function Shop() {
   return (
-    <>
-      <MainNavBar />
-      
-      <h1>Orbis History Maps</h1>
-      <p>This will be the Home Page</p>
-    </>
-  );
+    <div>
+        <MainNavBar />
+        This will be the Shop
+    </div>
+  )
 }

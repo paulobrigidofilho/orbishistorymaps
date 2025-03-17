@@ -1,36 +1,166 @@
 nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-    width: 90%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 img {
-    height: 120px;
-    margin-right: 20px;
+  height: 120px;
+  margin-right: 20px;
 }
 
 img:hover {
-    height: 140px;
+  height: 140px;
 }
 
 nav > a {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 14rem;
-    height: 8rem;
-    text-decoration: none;
-    color: darkkhaki;
-    font-weight: bold;
-    text-align: center;
-    font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 14rem;
+  height: 8rem;
+  text-decoration: none;
+  color: darkkhaki;
+  font-weight: bold;
+  text-align: center;
+  font-size: 20px;
+}
+
+nav > a:hover {
+  color: rgb(230, 221, 105);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.userNav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: auto;
+  flex-grow: 0;
+}
+
+.userNav a,
+.userNav button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+  height: auto;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: darkkhaki;
+  font-weight: bold;
+  text-align: center;
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.userNav a:hover,
+.userNav button:hover {
+  color: rgb(230, 221, 105);
+  font-size: 24px;
+}
+
+.material-icons {
+  margin-right: 5px;
+}
+
+/* New styles for dropdown */
+.dropdownContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.userButton {
+  padding: 10px;
+  border-radius: 50%; /* Make it circular */
+  width: 50px; /* Adjust size as needed */
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: none;
+  border: none;
+  color: darkkhaki;
+  cursor: pointer;
+  font-size: 24px; /* Adjust icon size */
+}
+
+.userButton:hover {
+  color: rgb(230, 221, 105);
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+
+.dropdownMenu button, .dropdownMenu a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.dropdownMenu button:hover, .dropdownMenu a:hover {
+  background-color: #ddd;
+}
+
+/* Media Query for Smaller Screens */
+@media (max-width: 768px) {
+  nav {
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
+    padding: 10px;
   }
-  
-  nav > a:hover {
-    /* background: rgb(31, 30, 22); */
-    color: rgb(230, 221, 105);
-    font-size: 24px;
-    cursor: pointer;
+
+  img {
+    margin-right: 0; /* Remove right margin */
+    margin-bottom: 10px; /* Add bottom margin */
   }
+
+  nav > a {
+    width: auto; /* Allow links to take up only the space they need */
+    height: auto; /* Allow links to adjust their height */
+    padding: 5px 10px; /* Reduce padding */
+    font-size: 18px; /* Reduce font size */
+  }
+
+  .userNav {
+    width: 100%; /* Take up full width */
+    justify-content: center; /* Center user and cart icons */
+    margin-top: 10px; /* Add some space */
+  }
+
+  .userNav a, .userNav button {
+    width: auto; /* Allow links and buttons to take up only the space they need */
+    height: auto; /* Allow links and buttons to adjust their height */
+    padding: 5px 10px; /* Reduce padding */
+    font-size: 18px; /* Reduce font size */
+  }
+
+  .dropdownContainer {
+    /* Adjust dropdown container for smaller screens */
+    margin-left: 10px; /* Add some space between cart and user icon */
+  }
+}
