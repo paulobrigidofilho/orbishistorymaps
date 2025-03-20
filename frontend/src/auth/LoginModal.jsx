@@ -13,9 +13,12 @@ function LoginModal({ onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('Attempting login with:', { email, password });
       await login(email, password); // Call the login function from AuthContext
+      console.log('Login successful');
       onClose(); // Close the modal on successful login
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.message || 'Login failed');
     }
   };

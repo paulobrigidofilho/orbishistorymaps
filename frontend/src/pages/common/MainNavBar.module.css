@@ -65,14 +65,11 @@ nav > a:hover {
 .userNav a:hover,
 .userNav button:hover {
   color: rgb(230, 221, 105);
-  font-size: 24px;
 }
 
 .material-icons {
   margin-right: 5px;
 }
-
-/* New styles for dropdown */
 .dropdownContainer {
   position: relative;
   display: inline-block;
@@ -123,7 +120,7 @@ nav > a:hover {
 }
 
 .dropdownMenu button:hover, .dropdownMenu a:hover {
-  background-color: #ddd;
+  background-color: #000000;
 }
 
 /* Media Query for Smaller Screens */
