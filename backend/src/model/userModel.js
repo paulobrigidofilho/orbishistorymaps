@@ -1,6 +1,17 @@
-const db = require('./db'); // Import the database connection from db.js
+// ======= Module imports ======= //
+
+const db = require('./db'); 
+
+///////////////////////////////////////////////////////////////////////
+// ========================= USER MODEL ============================ //
+///////////////////////////////////////////////////////////////////////
 
 const userModel = {
+
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= GET USER BY EMAIL ===================== //
+  ///////////////////////////////////////////////////////////////////////
+
   getUserByEmail: (email, callback) => {
     const query = 'SELECT * FROM users WHERE USER_EMAIL = ?';
     db.query(query, [email], (err, results) => {
@@ -11,6 +22,10 @@ const userModel = {
       return callback(null, results[0]); // Return the first user found (if any)
     });
   },
+
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= CREATE USER =========================== //
+  ///////////////////////////////////////////////////////////////////////
 
   createUser: (userData, callback) => {
     const { firstName, lastName, email, password, nickname, avatar, address, city, zipCode } = userData;

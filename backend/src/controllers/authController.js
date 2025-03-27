@@ -1,13 +1,24 @@
+// ======= Module imports ======= //
+
 const bcrypt = require('bcrypt');
 const userModel = require('../model/userModel');
 
+// ======= BCRYPT CONFIGURATION ======= //
+
+const saltRounds = 10;
+
 const authController = {
+
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= REGISTER CONTROLLER =================== //
+  ///////////////////////////////////////////////////////////////////////
+  
   register: async (req, res) => {
     try {
       const { firstName, lastName, email, password, nickname, avatar, address, city, zipCode } = req.body;
 
       // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
 
       // Create user data object
       const userData = {
@@ -38,6 +49,9 @@ const authController = {
     }
   },
 
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= LOGIN CONTROLLER ====================== //
+  ///////////////////////////////////////////////////////////////////////
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -53,33 +67,47 @@ const authController = {
           return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // Compare passwords
-        const passwordMatch = await bcrypt.compare(password, user.USER_PASSWORD);
+        ///////////////////////////////////////////////////////////////////////
+        // ========================= PASSWORD COMPARISON =================== //
+        ///////////////////////////////////////////////////////////////////////
 
-        if (!passwordMatch) {
-          return res.status(401).json({ message: 'Invalid credentials' });
+        console.log("Plaintext password:", password); // Password from the request
+        console.log("Hashed password from DB:", user.USER_PASSWORD); // Password from the DB
+
+        try {
+            const passwordMatch = await bcrypt.compare(password, user.USER_PASSWORD);
+            console.log("bcrypt.compare result:", passwordMatch);
+
+            if (!passwordMatch) {
+              console.log("Password does not match for email:", email);
+              return res.status(401).json({ message: 'Invalid credentials' });
+            }
+
+            ///////////////////////////////////////////////////////////////////////
+            // ========================= SUCCESSFUL LOGIN ====================== //
+            ///////////////////////////////////////////////////////////////////////
+
+            const userProfile = {
+              USER_ID: user.USER_ID,
+              USER_FIRSTNAME: user.USER_FIRSTNAME,
+              USER_LASTNAME: user.USER_LASTNAME,
+              USER_EMAIL: user.USER_EMAIL,
+              USER_NICKNAME: user.USER_NICKNAME,
+              USER_AVATAR: user.USER_AVATAR,
+            };
+
+            console.log('Login successful');
+            return res.status(200).json({ message: 'Login successful', user: userProfile });
+        } catch (compareError) {
+            console.error("Error during bcrypt.compare:", compareError);
+            return res.status(500).json({ message: 'Login failed (bcrypt error)' }); // More specific error
         }
-
-        // Create a user object to send back to the client (exclude sensitive data)
-        const userProfile = {
-          USER_ID: user.USER_ID,
-          USER_FIRSTNAME: user.USER_FIRSTNAME,
-          USER_LASTNAME: user.USER_LASTNAME,
-          USER_EMAIL: user.USER_EMAIL,
-          USER_NICKNAME: user.USER_NICKNAME,
-          USER_AVATAR: user.USER_AVATAR,
-          // Add other non-sensitive user data here
-        };
-
-        console.log('Login successful');
-        return res.status(200).json({ message: 'Login successful', user: userProfile });
       });
     } catch (error) {
       console.error('Login error:', error);
       return res.status(500).json({ message: 'Login failed' });
     }
   },
-
 };
 
 module.exports = authController;

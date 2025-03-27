@@ -8,12 +8,12 @@ nav {
   margin: 0 auto;
 }
 
-img {
+.orbisLogo {
   height: 120px;
   margin-right: 20px;
 }
 
-img:hover {
+.orbisLogo:hover {
   height: 140px;
 }
 
@@ -70,6 +70,7 @@ nav > a:hover {
 .material-icons {
   margin-right: 5px;
 }
+
 .dropdownContainer {
   position: relative;
   display: inline-block;
@@ -121,6 +122,45 @@ nav > a:hover {
 
 .dropdownMenu button:hover, .dropdownMenu a:hover {
   background-color: #000000;
+}
+
+.profileContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column; /* Stack avatar and nickname vertically */
+  align-items: center;  /* Center them horizontally */
+}
+
+.profileButton {
+  padding: 10px;
+  border-radius: 50%; /* Make it circular */
+  width: 50px; /* Adjust size as needed */
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: none;
+  border: none;
+  color: darkkhaki;
+  cursor: pointer;
+  font-size: 24px; /* Adjust icon size */
+  flex-direction: column; /* Stack the icon and nickname */
+}
+
+.profileButton:hover {
+  color: rgb(230, 221, 105);
+}
+
+.userNickname {
+  font-size: 14px; /* Adjust nickname size */
+  margin-top: 5px;  /* Add some space between the avatar and nickname */
+}
+
+.userAvatar {
+  width: 50px; /* Adjust as needed */
+  height: 50px;
+  border-radius: 50%; /* Make it circular */
+  object-fit: cover; /* Ensure the image fills the circle without distortion */
 }
 
 /* Media Query for Smaller Screens */

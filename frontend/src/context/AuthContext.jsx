@@ -1,16 +1,32 @@
+//  ========== Component imports  ========== //
+
 import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios'; // Using axios for API requests
+import axios from 'axios'; 
+
+///////////////////////////////////////////////////////////////////////
+// ========================= CREATE AUTH CONTEXT =================== //
+// ======================= AUTH PROVIDER COMPONENT ================= //
+///////////////////////////////////////////////////////////////////////
 
 // Create the AuthContext
 export const AuthContext = createContext(null);
 
 // AuthProvider component
 export const AuthProvider = ({ children }) => {
-  // State variables
+
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= STATE VARIABLES ======================= //
+  ///////////////////////////////////////////////////////////////////////
+
   const [user, setUser] = useState(null); // User object or null if not logged in
   const [loading, setLoading] = useState(true); // Loading state during initial check
 
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= USE EFFECT HOOK ======================= //
+  ///////////////////////////////////////////////////////////////////////
+
   // useEffect hook to check for existing user data on initial load
+
   useEffect(() => {
     const checkStoredUser = () => {
       try {
@@ -33,11 +49,15 @@ export const AuthProvider = ({ children }) => {
     checkStoredUser();
   }, []); // Run only once on initial load
 
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= LOGIN FUNCTION ======================== //
+  ///////////////////////////////////////////////////////////////////////
+
   // Login function
   const login = async (email, password) => {
     try {
       // Make API call to your backend to authenticate user
-      const response = await axios.post('/api/login', { email, password });
+      const response = await axios.post('http://localhost:4000/api/login', { email, password });
 
       // Check if the request was successful
       if (response.status === 200) {
@@ -63,6 +83,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= LOGOUT FUNCTION ======================= //
+  ///////////////////////////////////////////////////////////////////////
+
   // Logout function
   const logout = () => {
     // Clear user data from state and storage
@@ -70,6 +94,10 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
     console.log('Logout successful');
   };
+
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= CONTEXT VALUE ========================= //
+  ///////////////////////////////////////////////////////////////////////
 
   // Value object to be provided by the context
   const value = {
@@ -79,11 +107,17 @@ export const AuthProvider = ({ children }) => {
     logout,
   };
 
-  // Conditional rendering to display a loading indicator
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= LOADING STATE ========================= //
+  ///////////////////////////////////////////////////////////////////////
+
   if (loading) {
-    return <div>Loading...</div>; // Or a spinner component
+    return <div>Loading...</div>; 
   }
 
-  // Provide the AuthContext value to the children components
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= PROVIDE CONTEXT ======================= //
+  ///////////////////////////////////////////////////////////////////////
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
