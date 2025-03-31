@@ -2,8 +2,8 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import styles from "./MainNavBar.module.css";
-import { AuthContext } from "../../context/AuthContext"; // Import AuthContext
-import LoginModal from "../../auth/LoginModal"; // Import LoginModal component
+import { AuthContext } from "./context/AuthContext.jsx"; // Import AuthContext
+import LoginModal from "./auth/LoginModal.jsx"; // Import LoginModal component
 
 //  ========== Images imports  ========== //
 

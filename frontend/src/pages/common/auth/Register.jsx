@@ -1,7 +1,7 @@
 //  ========== Component imports  ========== //
 
 import React from 'react';
-import RegisterForm from '../../auth/RegisterForm'; // Import RegisterForm component
+import RegisterForm from './RegisterForm.jsx'; // Import RegisterForm component
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= JSX BELOW ============================= //
