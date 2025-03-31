@@ -1,6 +1,6 @@
 import './App.css'
 import { Routes, Route } from "react-router-dom"
-import { AuthProvider } from './pages/common/context/AuthContext.jsx'; // Import AuthProvider
+import { AuthProvider } from './pages/common/context/AuthContext.jsx'; 
 
 /* ========== Component Imports ========== */
 
@@ -8,7 +8,7 @@ import Home from './pages/home/Home.jsx'
 import Gallery from './pages/gallery/Gallery.jsx'
 import Shop from './pages/shop/Shop.jsx'
 import AboutUs from './pages/about-us/AboutUs.jsx'
-import Register from './pages/common/auth/Register.jsx' // Import Register
+import Register from './pages/common/auth/Register.jsx' 
 
 /* ====================================== */
 
