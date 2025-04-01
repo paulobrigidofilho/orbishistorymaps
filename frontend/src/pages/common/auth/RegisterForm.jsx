@@ -1,8 +1,8 @@
-//  ========== Component imports  ========== //
+//  ========== Component imports  ========== //
 
 import React, { useState } from 'react';
-import axios from 'axios'; 
-import './RegisterForm.module.css'; 
+import axios from 'axios';
+import './RegisterForm.module.css';
 
 //  ==========  useState section ========== //
 
@@ -58,6 +58,7 @@ function RegisterForm() {
         console.log('Avatar uploaded successfully');
         setAvatarUploaded(true);
         setAvatarPreview(response.data.avatarUrl); // Assuming backend returns the URL
+        setAvatar(response.data.avatarUrl); // Set the avatar state with the URL
       } else {
         setError('Avatar upload failed.');
       }
@@ -77,8 +78,30 @@ function RegisterForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Implement registration logic here (API call to your backend)
-    // Handle avatar upload, password hashing, etc.
+
+    try {
+      const response = await axios.post('/api/register', {
+        firstName,
+        lastName,
+        email,
+        password,
+        nickname,
+        avatar, // Send the avatar URL or null
+        address,
+        city,
+        zipCode,
+      });
+
+      if (response.status === 201) {
+        console.log('Registration successful');
+        // Redirect or show success message
+      } else {
+        setError('Registration failed');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setError('Registration failed');
+    }
   };
 
   ///////////////////////////////////////////////////////////////////////

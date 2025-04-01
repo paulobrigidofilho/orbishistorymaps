@@ -1,5 +1,4 @@
 // ======= Module imports ======= //
-
 const bcrypt = require('bcrypt');
 const userModel = require('../model/userModel');
 
@@ -7,18 +6,25 @@ const userModel = require('../model/userModel');
 
 const saltRounds = 10;
 
+// ======= DEFAULT AVATAR PATH ======= //
+
+const defaultAvatarPath = '/uploads/avatars/pre-set/default.png'; // Adjust path if needed
+
 const authController = {
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= REGISTER CONTROLLER =================== //
   ///////////////////////////////////////////////////////////////////////
-  
+
   register: async (req, res) => {
     try {
       const { firstName, lastName, email, password, nickname, avatar, address, city, zipCode } = req.body;
 
       // Hash the password
       const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      // Use default avatar if none provided
+      const userAvatar = avatar || defaultAvatarPath;
 
       // Create user data object
       const userData = {
@@ -27,7 +33,7 @@ const authController = {
         email,
         password: hashedPassword,
         nickname,
-        avatar,
+        avatar: userAvatar, // Use the determined avatar
         address,
         city,
         zipCode,
@@ -52,6 +58,7 @@ const authController = {
   ///////////////////////////////////////////////////////////////////////
   // ========================= LOGIN CONTROLLER ====================== //
   ///////////////////////////////////////////////////////////////////////
+
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -83,6 +90,9 @@ const authController = {
               return res.status(401).json({ message: 'Invalid credentials' });
             }
 
+            // Use default avatar if none provided
+            const userAvatar = user.USER_AVATAR || defaultAvatarPath;
+
             ///////////////////////////////////////////////////////////////////////
             // ========================= SUCCESSFUL LOGIN ====================== //
             ///////////////////////////////////////////////////////////////////////
@@ -93,10 +103,11 @@ const authController = {
               USER_LASTNAME: user.USER_LASTNAME,
               USER_EMAIL: user.USER_EMAIL,
               USER_NICKNAME: user.USER_NICKNAME,
-              USER_AVATAR: user.USER_AVATAR,
+              USER_AVATAR: userAvatar, // Use the determined avatar
             };
 
-            console.log('Login successful');
+            console.log('Login successful. Sending user profile:', userProfile); // User profile to be sent in the response
+
             return res.status(200).json({ message: 'Login successful', user: userProfile });
         } catch (compareError) {
             console.error("Error during bcrypt.compare:", compareError);

@@ -2,8 +2,8 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import styles from "./MainNavBar.module.css";
-import { AuthContext } from "./context/AuthContext.jsx"; 
-import LoginModal from "./auth/LoginModal.jsx"; 
+import { AuthContext } from "./context/AuthContext.jsx";
+import LoginModal from "./auth/LoginModal.jsx";
 
 //  ========== Images imports  ========== //
 
@@ -125,7 +125,7 @@ export default function MainNavBar() {
                 className={styles.profileButton}
               >
                 <img
-                  src={user.USER_AVATAR}
+                  src={"http://localhost:4000" + user.USER_AVATAR} 
                   alt="User Avatar"
                   className={styles.userAvatar}
                 />

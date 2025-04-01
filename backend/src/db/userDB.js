@@ -1,3 +1,7 @@
+///////////////////////////////////////////////////////////////////////
+// ======================== USER DATABASE ========================= //
+///////////////////////////////////////////////////////////////////////
+
 // ======= Module imports ======= //
 
 const mysql = require('mysql2');
@@ -21,7 +25,7 @@ const db = mysql.createConnection({
 db.connect((err) => {
   if (err) {
     console.error('Database connection error:', err);
-    throw err; // Throw the error to prevent the server from starting
+    throw err; 
   } else {
     console.log('Connected to database');
   }

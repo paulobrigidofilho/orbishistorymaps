@@ -16,13 +16,13 @@ function App() {
 
   return (
     <>
-      <AuthProvider> {/* Wrap Routes with AuthProvider */}
+      <AuthProvider> 
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/aboutus" element={<AboutUs />} />
-          <Route path="/register" element={<Register />} /> {/* Add Register route */}
+          <Route path="/register" element={<Register />} /> {/* Pending Register route... */}
         </Routes>
       </AuthProvider>
     </>

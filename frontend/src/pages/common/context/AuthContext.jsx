@@ -1,7 +1,5 @@
-//  ========== Component imports  ========== //
-
 import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios'; 
+import axios from 'axios';
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= CREATE AUTH CONTEXT =================== //
@@ -112,7 +110,7 @@ export const AuthProvider = ({ children }) => {
   ///////////////////////////////////////////////////////////////////////
 
   if (loading) {
-    return <div>Loading...</div>; 
+    return <div>Loading...</div>;
   }
 
   ///////////////////////////////////////////////////////////////////////
