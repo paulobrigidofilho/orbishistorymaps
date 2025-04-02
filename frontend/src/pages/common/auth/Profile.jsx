@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext'; // Import AuthContext
-import './RegisterForm.module.css';
+import styles from './Profile.module.css'; // Import CSS module for styling
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= PROFILE COMPONENT ======================== //
@@ -211,80 +211,133 @@ function Profile() {
     ///////////////////////////////////////////////////////////////////////
 
     return (
-        <form onSubmit={handleSubmit} className="register-form">
-            <h2>Edit Profile</h2>
-            {error && <div className="error">{error}</div>}
-            {successMessage && <div className="success">{successMessage}</div>} {/* Render success message */}
-            <input
-                type="text"
-                placeholder="First Name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-            />
-            <input
-                type="text"
-                placeholder="Last Name"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-            />
-            <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-                type="text"
-                placeholder="Nickname (Required)"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-            />
-            <label htmlFor="avatar-upload">Upload Avatar:</label>
-            <input
-                type="file"
-                id="avatar-upload"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                disabled={uploadingAvatar || avatarUploaded}
-            />
-            {avatarPreview && (
-                <div className="avatar-preview-container">
-                    <img
-                        src={avatarPreview}
-                        alt="Avatar Preview"
-                        className="avatar-preview"
-                    />
-                    {!avatarUploaded && (
-                        <button type="button" onClick={handleUploadAvatar} disabled={uploadingAvatar}>
-                            {uploadingAvatar ? 'Uploading...' : 'Upload'}
-                        </button>
-                    )}
-                    {avatarUploaded && (
-                        <button type="button" onClick={handleDeleteAvatar} className="delete-button">
-                            X
-                        </button>
-                    )}
-                </div>
-            )}
-            <input
-                type="text"
-                placeholder="Address (Optional)"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-            />
-            <input
-                type="text"
-                placeholder="City (Optional)"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-            />
-            <input
-                type="text"
-                placeholder="Zip Code (Optional)"
-                value={zipCode}
-                onChange={(e) => setZipCode(e.target.value)}
-            />
-            <button type="submit">Update Profile</button>
+        <form onSubmit={handleSubmit} className={styles.registerForm}>
+        
+            {/* =========== Section Header =========== */}
+            <h1 className={styles.editProfileTitle}>Edit Profile</h1>
+
+            {/* ============ PERSONAL DETAILS SECTION ============  */}
+
+            <div className={styles.inputContainer}>
+                
+                <h2 className={styles.inputHeader}>Personal Details</h2>
+
+                <p className={styles.inputLabel}>First Name:</p>
+                <input
+                    type="text"
+                    placeholder="First Name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className={styles.inputField}
+                />
+
+                <p className={styles.inputLabel}>Last Name:</p>
+                <input
+                    type="text"
+                    placeholder="Last Name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className={styles.inputField}
+                />
+
+                <p className={styles.inputLabel}>Email:</p>
+                <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={styles.inputField}
+                />
+
+            </div>
+
+            {/* ============ PROFILE & AVATAR SECTION ============  */}
+
+            <div className={styles.inputContainer}>
+                
+                <h2 className={styles.inputHeader}>Profile</h2>
+
+                {avatarPreview && (
+                    <div className={styles.avatarPreviewContainer}>
+                        <img
+                            src={avatarPreview}
+                            alt="Avatar Preview"
+                            className={styles.avatarPreview}
+                        />
+                        {!avatarUploaded && (
+                            <button type="button" onClick={handleUploadAvatar} disabled={uploadingAvatar} className={styles.uploadButton}>
+                                {uploadingAvatar ? 'Uploading...' : 'Upload'}
+                            </button>
+                        )}
+                        {avatarUploaded && (
+                            <button type="button" onClick={handleDeleteAvatar} className={styles.deleteButton}>
+                                X
+                            </button>
+                        )}
+                    </div>
+                )}
+
+                <label htmlFor="avatar-upload" className={styles.avatarLabel}>Upload Avatar:</label>
+                <input
+                    type="file"
+                    id="avatar-upload"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    disabled={uploadingAvatar || avatarUploaded}
+                    className={styles.inputField}
+                />
+
+                
+
+                <p className={styles.inputLabel}>Nickname:</p>
+                <input
+                    type="text"
+                    placeholder="Nickname (Required)"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    className={styles.inputField}
+                />
+
+            </div>
+
+            {/* ============ FULL ADDRESS SECTION ============  */}
+
+            <div className={styles.inputContainer}>
+                
+                <h2 className={styles.inputHeader}>Full Address</h2>
+
+                <p className={styles.inputLabel}>Address:</p>
+                <input
+                    type="text"
+                    placeholder="Address (Optional)"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className={styles.inputField}
+                />
+
+                <p className={styles.inputLabel}>City:</p>
+                <input
+                    type="text"
+                    placeholder="City (Optional)"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className={styles.inputField}
+                />
+
+                <p className={styles.inputLabel}>Zip Code:</p>
+                <input
+                    type="text"
+                    placeholder="Zip Code (Optional)"
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
+                    className={styles.inputField}
+                />
+            </div>
+
+            <button type="submit" className={styles.registerButton}>Update Profile</button>
+
+            {error && <div className={styles.error}>{error}</div>}
+            {successMessage && <div className={styles.success}>{successMessage}</div>}
         </form>
     );
 }
