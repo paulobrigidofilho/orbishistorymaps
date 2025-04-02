@@ -9,6 +9,7 @@ import Gallery from './pages/gallery/Gallery.jsx'
 import Shop from './pages/shop/Shop.jsx'
 import AboutUs from './pages/about-us/AboutUs.jsx'
 import Register from './pages/common/auth/Register.jsx' 
+import Profile from './pages/common/auth/Profile.jsx' 
 
 /* ====================================== */
 
@@ -22,7 +23,8 @@ function App() {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/aboutus" element={<AboutUs />} />
-          <Route path="/register" element={<Register />} /> {/* Pending Register route... */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile/:userId" element={<Profile />} />
         </Routes>
       </AuthProvider>
     </>

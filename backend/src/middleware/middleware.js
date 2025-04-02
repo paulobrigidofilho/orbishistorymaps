@@ -31,6 +31,7 @@ const setupMiddleware = (app) => {
 
   try {
     app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
     // console.log('JSON body parser middleware configured successfully.');
   } catch (error) {
     console.error('Error configuring JSON body parser middleware:', error.message);

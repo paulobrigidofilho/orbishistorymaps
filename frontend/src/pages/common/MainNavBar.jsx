@@ -136,7 +136,7 @@ export default function MainNavBar() {
               
               {isProfileDropdownOpen && (
                 <div className={styles.dropdownMenu}>
-                  <NavLink to="/profile">Edit Profile</NavLink>
+                  <NavLink to={`/profile/${user.USER_ID}`}>Edit Profile</NavLink>
                   <button onClick={handleLogout}>Log Out</button>
                 </div>
               )}

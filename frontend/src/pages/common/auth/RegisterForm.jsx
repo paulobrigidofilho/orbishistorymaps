@@ -1,12 +1,12 @@
 //  ========== Component imports  ========== //
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import './RegisterForm.module.css';
 
-//  ==========  useState section ========== //
+// ========================= REGISTER FORM COMPONENT ======================== //
 
 function RegisterForm() {
+  // ========================= STATE VARIABLES ========================= //
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -15,14 +15,18 @@ function RegisterForm() {
   const [nickname, setNickname] = useState('');
   const [avatar, setAvatar] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false); // Track upload state
-  const [avatarUploaded, setAvatarUploaded] = useState(false); // Track upload success
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarUploaded, setAvatarUploaded] = useState(false);
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [error, setError] = useState('');
 
-  //  ==========  FUNCTIONS SECTION ========== //
+  ///////////////////////////////////////////////////////////////////////
+  // ==================== EVENT HANDLERS SECTION ===================== //
+  ///////////////////////////////////////////////////////////////////////
+
+  // ==================== AVATAR CHANGE HANDLER ==================== //
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
@@ -35,6 +39,8 @@ function RegisterForm() {
     }
   };
 
+  // ========================= UPLOAD AVATAR ========================= //
+
   const handleUploadAvatar = async () => {
     if (!avatar) {
       setError('Please select an avatar to upload.');
@@ -46,9 +52,9 @@ function RegisterForm() {
 
     try {
       const formData = new FormData();
-      formData.append('avatar', avatar); // 'avatar' is the field name your backend expects
+      formData.append('avatar', avatar);
 
-      const response = await axios.post('/api/upload-avatar', formData, { // Replace with your backend endpoint
+      const response = await axios.post('/api/upload-avatar', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -57,18 +63,20 @@ function RegisterForm() {
       if (response.status === 200) {
         console.log('Avatar uploaded successfully');
         setAvatarUploaded(true);
-        setAvatarPreview(response.data.avatarUrl); // Assuming backend returns the URL
-        setAvatar(response.data.avatarUrl); // Set the avatar state with the URL
+        setAvatarPreview(response.data.avatarUrl);
+        setAvatar(response.data.avatarUrl);
       } else {
-        setError('Avatar upload failed.');
+        setError('Avatar upload failed: ' + response.data.message);
       }
     } catch (error) {
       console.error('Avatar upload error:', error);
-      setError('Avatar upload failed.');
+      setError('Avatar upload failed: ' + error.message);
     } finally {
       setUploadingAvatar(false);
     }
   };
+
+  // ========================== DELETE AVATAR ========================= //
 
   const handleDeleteAvatar = () => {
     setAvatar(null);
@@ -76,8 +84,37 @@ function RegisterForm() {
     setAvatarUploaded(false);
   };
 
+  // ========================= FORM SUBMISSION ========================= //
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    let avatarUrl = avatar;
+
+    if (!avatarUrl && avatar) { // Only upload if a new avatar is chosen
+      try {
+        const formData = new FormData();
+        formData.append('avatar', avatar);
+
+        const response = await axios.post('/api/upload-avatar', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        if (response.status === 200) {
+          avatarUrl = response.data.avatarUrl;
+        } else {
+          setError('Avatar upload failed: ' + (response.data?.message || 'Unknown Error'));
+          return;
+        }
+      } catch (uploadError) {
+        console.error("Avatar upload error:", uploadError);
+        setError('Avatar upload failed: ' + (uploadError.response?.data?.message || uploadError.message || 'Unknown Error'));
+        return;
+      }
+    }
 
     try {
       const response = await axios.post('/api/register', {
@@ -85,8 +122,9 @@ function RegisterForm() {
         lastName,
         email,
         password,
+        confirmPassword,
         nickname,
-        avatar, // Send the avatar URL or null
+        avatar: avatarUrl,
         address,
         city,
         zipCode,
@@ -94,13 +132,13 @@ function RegisterForm() {
 
       if (response.status === 201) {
         console.log('Registration successful');
-        // Redirect or show success message
+        // Redirect to login or profile page after successful registration
       } else {
-        setError('Registration failed');
+        setError(response.data?.message || 'Registration failed');
       }
-    } catch (error) {
-      console.error('Registration error:', error);
-      setError('Registration failed');
+    } catch (registerError) {
+      console.error('Registration error:', registerError);
+      setError(registerError.response?.data?.message || registerError.message || 'Registration failed');
     }
   };
 
@@ -182,13 +220,13 @@ function RegisterForm() {
       />
       <input
         type="text"
-        placeholder="City (Optional)"
+        placeholder="City"
         value={city}
         onChange={(e) => setCity(e.target.value)}
       />
       <input
         type="text"
-        placeholder="Zip Code (Optional)"
+        placeholder="Zip Code"
         value={zipCode}
         onChange={(e) => setZipCode(e.target.value)}
       />
