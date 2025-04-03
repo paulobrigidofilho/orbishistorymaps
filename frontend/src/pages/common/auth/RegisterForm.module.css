@@ -9,6 +9,13 @@
   margin: 0 auto;
 }
 
+.RegisterTitle {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center; 
+}
+
 .inputContainer {
   margin-bottom: 20px;
   padding: 15px;

@@ -129,6 +129,7 @@ export default function MainNavBar() {
                   alt="User Avatar"
                   className={styles.userAvatar}
                 />
+                
                 <div className={styles.userNickname}>{user.USER_NICKNAME}</div>
               </button>
 

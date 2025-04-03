@@ -1,3 +1,5 @@
+//  ========== Component imports  ========== //
+
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
@@ -5,13 +7,13 @@ import { AuthContext } from '../context/AuthContext'; // Import AuthContext
 import styles from './Profile.module.css'; // Import CSS module for styling
 
 ///////////////////////////////////////////////////////////////////////
-// ========================= PROFILE COMPONENT ======================== //
+// ========================= PROFILE COMPONENT ===================== //
 ///////////////////////////////////////////////////////////////////////
 
 function Profile() {
 
     ///////////////////////////////////////////////////////////////////////
-    // ========================= STATE VARIABLES ========================= //
+    // ========================= STATE VARIABLES ======================= //
     ///////////////////////////////////////////////////////////////////////
 
     const [firstName, setFirstName] = useState('');
@@ -26,13 +28,13 @@ function Profile() {
     const [city, setCity] = useState('');
     const [zipCode, setZipCode] = useState('');
     const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState(''); // State for success message
-    const [currentUserId, setCurrentUserId] = useState(''); // User ID
-    const { user, setUser } = useContext(AuthContext); // Get user and setUser from context
-    const { userId: profileId } = useParams(); // Get userId from URL
+    const [successMessage, setSuccessMessage] = useState(''); 
+    const [currentUserId, setCurrentUserId] = useState(''); 
+    const { user, setUser } = useContext(AuthContext);
+    const { userId: profileId } = useParams(); 
 
     ///////////////////////////////////////////////////////////////////////
-    // ========================= USE EFFECT HOOK ========================= //
+    // ========================= USE EFFECT HOOK ======================= //
     ///////////////////////////////////////////////////////////////////////
 
     useEffect(() => {
@@ -49,10 +51,8 @@ function Profile() {
                 console.log("Raw response data:", response.data);   // Add log - Inspect the entire response
 
                 if (response.status === 200) {
-                    // Log before the check
-                    console.log("Checking response.data.user:", response.data ? response.data.user : 'response.data is falsy');
 
-                    if (response.data && response.data.user) { // <---- ADD THIS CHECK (ALREADY PRESENT, KEEP IT!)
+                    if (response.data && response.data.user) { 
                         const userData = response.data.user;
                         setFirstName(userData.USER_FIRSTNAME || '');
                         setLastName(userData.USER_LASTNAME || '');
@@ -105,6 +105,8 @@ function Profile() {
     // ========================= AVATAR HANDLERS ======================= //
     ///////////////////////////////////////////////////////////////////////
 
+    // ================== Avatar Upload Handler ================== //
+
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         setAvatar(file);
@@ -116,6 +118,8 @@ function Profile() {
         }
     };
 
+    // ================== Avatar Upload Function ================== //
+
     const handleUploadAvatar = async () => {
         if (!avatar) {
             setError('Please select an avatar to upload.');
@@ -126,12 +130,12 @@ function Profile() {
         setError('');
 
         try {
-            const formData = new FormData();
-            formData.append('avatar', avatar);
+            const formData = new FormData(); // Create a new FormData object
+            formData.append('avatar', avatar); // Append the file to the form data
 
-            const response = await axios.post(`/api/upload-avatar/${profileId}`, formData, {  // Use formData here
+            const response = await axios.post(`/api/upload-avatar/${profileId}`, formData, {  
                 headers: {
-                    'Content-Type': 'multipart/form-data', // Important for file uploads
+                    'Content-Type': 'multipart/form-data', // Set the content type to multipart/form-data
                 },
             });
 
@@ -173,7 +177,7 @@ function Profile() {
                 lastName,
                 email,
                 nickname,
-                avatar, // Send the URL
+                avatar, 
                 address,
                 city,
                 zipCode,
@@ -181,17 +185,17 @@ function Profile() {
 
             if (response.status === 200) {
                 console.log('Profile updated successfully');
-                setSuccessMessage('Profile updated successfully!'); // Set success message
-                // Update user context if the updated profile matches the current user
-                if (user && setUser && user.USER_ID === currentUserId) {
-                    console.log("setUser function:", setUser); // Add this line
+                setSuccessMessage('Profile updated successfully!'); 
+
+                if (user && setUser && user.USER_ID === currentUserId) { // Check if the user is the same as the one being updated
+                    console.log("setUser function:", setUser); 
                     setUser({
                         ...user,
                         USER_FIRSTNAME: firstName,
                         USER_LASTNAME: lastName,
                         USER_EMAIL: email,
                         USER_NICKNAME: nickname,
-                        USER_AVATAR: avatar, // Update with the Avatar URL
+                        USER_AVATAR: avatar, 
                         USER_ADDRESS: address,
                         USER_CITY: city,
                         USER_ZIPCODE: zipCode,
@@ -212,14 +216,13 @@ function Profile() {
 
     return (
         <form onSubmit={handleSubmit} className={styles.registerForm}>
-        
-            {/* =========== Section Header =========== */}
+
+            {/* ============ Section Header =========== */}
             <h1 className={styles.editProfileTitle}>Edit Profile</h1>
 
             {/* ============ PERSONAL DETAILS SECTION ============  */}
 
             <div className={styles.inputContainer}>
-                
                 <h2 className={styles.inputHeader}>Personal Details</h2>
 
                 <p className={styles.inputLabel}>First Name:</p>
@@ -254,7 +257,7 @@ function Profile() {
             {/* ============ PROFILE & AVATAR SECTION ============  */}
 
             <div className={styles.inputContainer}>
-                
+
                 <h2 className={styles.inputHeader}>Profile</h2>
 
                 {avatarPreview && (
@@ -264,32 +267,28 @@ function Profile() {
                             alt="Avatar Preview"
                             className={styles.avatarPreview}
                         />
-                        {!avatarUploaded && (
-                            <button type="button" onClick={handleUploadAvatar} disabled={uploadingAvatar} className={styles.uploadButton}>
-                                {uploadingAvatar ? 'Uploading...' : 'Upload'}
-                            </button>
-                        )}
-                        {avatarUploaded && (
-                            <button type="button" onClick={handleDeleteAvatar} className={styles.deleteButton}>
-                                X
-                            </button>
-                        )}
+
                     </div>
                 )}
 
-                <label htmlFor="avatar-upload" className={styles.avatarLabel}>Upload Avatar:</label>
-                <input
-                    type="file"
-                    id="avatar-upload"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    disabled={uploadingAvatar || avatarUploaded}
-                    className={styles.inputField}
-                />
+                <div className={styles.uploadAvatarSection}>
+                  <label htmlFor="avatar-upload" className={styles.avatarLabel}>Avatar:</label>
+                  <input
+                      type="file"
+                      id="avatar-upload"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      disabled={uploadingAvatar || avatarUploaded}
+                      className={styles.inputField}
+                  />
+                  {!avatarUploaded && (
+                      <button type="button" onClick={handleUploadAvatar} disabled={uploadingAvatar} className={styles.uploadButton}>
+                          {uploadingAvatar ? 'Uploading...' : 'Upload'}
+                      </button>
+                  )}
+                </div>
 
-                
-
-                <p className={styles.inputLabel}>Nickname:</p>
+                <p className={styles.inputLabelNick}>Nickname:</p>
                 <input
                     type="text"
                     placeholder="Nickname (Required)"
@@ -303,7 +302,6 @@ function Profile() {
             {/* ============ FULL ADDRESS SECTION ============  */}
 
             <div className={styles.inputContainer}>
-                
                 <h2 className={styles.inputHeader}>Full Address</h2>
 
                 <p className={styles.inputLabel}>Address:</p>
@@ -336,8 +334,10 @@ function Profile() {
 
             <button type="submit" className={styles.registerButton}>Update Profile</button>
 
+            {/*Alert Messages */}
             {error && <div className={styles.error}>{error}</div>}
             {successMessage && <div className={styles.success}>{successMessage}</div>}
+            
         </form>
     );
 }

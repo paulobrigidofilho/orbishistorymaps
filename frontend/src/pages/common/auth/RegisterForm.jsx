@@ -1,11 +1,15 @@
 //  ========== Component imports  ========== //
-import React, { useState } from "react";
+
+import React, { useState, useContext } from "react";
 import axios from "axios";
-import styles from "./RegisterForm.module.css"; // Import your CSS module for styling
+import styles from "./RegisterForm.module.css";
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from "../context/AuthContext.jsx";
 
 // ========================= REGISTER FORM COMPONENT ======================== //
 
 function RegisterForm() {
+
   // ========================= STATE VARIABLES ========================= //
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -22,6 +26,10 @@ function RegisterForm() {
   const [zipCode, setZipCode] = useState("");
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState(""); // State for success message
+  const [registrationSuccess, setRegistrationSuccess] = useState(false); // New state
+  const navigate = useNavigate(); // Initialize useNavigate
+  const { setUser } = useContext(AuthContext); // Get setUser from context
+
 
   ///////////////////////////////////////////////////////////////////////
   // ==================== EVENT HANDLERS SECTION ===================== //
@@ -30,14 +38,14 @@ function RegisterForm() {
   // ==================== AVATAR CHANGE HANDLER ==================== //
 
   const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    setAvatar(file);
+      const file = e.target.files[0];
+      setAvatar(file);
 
-    if (file) {
-      setAvatarPreview(URL.createObjectURL(file));
-    } else {
-      setAvatarPreview(null);
-    }
+      if (file) {
+          setAvatarPreview(URL.createObjectURL(file));
+      } else {
+          setAvatarPreview(null);
+      }
   };
 
   // ========================= UPLOAD AVATAR ========================= //
@@ -88,75 +96,73 @@ function RegisterForm() {
   // ========================= FORM SUBMISSION ========================= //
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccessMessage(""); // Clear any previous success message
+      e.preventDefault();
+      setError("");
+      setSuccessMessage("");
 
-    let avatarUrl = avatar;
+      let avatarUrl = avatar; // Default to the file object if avatar is not uploaded
 
-    if (!avatarUrl && avatar) {
-      // Only upload if a new avatar is chosen
+      if (!avatarUrl && avatar) { // If avatar is uploaded, use the URL from the preview
+        setAvatar(null);
+        setAvatarPreview(null);
+        setAvatarUploaded(false);
+      }
+
       try {
-        const formData = new FormData();
-        formData.append("avatar", avatar);
+          const response = await axios.post("/api/register", {
+              firstName, lastName, email, password, confirmPassword, nickname,
+              avatar: avatarUrl, address, city, zipCode,
+          });
 
-        const response = await axios.post("/api/upload-avatar", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+          if (response.status === 201) {
+              console.log("Full registration response:", response); // Log the entire response object
 
-        if (response.status === 200) {
-          avatarUrl = response.data.avatarUrl;
-        } else {
-          setError(
-            "Avatar upload failed: " +
-              (response.data?.message || "Unknown Error")
-          );
-          return;
-        }
-      } catch (uploadError) {
-        console.error("Avatar upload error:", uploadError);
-        setError(
-          "Avatar upload failed: " +
-            (uploadError.response?.data?.message ||
-              uploadError.message ||
-              "Unknown Error")
-        );
-        return;
+              // Ensure response.data.user exists and has USER_ID
+              if (!response.data || !response.data.user || !response.data.user.USER_ID) {
+                  setError("Registration successful, but invalid user data received. Check backend response.");
+                  console.error("Invalid response format:", response.data);
+                  return;
+              }
+
+              // ========== Set new user object ========== //
+              // Create a new user object with the data from the response
+
+              const newUser = {
+                  USER_ID: response.data.user.USER_ID, // Get USER_ID from response
+                  USER_FIRSTNAME: firstName,
+                  USER_LASTNAME: lastName,
+                  USER_EMAIL: email,
+                  USER_NICKNAME: nickname,
+                  USER_AVATAR: response.data.user.USER_AVATAR || avatarUrl, // Use the uploaded avatar URL or the default one
+                  USER_ADDRESS: address,
+                  USER_CITY: city,
+                  USER_ZIPCODE: zipCode,
+              };
+              setUser(newUser);
+
+              setRegistrationSuccess(true); // Redirect after setting user
+          } else {
+              setError(response.data?.message || "Registration failed");
+          }
+      } catch (registerError) {
+        console.error("Full registration error:", registerError);
+        console.error("Response data:", registerError.response?.data);
+        setError(registerError.response?.data?.message || registerError.message || "Registration failed");
       }
-    }
-
-    try {
-      const response = await axios.post("/api/register", {
-        firstName,
-        lastName,
-        email,
-        password,
-        confirmPassword,
-        nickname,
-        avatar: avatarUrl,
-        address,
-        city,
-        zipCode,
-      });
-
-      if (response.status === 201) {
-        console.log("Registration successful");
-        setSuccessMessage("Registration successful!"); // Display success message
-        // Redirect to login or profile page after successful registration
-      } else {
-        setError(response.data?.message || "Registration failed");
-      }
-    } catch (registerError) {
-      console.error("Registration error:", registerError);
-      setError(
-        registerError.response?.data?.message ||
-          registerError.message ||
-          "Registration failed"
-      );
-    }
   };
+
+  // ========================= REDIRECT USE EFFECT ========================= //
+  React.useEffect(() => {
+      if (registrationSuccess) {
+          setSuccessMessage("Registration successful! Directing back to home...");
+
+          const timeoutId = setTimeout(() => {
+              navigate('/');
+          }, 3000);
+
+          return () => clearTimeout(timeoutId);
+      }
+  }, [registrationSuccess, navigate]);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
@@ -164,6 +170,10 @@ function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} className={styles.registerForm}>
+
+      {/* ============ Section Header =========== */}
+      <h1 className={styles.RegisterTitle}>Register</h1>
+
       {/* ============ PERSONAL DETAILS SECTION ============  */}
 
       <div className={styles.inputContainer}>

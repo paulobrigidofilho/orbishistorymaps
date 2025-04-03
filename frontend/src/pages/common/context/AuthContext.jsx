@@ -1,5 +1,5 @@
-import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { createContext, useState, useEffect } from "react";
+import axios from "axios";
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= CREATE AUTH CONTEXT =================== //
@@ -11,13 +11,18 @@ export const AuthContext = createContext(null);
 
 // AuthProvider component
 export const AuthProvider = ({ children }) => {
-
+    
   ///////////////////////////////////////////////////////////////////////
   // ========================= STATE VARIABLES ======================= //
   ///////////////////////////////////////////////////////////////////////
 
-  const [user, setUser] = useState(null); // User object or null if not logged in
-  const [loading, setLoading] = useState(true); // Loading state during initial check
+  const [user, setUser] = useState(() => {
+    // Get user from localStorage on initial load
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
+  const [loading, setLoading] = useState(true);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -26,26 +31,19 @@ export const AuthProvider = ({ children }) => {
   // useEffect hook to check for existing user data on initial load
 
   useEffect(() => {
-    const checkStoredUser = () => {
-      try {
-        // Check for user data in local storage
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          // Parse the stored user data
-          const parsedUser = JSON.parse(storedUser);
-          setUser(parsedUser);
-        }
-      } catch (error) {
-        console.error('Error checking stored user:', error);
-        localStorage.removeItem('user'); // Clear local storage on error
-        setUser(null);
-      } finally {
-        setLoading(false); // Set loading to false regardless of success or failure
-      }
-    };
+    // Update localStorage whenever user changes
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [user]);
 
-    checkStoredUser();
-  }, []); // Run only once on initial load
+  useEffect(() => {
+    // New useEffect to handle initial loading
+    // Set loading to false after initial check, regardless of whether a user is found
+    setLoading(false);
+  }, []);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= LOGIN FUNCTION ======================== //
@@ -55,29 +53,30 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       // Make API call to your backend to authenticate user
-      const response = await axios.post('http://localhost:4000/api/login', { email, password });
+      const response = await axios.post("http://localhost:4000/api/login", {
+        email,
+        password,
+      });
 
-      // Check if the request was successful
       if (response.status === 200) {
-        // Get the user data from the response
-        const userProfile = response.data.user;
+        // Check if login was successful
+
+        const userProfile = response.data.user; // return user profile from response
 
         // Set the user in the context
         setUser(userProfile);
 
         // Store the user data in local storage
-        localStorage.setItem('user', JSON.stringify(userProfile));
-
-        console.log('Login successful');
+        localStorage.setItem("user", JSON.stringify(userProfile));
       } else {
         // Handle unsuccessful login
-        console.error('Login failed:', response.data.message);
-        throw new Error(response.data.message || 'Login failed');
+        console.error("Login failed:", response.data.message);
+        throw new Error(response.data.message || "Login failed");
       }
     } catch (error) {
       // Handle network errors or other exceptions
-      console.error('Login error:', error);
-      throw new Error(error.response?.data?.message || 'Login failed'); // Use backend error message if available
+      console.error("Login error:", error);
+      throw new Error(error.response?.data?.message || "Login failed");
     }
   };
 
@@ -89,8 +88,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     // Clear user data from state and storage
     setUser(null);
-    localStorage.removeItem('user');
-    console.log('Logout successful');
+    localStorage.removeItem("user");
   };
 
   ///////////////////////////////////////////////////////////////////////
@@ -103,6 +101,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
+    setUser, // Make setUser available in the context
   };
 
   ///////////////////////////////////////////////////////////////////////
