@@ -47,8 +47,6 @@ function Profile() {
             try {
                 const response = await axios.get(`/api/profile/${profileId}`); // Fetch user data from backend
 
-                console.log("Raw response status:", response.status); // Add log - Check the HTTP status
-                console.log("Raw response data:", response.data);   // Add log - Inspect the entire response
 
                 if (response.status === 200) {
 
@@ -75,10 +73,11 @@ function Profile() {
                     setError(`Failed to load profile data (Status: ${response.status})`);
                 }
             } catch (error) {
+
                 console.error('Error fetching profile data:', error);
+
                 if (error.response) {
-                    // The request was made and the server responded with a status code
-                    // that falls out of the range of 2xx
+                    // The request was made and the server responded with a status code that falls out of the range of 2xx
                     console.error("Error response data:", error.response.data);
                     console.error("Error response status:", error.response.status);
                     setError(`Failed to load profile data (Server Error: ${error.response.status}) - ${error.response.data.message || 'No message'}`);
@@ -94,12 +93,12 @@ function Profile() {
             }
         };
 
-        if (profileId) {
+        if (profileId) { // Check if profileId is available in the URL
             fetchUserData();
         } else {
             setError('User ID not found in URL');
         }
-    }, [profileId, user, setUser]); // <---- ADD setUser to the dependency array
+    }, [profileId, user, setUser]); // Fetch user data when component mounts or profileId changes
 
     ///////////////////////////////////////////////////////////////////////
     // ========================= AVATAR HANDLERS ======================= //
