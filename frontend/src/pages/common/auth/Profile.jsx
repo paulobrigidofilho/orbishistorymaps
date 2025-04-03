@@ -39,9 +39,6 @@ function Profile() {
 
     useEffect(() => {
         // Fetch user data on component mount
-        console.log("Profile component mounted/updated.");
-        console.log("profileId:", profileId);
-        console.log("user from AuthContext:", user);
 
         const fetchUserData = async () => {
             try {
@@ -183,11 +180,10 @@ function Profile() {
             });
 
             if (response.status === 200) {
-                console.log('Profile updated successfully');
                 setSuccessMessage('Profile updated successfully!'); 
 
                 if (user && setUser && user.USER_ID === currentUserId) { // Check if the user is the same as the one being updated
-                    console.log("setUser function:", setUser); 
+                    
                     setUser({
                         ...user,
                         USER_FIRSTNAME: firstName,
