@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 500px; 
+  max-width: 500px;
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -13,7 +13,7 @@
   font-size: 2em;
   margin-bottom: 20px;
   color: #333;
-  text-align: center; 
+  text-align: center;
 }
 
 .inputContainer {
@@ -45,7 +45,7 @@
   border-radius: 4px;
   font-size: 16px;
   width: 100%;
-  box-sizing: border-box; 
+  box-sizing: border-box;
 }
 
 .inputField:focus {
@@ -58,14 +58,19 @@
   margin-bottom: 5px;
   font-weight: bold;
   color: #333;
-  display: block; 
+  display: block;
+}
+
+.avatarInputContainer {
+  display: flex;
+  align-items: center;
 }
 
 .avatarPreviewContainer {
   margin-top: 10px;
   display: flex;
   flex-direction: column;
-  align-items: center; 
+  align-items: center;
 }
 
 .avatarPreview {
@@ -76,29 +81,20 @@
   margin-bottom: 10px;
 }
 
-.uploadButton,
-.deleteButton {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-}
-
-.uploadButton {
-  background-color: #28a745;
-  color: white;
-}
-
-.uploadButton:hover {
-  background-color: #218838;
+.avatarErrorMessage {
+  color: red;
+  font-size: 0.8em;
+  margin-bottom:10px;
 }
 
 .deleteButton {
   background-color: #dc3545;
   color: white;
-  margin-left: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 5px 10px;
+  margin-left: 10px; /* Space between input and button */
 }
 
 .deleteButton:hover {
@@ -114,7 +110,7 @@
   cursor: pointer;
   font-size: 18px;
   transition: background-color 0.3s ease;
-  margin-top: 20px; 
+  margin-top: 20px;
 }
 
 .registerButton:hover {
@@ -139,7 +135,8 @@
   background-color: #e6ffe6;
 }
 
-.error, .success {
+.error,
+.success {
   margin-top: 30px;
 }
 

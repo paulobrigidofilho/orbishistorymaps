@@ -28,27 +28,24 @@ const userModel = {
   ///////////////////////////////////////////////////////////////////////
 
   createUser: (userData, callback) => {
-    const userWithDefaultAvatar = {
-      ...userData,
-      USER_AVATAR:
-        userData.USER_AVATAR || "/uploads/avatars/pre-set/default.png",
-    };
-
+    console.log("createUser called with:", userData);
+  
     const query =
       "INSERT INTO users (USER_ID, USER_FIRSTNAME, USER_LASTNAME, USER_EMAIL, USER_PASSWORD, USER_NICKNAME, USER_AVATAR, USER_ADDRESS, USER_CITY, USER_ZIPCODE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  
     userDB.query(
       query,
       [
-        userWithDefaultAvatar.USER_ID,
-        userWithDefaultAvatar.firstName,
-        userWithDefaultAvatar.lastName,
-        userWithDefaultAvatar.email,
-        userWithDefaultAvatar.password,
-        userWithDefaultAvatar.nickname,
-        userWithDefaultAvatar.USER_AVATAR,
-        userWithDefaultAvatar.address,
-        userWithDefaultAvatar.city,
-        userWithDefaultAvatar.zipCode,
+        userData.USER_ID,
+        userData.firstName,
+        userData.lastName,
+        userData.email,
+        userData.password,
+        userData.nickname,
+        userData.avatar, 
+        userData.address,
+        userData.city,
+        userData.zipCode,
       ],
       (err, result) => {
         if (err) {

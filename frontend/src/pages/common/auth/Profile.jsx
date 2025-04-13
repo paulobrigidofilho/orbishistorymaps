@@ -12,329 +12,222 @@ import styles from './Profile.module.css'; // Import CSS module for styling
 
 function Profile() {
 
-    ///////////////////////////////////////////////////////////////////////
-    // ========================= STATE VARIABLES ======================= //
-    ///////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= STATE VARIABLES ======================= //
+  ///////////////////////////////////////////////////////////////////////
 
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [email, setEmail] = useState('');
-    const [nickname, setNickname] = useState('');
-    const [avatar, setAvatar] = useState(null);
-    const [avatarPreview, setAvatarPreview] = useState(null);
-    const [uploadingAvatar, setUploadingAvatar] = useState(false);
-    const [avatarUploaded, setAvatarUploaded] = useState(false);
-    const [address, setAddress] = useState('');
-    const [city, setCity] = useState('');
-    const [zipCode, setZipCode] = useState('');
-    const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState(''); 
-    const [currentUserId, setCurrentUserId] = useState(''); 
-    const { user, setUser } = useContext(AuthContext);
-    const { userId: profileId } = useParams(); 
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [avatar, setAvatar] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [zipCode, setZipCode] = useState('');
+  const [error, setError] = useState('');
+  const [avatarError, setAvatarError] = useState(''); // State for avatar error message
+  const [successMessage, setSuccessMessage] = useState('');
+  const [currentUserId, setCurrentUserId] = useState('');
+  const { user, setUser } = useContext(AuthContext);
+  const { userId: profileId } = useParams();
 
-    ///////////////////////////////////////////////////////////////////////
-    // ========================= USE EFFECT HOOK ======================= //
-    ///////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= USE EFFECT HOOK ======================= //
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`/api/profile/${profileId}`);
 
-    useEffect(() => {
-        // Fetch user data on component mount
-
-        const fetchUserData = async () => {
-            try {
-                const response = await axios.get(`/api/profile/${profileId}`); // Fetch user data from backend
-
-
-                if (response.status === 200) {
-
-                    if (response.data && response.data.user) { 
-                        const userData = response.data.user;
-                        setFirstName(userData.USER_FIRSTNAME || '');
-                        setLastName(userData.USER_LASTNAME || '');
-                        setEmail(userData.USER_EMAIL || '');
-                        setNickname(userData.USER_NICKNAME || '');
-                        setAvatar(userData.USER_AVATAR || null); //Store the Avatar URL
-                        setAvatarPreview(userData.USER_AVATAR || null); //Store the Avatar URL
-                        setAddress(userData.USER_ADDRESS || '');
-                        setCity(userData.USER_CITY || '');
-                        setZipCode(userData.USER_ZIPCODE || '');
-                        setCurrentUserId(userData.USER_ID || '');
-                    } else {
-                        setError('Failed to load profile data: User data is missing');
-                        console.error('Backend response OK (200), but user data key is missing or falsy in:', response.data); // Add detailed log
-                    }
-                } else if (response.status === 404) {
-                    setError('Profile not found'); // Handle 404 explicitly
-                }
-                else {
-                    setError(`Failed to load profile data (Status: ${response.status})`);
-                }
-            } catch (error) {
-
-                console.error('Error fetching profile data:', error);
-
-                if (error.response) {
-                    // The request was made and the server responded with a status code that falls out of the range of 2xx
-                    console.error("Error response data:", error.response.data);
-                    console.error("Error response status:", error.response.status);
-                    setError(`Failed to load profile data (Server Error: ${error.response.status}) - ${error.response.data.message || 'No message'}`);
-                } else if (error.request) {
-                    // The request was made but no response was received
-                    console.error("Error request:", error.request);
-                    setError('Failed to load profile data: No response from server');
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    console.error('Error message:', error.message);
-                    setError('Failed to load profile data: Request setup error');
-                }
-            }
-        };
-
-        if (profileId) { // Check if profileId is available in the URL
-            fetchUserData();
+        if (response.status === 200 && response.data.user) {
+          const userData = response.data.user;
+          setFirstName(userData.USER_FIRSTNAME || '');
+          setLastName(userData.USER_LASTNAME || '');
+          setEmail(userData.USER_EMAIL || '');
+          setNickname(userData.USER_NICKNAME || '');
+          setAvatar(userData.USER_AVATAR || null);
+          setAvatarPreview(userData.USER_AVATAR ? "http://localhost:4000" + userData.USER_AVATAR : null);
+          setAddress(userData.USER_ADDRESS || '');
+          setCity(userData.USER_CITY || '');
+          setZipCode(userData.USER_ZIPCODE || '');
+          setCurrentUserId(userData.USER_ID || '');
         } else {
-            setError('User ID not found in URL');
+          setError(response.status === 404 ? 'Profile not found' : 'Failed to load profile data');
+          console.error('Fetch profile failed:', response);
         }
-    }, [profileId, user, setUser]); // Fetch user data when component mounts or profileId changes
-
-    ///////////////////////////////////////////////////////////////////////
-    // ========================= AVATAR HANDLERS ======================= //
-    ///////////////////////////////////////////////////////////////////////
-
-    // ================== Avatar Upload Handler ================== //
-
-    const handleAvatarChange = (e) => {
-        const file = e.target.files[0];
-        setAvatar(file);
-
-        if (file) {
-            setAvatarPreview(URL.createObjectURL(file));
-        } else {
-            setAvatarPreview(null);
-        }
+      } catch (err) {
+        setError('Failed to fetch profile');
+        console.error('Fetch profile error', err);
+      }
     };
 
-    // ================== Avatar Upload Function ================== //
+    if (profileId) fetchUserData();
+    else setError('Profile ID is required');
+  }, [profileId, user, setUser]);
 
-    const handleUploadAvatar = async () => {
-        if (!avatar) {
-            setError('Please select an avatar to upload.');
-            return;
-        }
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= AVATAR HANDLERS ======================= //
+  // This code now implements the validation logic
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    setAvatar(file);
 
-        setUploadingAvatar(true);
-        setError('');
+    // Reset error message
+    setAvatarError("");
 
-        try {
-            const formData = new FormData(); // Create a new FormData object
-            formData.append('avatar', avatar); // Append the file to the form data
-
-            const response = await axios.post(`/api/upload-avatar/${profileId}`, formData, {  
-                headers: {
-                    'Content-Type': 'multipart/form-data', // Set the content type to multipart/form-data
-                },
-            });
-
-            if (response.status === 200) {
-                console.log('Avatar uploaded successfully');
-                setAvatarUploaded(true);
-                setAvatarPreview(response.data.avatarUrl);
-                setAvatar(response.data.avatarUrl); //Store the Avatar URL
-
-            } else {
-                setError('Avatar upload failed.');
-            }
-        } catch (error) {
-            console.error('Avatar upload error:', error);
-            setError('Avatar upload failed.');
-        } finally {
-            setUploadingAvatar(false);
-        }
-    };
-
-    const handleDeleteAvatar = () => {
-        setAvatar(null);
+    if (file) {
+      if (file.size > 1024 * 1024) { // 1MB Limit
+        setAvatarError("Avatar must be less than 1MB.");
+        setAvatar(null); // Reset the selected file
         setAvatarPreview(null);
-        setAvatarUploaded(false);
-    };
+        e.target.value = ""; // Clear the file input
+        return;
+      }
 
-    ///////////////////////////////////////////////////////////////////////
-    // ========================= SUBMIT HANDLER ======================== //
-    ///////////////////////////////////////////////////////////////////////
+      const allowedTypes = /jpeg|jpg|png|gif/;
+      const extname = allowedTypes.test(file.name.toLowerCase());
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');          // Clear any previous errors
-        setSuccessMessage(''); // Clear any previous success message
+      if (!extname) {
+        setAvatarError("Invalid file type. Only .jpeg, .jpg, .png and .gif files are allowed!");
+        setAvatar(null); // Reset the selected file
+        setAvatarPreview(null);
+        e.target.value = ""; // Clear the file input
+        return;
+      }
 
-        try {
-            const response = await axios.put(`/api/profile/${profileId}`, {  // Send profile data as JSON
-                firstName,
-                lastName,
-                email,
-                nickname,
-                avatar, 
-                address,
-                city,
-                zipCode,
-            });
+      // Validation is successful
+      setAvatarPreview(URL.createObjectURL(file));
+    } else {
+      // No file selected
+      setAvatarPreview(null);
+    }
+  };
 
-            if (response.status === 200) {
-                setSuccessMessage('Profile updated successfully!'); 
+  const handleDeleteAvatar = () => {
+    setAvatar(null);
+    setAvatarPreview(null);
+  };
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= SUBMIT HANDLER ======================== //
+  //////////////////////////////////////////////////////////////////////
 
-                if (user && setUser && user.USER_ID === currentUserId) { // Check if the user is the same as the one being updated
-                    
-                    setUser({
-                        ...user,
-                        USER_FIRSTNAME: firstName,
-                        USER_LASTNAME: lastName,
-                        USER_EMAIL: email,
-                        USER_NICKNAME: nickname,
-                        USER_AVATAR: avatar, 
-                        USER_ADDRESS: address,
-                        USER_CITY: city,
-                        USER_ZIPCODE: zipCode,
-                    });
-                }
-            } else {
-                setError('Profile update failed.');
-            }
-        } catch (error) {
-            console.error('Profile update error:', error);
-            setError('Profile update failed');
-        }
-    };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setSuccessMessage('');
 
-    ///////////////////////////////////////////////////////////////////////
-    // ========================= JSX BELOW ============================= //
-    ///////////////////////////////////////////////////////////////////////
+  try {
+    // Use FormData for file uploads, similar to registration
+    const formData = new FormData();
+    formData.append("firstName", firstName);
+    formData.append("lastName", lastName);
+    formData.append("email", email);
+    formData.append("nickname", nickname);
+    formData.append("address", address);
+    formData.append("city", city);
+    formData.append("zipCode", zipCode);
+    
+    // Only append avatar if it's a new File
+    if (avatar instanceof File) {
+      formData.append("avatar", avatar);
+    } else if (typeof avatar === 'string') {
+      // If it's an existing avatar URL, send it as is
+      formData.append("avatarUrl", avatar);
+    }
 
-    return (
-        <form onSubmit={handleSubmit} className={styles.registerForm}>
+    const response = await axios.put(`/api/profile/${profileId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
-            {/* ============ Section Header =========== */}
-            <h1 className={styles.editProfileTitle}>Edit Profile</h1>
+    if (response.status === 200) {
+      setSuccessMessage('Profile updated successfully!');
+      
+      // Get the avatar URL from the response
+      const avatarUrl = response.data.user?.USER_AVATAR || avatarPreview;
+      
+      if (user && setUser && user.USER_ID === currentUserId) {
+        setUser({
+          ...user,
+          USER_FIRSTNAME: firstName,
+          USER_LASTNAME: lastName,
+          USER_EMAIL: email,
+          USER_NICKNAME: nickname,
+          USER_AVATAR: avatarUrl,
+          USER_ADDRESS: address,
+          USER_CITY: city,
+          USER_ZIPCODE: zipCode
+        });
+      }
+    } else {
+      setError('Profile update failed.');
+    }
+  } catch (error) {
+    setError('Profile update failed: ' + (error.response?.data?.message || error.message));
+    console.error('Profile update error', error);
+  }
+};
 
-            {/* ============ PERSONAL DETAILS SECTION ============  */}
+  return (
+    <form onSubmit={handleSubmit} className={styles.registerForm}>
+      <h1 className={styles.editProfileTitle}>Edit Profile</h1>
 
-            <div className={styles.inputContainer}>
-                <h2 className={styles.inputHeader}>Personal Details</h2>
+      <div className={styles.inputContainer}>
+        <h2 className={styles.inputHeader}>Personal Details</h2>
+        <p className={styles.inputLabel}>First Name:</p>
+        <input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={styles.inputField} />
+        <p className={styles.inputLabel}>Last Name:</p>
+        <input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} className={styles.inputField} />
+        <p className={styles.inputLabel}>Email:</p>
+        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className={styles.inputField} />
+      </div>
 
-                <p className={styles.inputLabel}>First Name:</p>
-                <input
-                    type="text"
-                    placeholder="First Name"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className={styles.inputField}
-                />
+      <div className={styles.inputContainer}>
+        <h2 className={styles.inputHeader}>Profile</h2>
 
-                <p className={styles.inputLabel}>Last Name:</p>
-                <input
-                    type="text"
-                    placeholder="Last Name"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className={styles.inputField}
-                />
+        <div className={styles.uploadAvatarSection}>
+          <label htmlFor="avatar-upload" className={styles.avatarLabel}>Avatar:</label>
+          <input type="file" id="avatar-upload" accept="image/*" onChange={handleAvatarChange} className={styles.inputField} />
+          {avatarPreview && (
+            <button type="button" onClick={handleDeleteAvatar} className={styles.deleteButton}>
+              X
+            </button>
+          )}
+        </div>
 
-                <p className={styles.inputLabel}>Email:</p>
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={styles.inputField}
-                />
+        {avatarError && (
+          <div className={styles.avatarErrorMessage}>{avatarError}</div>
+        )}
 
-            </div>
+        {avatarPreview && (
+          <div className={styles.avatarPreviewContainer}>
+            <img src={avatarPreview} alt="Avatar Preview" className={styles.avatarPreview} />
+          </div>
+        )}
 
-            {/* ============ PROFILE & AVATAR SECTION ============  */}
+        <p className={styles.inputLabelNick}>Nickname:</p>
+        <input type="text" placeholder="Nickname (Required)" value={nickname} onChange={(e) => setNickname(e.target.value)} className={styles.inputField} />
 
-            <div className={styles.inputContainer}>
+      </div>
 
-                <h2 className={styles.inputHeader}>Profile</h2>
+      <div className={styles.inputContainer}>
+        <h2 className={styles.inputHeader}>Full Address</h2>
+        <p className={styles.inputLabel}>Address:</p>
+        <input type="text" placeholder="Address (Optional)" value={address} onChange={(e) => setAddress(e.target.value)} className={styles.inputField} />
+        <p className={styles.inputLabel}>City:</p>
+        <input type="text" placeholder="City (Optional)" value={city} onChange={(e) => setCity(e.target.value)} className={styles.inputField} />
+        <p className={styles.inputLabel}>Zip Code:</p>
+        <input type="text" placeholder="Zip Code (Optional)" value={zipCode} onChange={(e) => setZipCode(e.target.value)} className={styles.inputField} />
+      </div>
 
-                {avatarPreview && (
-                    <div className={styles.avatarPreviewContainer}>
-                        <img
-                            src={avatarPreview}
-                            alt="Avatar Preview"
-                            className={styles.avatarPreview}
-                        />
+      <button type="submit" className={styles.registerButton}>Save Changes</button>
 
-                    </div>
-                )}
+      {error && <div className={styles.error}>{error}</div>}
+      {successMessage && <div className={styles.success}>{successMessage}</div>}
 
-                <div className={styles.uploadAvatarSection}>
-                  <label htmlFor="avatar-upload" className={styles.avatarLabel}>Avatar:</label>
-                  <input
-                      type="file"
-                      id="avatar-upload"
-                      accept="image/*"
-                      onChange={handleAvatarChange}
-                      disabled={uploadingAvatar || avatarUploaded}
-                      className={styles.inputField}
-                  />
-                  {!avatarUploaded && (
-                      <button type="button" onClick={handleUploadAvatar} disabled={uploadingAvatar} className={styles.uploadButton}>
-                          {uploadingAvatar ? 'Uploading...' : 'Upload'}
-                      </button>
-                  )}
-                </div>
-
-                <p className={styles.inputLabelNick}>Nickname:</p>
-                <input
-                    type="text"
-                    placeholder="Nickname (Required)"
-                    value={nickname}
-                    onChange={(e) => setNickname(e.target.value)}
-                    className={styles.inputField}
-                />
-
-            </div>
-
-            {/* ============ FULL ADDRESS SECTION ============  */}
-
-            <div className={styles.inputContainer}>
-                <h2 className={styles.inputHeader}>Full Address</h2>
-
-                <p className={styles.inputLabel}>Address:</p>
-                <input
-                    type="text"
-                    placeholder="Address (Optional)"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className={styles.inputField}
-                />
-
-                <p className={styles.inputLabel}>City:</p>
-                <input
-                    type="text"
-                    placeholder="City (Optional)"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className={styles.inputField}
-                />
-
-                <p className={styles.inputLabel}>Zip Code:</p>
-                <input
-                    type="text"
-                    placeholder="Zip Code (Optional)"
-                    value={zipCode}
-                    onChange={(e) => setZipCode(e.target.value)}
-                    className={styles.inputField}
-                />
-            </div>
-
-            <button type="submit" className={styles.registerButton}>Update Profile</button>
-
-            {/*Alert Messages */}
-            {error && <div className={styles.error}>{error}</div>}
-            {successMessage && <div className={styles.success}>{successMessage}</div>}
-            
-        </form>
-    );
+    </form>
+  );
 }
 
 export default Profile;

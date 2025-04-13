@@ -3,7 +3,7 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
 import styles from "./RegisterForm.module.css";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
 
 // ========================= REGISTER FORM COMPONENT ======================== //
@@ -11,6 +11,8 @@ import { AuthContext } from "../context/AuthContext.jsx";
 function RegisterForm() {
 
   // ========================= STATE VARIABLES ========================= //
+
+  // --- Form State ---
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -19,17 +21,20 @@ function RegisterForm() {
   const [nickname, setNickname] = useState("");
   const [avatar, setAvatar] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [avatarUploaded, setAvatarUploaded] = useState(false);
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [zipCode, setZipCode] = useState("");
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState(""); // State for success message
-  const [registrationSuccess, setRegistrationSuccess] = useState(false); // New state
-  const navigate = useNavigate(); // Initialize useNavigate
-  const { setUser } = useContext(AuthContext); // Get setUser from context
 
+  // --- Registration State ---
+  const [registrationSuccess, setRegistrationSuccess] = useState(false); // State for successful registration
+  const navigate = useNavigate(); 
+  const { setUser } = useContext(AuthContext); 
+
+  // --- Error and Success Messages ---
+  const [error, setError] = useState(""); // State for error message on registration
+  const [successMessage, setSuccessMessage] = useState(""); // State for success message on registration
+  const [avatarError, setAvatarError] = useState(""); // State for avatar error message
+  
 
   ///////////////////////////////////////////////////////////////////////
   // ==================== EVENT HANDLERS SECTION ===================== //
@@ -37,140 +42,177 @@ function RegisterForm() {
 
   // ==================== AVATAR CHANGE HANDLER ==================== //
 
-  const handleAvatarChange = (e) => {
-      const file = e.target.files[0];
-      setAvatar(file);
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    setAvatar(file); // Always set the avatar
 
-      if (file) {
-          setAvatarPreview(URL.createObjectURL(file));
-      } else {
-          setAvatarPreview(null);
+    // Reset error message
+    setAvatarError("");
+    setAvatarPreview(null); // Clear previous preview
+
+
+    //////////////////////////////////////////////////////////////////
+    // ====================  AVATAR VALIDATION ==================== //
+    //////////////////////////////////////////////////////////////////
+
+    // =================== File Size Validation ==================== //
+
+    if (file) {
+      if (file.size > 1024 * 1024) { //// 1MB limit
+
+        setAvatarError("File must be less than 1MB.");
+        setAvatar(null); // Reset the selected file
+        e.target.value = ""; // Clear the file input
+        return;
       }
+
+      // =================== File Type Validation ==================== //
+
+      const allowedTypes = /jpeg|jpg|png|gif/;
+      const extname = allowedTypes.test(
+        file.name.toLowerCase().match(/\.(jpeg|jpg|gif|png)$/)
+      );
+
+      if (!extname) {
+        setAvatarError(
+          "Invalid file type. Only .jpeg, .jpg, .png and .gif files are allowed!"
+        );
+        setAvatar(null); // Reset the selected file
+        e.target.value = ""; // Clear the file input
+        return;
+      }
+
+      // ============== File Successfully Validated ============= //
+      
+      setAvatarPreview(URL.createObjectURL(file));
+    } else {
+      // No file selected
+      setAvatarPreview(null);
+    }
   };
 
-  // ========================= UPLOAD AVATAR ========================= //
+  ////////////////////////////////////////////////////////////////////////
+  // ========================== DELETE AVATAR ========================= //
+  ////////////////////////////////////////////////////////////////////////
 
-  const handleUploadAvatar = async () => {
-    if (!avatar) {
-      setError("Please select an avatar to upload.");
-      return;
+  const handleDeleteAvatar = () => {
+    setAvatar(null);
+    setAvatarPreview(null);
+
+    // Reset the file input value programmatically
+    const avatarInput = document.getElementById("avatar-upload");
+    if (avatarInput) {
+      avatarInput.value = "";
+    }
+  };
+
+  /////////////////////////////////////////////////////////////////////////
+  // ========================= FORM SUBMISSION ========================= //
+  /////////////////////////////////////////////////////////////////////////
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccessMessage("");
+
+    // ========================= FORM VALIDATION ========================= //
+
+    const formData = new FormData();
+    formData.append("firstName", firstName);
+    formData.append("lastName", lastName);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("confirmPassword", confirmPassword);
+    formData.append("nickname", nickname);
+    formData.append("address", address);
+    formData.append("city", city);
+    formData.append("zipCode", zipCode);
+
+    if (avatar) {
+      formData.append("avatar", avatar);
     }
 
-    setUploadingAvatar(true);
-    setError("");
-
+    // Check if all required fields are filled
+    
     try {
-      const formData = new FormData();
-      formData.append("avatar", avatar);
-
-      const response = await axios.post("/api/upload-avatar", formData, {
+      const response = await axios.post("/api/register", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      if (response.status === 200) {
-        console.log("Avatar uploaded successfully");
-        setAvatarUploaded(true);
-        setAvatarPreview(response.data.avatarUrl);
-        setAvatar(response.data.avatarUrl);
+      if (response.status === 201) {
+        console.log("Full registration response:", response);
+
+        if (
+          !response.data ||
+          !response.data.user ||
+          !response.data.user.USER_ID
+        ) {
+          setError(
+            "Registration successful, but invalid user data received. Check backend response."
+          );
+          console.error("Invalid response format:", response.data);
+          return;
+        }
+
+      // ========================= SET USER CONTEXT ========================= //
+
+        const newUser = {
+          USER_ID: response.data.user.USER_ID,
+          USER_FIRSTNAME: firstName,
+          USER_LASTNAME: lastName,
+          USER_EMAIL: email,
+          USER_NICKNAME: nickname,
+          USER_AVATAR: "http://localhost:4000" + response.data.user.USER_AVATAR,
+          USER_ADDRESS: address,
+          USER_CITY: city,
+          USER_ZIPCODE: zipCode,
+        };
+        setUser(newUser); // Set user in context
+
+        setRegistrationSuccess(true); // Set registration success state
+
+    // ========================= ERROR HANDLING ========================= //
+
       } else {
-        setError("Avatar upload failed: " + response.data.message);
+        setError(response.data?.message || "Registration failed");
       }
-    } catch (error) {
-      console.error("Avatar upload error:", error);
-      setError("Avatar upload failed: " + error.message);
-    } finally {
-      setUploadingAvatar(false);
+    } catch (registerError) {
+      console.error("Full registration error:", registerError);
+      console.error("Response data:", registerError.response?.data);
+      setError(
+        registerError.response?.data?.message ||
+          registerError.message ||
+          "Registration failed"
+      );
     }
   };
 
-  // ========================== DELETE AVATAR ========================= //
-
-  const handleDeleteAvatar = () => {
-    setAvatar(null);
-    setAvatarPreview(null);
-    setAvatarUploaded(false);
-  };
-
-  // ========================= FORM SUBMISSION ========================= //
-
-  const handleSubmit = async (e) => {
-      e.preventDefault();
-      setError("");
-      setSuccessMessage("");
-
-      let avatarUrl = avatar; // Default to the file object if avatar is not uploaded
-
-      if (!avatarUrl && avatar) { // If avatar is uploaded, use the URL from the preview
-        setAvatar(null);
-        setAvatarPreview(null);
-        setAvatarUploaded(false);
-      }
-
-      try {
-          const response = await axios.post("/api/register", {
-              firstName, lastName, email, password, confirmPassword, nickname,
-              avatar: avatarUrl, address, city, zipCode,
-          });
-
-          if (response.status === 201) {
-              console.log("Full registration response:", response); // Log the entire response object
-
-              // Ensure response.data.user exists and has USER_ID
-              if (!response.data || !response.data.user || !response.data.user.USER_ID) {
-                  setError("Registration successful, but invalid user data received. Check backend response.");
-                  console.error("Invalid response format:", response.data);
-                  return;
-              }
-
-              // ========== Set new user object ========== //
-              // Create a new user object with the data from the response
-
-              const newUser = {
-                  USER_ID: response.data.user.USER_ID, // Get USER_ID from response
-                  USER_FIRSTNAME: firstName,
-                  USER_LASTNAME: lastName,
-                  USER_EMAIL: email,
-                  USER_NICKNAME: nickname,
-                  USER_AVATAR: response.data.user.USER_AVATAR || avatarUrl, // Use the uploaded avatar URL or the default one
-                  USER_ADDRESS: address,
-                  USER_CITY: city,
-                  USER_ZIPCODE: zipCode,
-              };
-              setUser(newUser);
-
-              setRegistrationSuccess(true); // Redirect after setting user
-          } else {
-              setError(response.data?.message || "Registration failed");
-          }
-      } catch (registerError) {
-        console.error("Full registration error:", registerError);
-        console.error("Response data:", registerError.response?.data);
-        setError(registerError.response?.data?.message || registerError.message || "Registration failed");
-      }
-  };
-
+  /////////////////////////////////////////////////////////////////////////////
   // ========================= REDIRECT USE EFFECT ========================= //
+  /////////////////////////////////////////////////////////////////////////////
+
   React.useEffect(() => {
-      if (registrationSuccess) {
-          setSuccessMessage("Registration successful! Directing back to home...");
+    if (registrationSuccess) {
+      setSuccessMessage("Registration successful! Directing back to home...");
 
-          const timeoutId = setTimeout(() => {
-              navigate('/');
-          }, 3000);
+      const timeoutId = setTimeout(() => {
+        navigate("/");
+      }, 3000);
 
-          return () => clearTimeout(timeoutId);
-      }
+      return () => clearTimeout(timeoutId);
+    }
   }, [registrationSuccess, navigate]);
 
   ///////////////////////////////////////////////////////////////////////
+  // ================================================================= //
   // ========================= JSX BELOW ============================= //
+  // ================================================================= //
   ///////////////////////////////////////////////////////////////////////
 
   return (
     <form onSubmit={handleSubmit} className={styles.registerForm}>
-
       {/* ============ Section Header =========== */}
       <h1 className={styles.RegisterTitle}>Register</h1>
 
@@ -179,19 +221,19 @@ function RegisterForm() {
       <div className={styles.inputContainer}>
         <h2 className={styles.inputHeader}>Personal Details</h2>
 
-        <p className={styles.inputLabel}>First Name:</p>
+        <p className={styles.inputLabel}>First Name: *</p>
         <input
           type="text"
-          placeholder="First Name"
+          placeholder="First Name (Required)"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
           className={styles.inputField}
         />
 
-        <p className={styles.inputLabel}>Last Name:</p>
+        <p className={styles.inputLabel}>Last Name: *</p>
         <input
           type="text"
-          placeholder="Last Name"
+          placeholder="Last Name (Required)"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
           className={styles.inputField}
@@ -200,7 +242,7 @@ function RegisterForm() {
         <p className={styles.inputLabel}>Email: *</p>
         <input
           type="email"
-          placeholder="Email"
+          placeholder="Email (Required)"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className={styles.inputField}
@@ -209,7 +251,7 @@ function RegisterForm() {
         <p className={styles.inputLabel}>Password: *</p>
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Password (Required)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className={styles.inputField}
@@ -218,7 +260,7 @@ function RegisterForm() {
         <p className={styles.inputLabel}>Confirm Password: *</p>
         <input
           type="password"
-          placeholder="Confirm Password"
+          placeholder="Confirm Password (Required)"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           className={styles.inputField}
@@ -233,14 +275,18 @@ function RegisterForm() {
         <label htmlFor="avatar-upload" className={styles.avatarLabel}>
           Upload Avatar:
         </label>
-        <input
-          type="file"
-          id="avatar-upload"
-          accept="image/*"
-          onChange={handleAvatarChange}
-          disabled={uploadingAvatar || avatarUploaded} // Disable while uploading or after successful upload
-          className={styles.inputField}
-        />
+        <div className={styles.avatarInputContainer}>
+          <input
+            type="file"
+            id="avatar-upload"
+            accept="image/*"
+            onChange={handleAvatarChange}
+            className={styles.inputField}
+          />
+        </div>
+        {avatarError && (
+          <div className={styles.avatarErrorMessage}>{avatarError}</div>
+        )}
 
         {avatarPreview && (
           <div className={styles.avatarPreviewContainer}>
@@ -249,25 +295,13 @@ function RegisterForm() {
               alt="Avatar Preview"
               className={styles.avatarPreview}
             />
-            {!avatarUploaded && (
-              <button
-                type="button"
-                onClick={handleUploadAvatar}
-                disabled={uploadingAvatar}
-                className={styles.uploadButton}
-              >
-                {uploadingAvatar ? "Uploading..." : "Upload"}
-              </button>
-            )}
-            {avatarUploaded && (
-              <button
-                type="button"
-                onClick={handleDeleteAvatar}
-                className={styles.deleteButton}
-              >
-                X
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={handleDeleteAvatar}
+              className={styles.deleteButton}
+            >
+              X
+            </button>
           </div>
         )}
 
@@ -298,7 +332,7 @@ function RegisterForm() {
         <p className={styles.inputLabel}>City:</p>
         <input
           type="text"
-          placeholder="City"
+          placeholder="City (Optional)"
           value={city}
           onChange={(e) => setCity(e.target.value)}
           className={styles.inputField}
@@ -307,7 +341,7 @@ function RegisterForm() {
         <p className={styles.inputLabel}>Zip Code:</p>
         <input
           type="text"
-          placeholder="Zip Code"
+          placeholder="Zip Code (Optional)"
           value={zipCode}
           onChange={(e) => setZipCode(e.target.value)}
           className={styles.inputField}
