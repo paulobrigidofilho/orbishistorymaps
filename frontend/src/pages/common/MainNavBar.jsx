@@ -125,7 +125,7 @@ export default function MainNavBar() {
                 className={styles.profileButton}
               >
                 <img
-                  src={"http://localhost:4000" + user.USER_AVATAR} 
+                  src={user.USER_AVATAR} 
                   alt="User Avatar"
                   className={styles.userAvatar}
                 />

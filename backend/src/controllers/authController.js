@@ -91,7 +91,6 @@ const register = async (req, res) => {
       console.log("Request body:", req.body);
 
       // Check if the request body contains the required fields
-
       const {
         firstName,
         lastName,
@@ -106,7 +105,6 @@ const register = async (req, res) => {
 
       // ================ Required Fields Validation ================ //
       // Validate required fields
-
       if (
         !firstName ||
         !lastName ||
@@ -120,7 +118,6 @@ const register = async (req, res) => {
 
       // ===================== Name Validation ===================== //
       // Check if firstName and lastName contain only valid characters (letters and spaces)
-
       const nameRegex = /^[a-zA-Z\u00C0-\u017F\s-]*$/; // Allow letters (including accented characters), spaces, and hyphens
       if (!nameRegex.test(firstName) || !nameRegex.test(lastName)) {
         return res
@@ -133,14 +130,12 @@ const register = async (req, res) => {
 
       // ===================== Password Validation ===================== //
       // Check if password and confirmPassword match
-
       if (password !== confirmPassword) {
         return res.status(400).json({ message: "Passwords do not match" });
       }
 
       // ==================== Email Validation ===================== //
       // Check if email already exists
-
       userModel.getUserByEmail(email, (err, existingUser) => {
         if (err) {
           return handleServerError(
@@ -163,91 +158,86 @@ const register = async (req, res) => {
         // ========== userData is the object that will be inserted into the DB ======== //
         //////////////////////////////////////////////////////////////////////////////////
 
-        try {
-          
-          // ========================= Password Hashing ========================= //
-          // Hash the password using bcrypt
-
-          bcrypt.hash(password, saltRounds, (hashError, hashedPassword) => {
-            if (hashError) {
-              return handleServerError(
-                res,
-                hashError,
-                "Password hashing error"
-              );
-            }
+        // ========================= Password Hashing ========================= //
+        // Hash the password using bcrypt
+        bcrypt.hash(password, saltRounds, (hashError, hashedPassword) => {
+          if (hashError) {
+            return handleServerError(
+              res,
+              hashError,
+              "Password hashing error"
+            );
+          }
 
           // ========================= UUID Generation ========================= //
-
-            const userId = uuidv4();
+          const userId = uuidv4(); // Generate unique user ID
 
           // ========================= Avatar URL ========================= //
           // Set the avatar URL based on whether a file was uploaded or not
-
-            const avatarUrl = req.file
-              ? `/uploads/avatars/${req.file.filename}`
-              : "/uploads/avatars/pre-set/default.png";
-            console.log("Avatar URL being saved:", avatarUrl);
+          const avatarUrl = req.file
+            ? `/uploads/avatars/${req.file.filename}`
+            : "/uploads/avatars/pre-set/default.png";
+          console.log("Avatar URL being saved:", avatarUrl);
 
           // ========================= User Data Object ========================= //
+          const userData = {
+            USER_ID: userId, // Use the generated UUID
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            password: hashedPassword, // Use the hashed password
+            nickname: nickname,
+            address: address,
+            city: city,
+            zipCode: zipCode,
+            avatar: avatarUrl, // Use the avatar URL generated above
+          };
 
-            const userData = {
-              USER_ID: userId, // Use the generated UUID
-              firstName: firstName,
-              lastName: lastName,
-              email: email,
-              password: hashedPassword, // Use the hashed password
-              nickname: nickname,
-              address: address,
-              city: city,
-              zipCode: zipCode,
-              avatar: avatarUrl, // Use the avatar URL generated above
-            };
+          console.log("UserData before createUser:", userData);
 
-            console.log("UserData before createUser:", userData);
-
-             /////////////////////////////////////////////////////////////////////////////////
-            // ======================== CREATE USER IN DATABASE =========================== //
-            // == userModel.createUser is the function that inserts the user into the DB == //
-            //////////////////////////////////////////////////////////////////////////////////
-
-            userModel.createUser(
-              userData,
-              (createUserErr, createUserResult) => {
-                if (createUserErr) {
-                  console.error("Database error:", createUserErr);
-                  return res
-                    .status(500)
-                    .json({
-                      message: createUserErr.message || "Registration failed",
-                    });
-                }
-
-                // ======================== USER PROFILE CREATION ========================= //
-
-                const userProfile = createUserProfile(userData);
-                return res.status(201).json({
-                  message: "User registered successfully",
-                  user: userProfile,
-                });
+          /////////////////////////////////////////////////////////////////////////////////
+          // ======================== CREATE USER IN DATABASE =========================== //
+          // == userModel.createUser is the function that inserts the user into the DB == //
+          //////////////////////////////////////////////////////////////////////////////////
+          userModel.createUser(
+            userData,
+            (createUserErr, _createUserResult) => {
+              if (createUserErr) {
+                console.error("Database error:", createUserErr);
+                return res
+                  .status(500)
+                  .json({
+                    message: createUserErr.message || "Registration failed",
+                  });
               }
-            );
-          });
-        } catch (error) { // Handle any unexpected errors 
-            
-            return handleServerError(
-            res,
-            error,
-            `An unexpected error occurred during the registration process: ${error.message}`
-            );
-        }
-      });
-    } catch (error) { // Handle any unexpected errors
-      
-      return handleServerError(res, error, `An unexpected error occurred during the registration process: ${error.message}`);
+
+              // ======================== USER PROFILE CREATION ========================= //
+              // Directly construct the user profile with the avatar URL.
+              const userProfile = {
+                USER_ID: userData.USER_ID,
+                USER_FIRST_NAME: userData.firstName,
+                USER_LAST_NAME: userData.lastName,
+                USER_EMAIL: userData.email,
+                USER_NICKNAME: userData.nickname,
+                USER_AVATAR: avatarUrl, // <--- USE avatarUrl HERE!
+                USER_ADDRESS: userData.address,
+                USER_CITY: userData.city,
+                USER_ZIPCODE: userData.zipCode,
+              };
+
+              return res.status(201).json({
+                message: "User registered successfully",
+                user: userProfile,
+              });
+            }
+          ); // Close userModel.createUser callback
+        }); // Close bcrypt.hash callback
+      }); // Close userModel.getUserByEmail callback
+    } catch (error) {
+      return handleServerError(res, error, "Registration error");
     }
-  });
-};
+  }); // Close upload.single callback
+}; // Close register function
 
 /////////////////////////////////////////////////////////////////////
 // ======================== UPLOAD AVATAR ======================== //
@@ -274,6 +264,7 @@ const uploadAvatar = async (req, res) => {
     return handleServerError(res, error, `Avatar upload error: ${error.message}`);
   }
 };
+
 
 // ////////////////////////////////////////////////////////////////
 // ======================== LOGIN USER ========================= //

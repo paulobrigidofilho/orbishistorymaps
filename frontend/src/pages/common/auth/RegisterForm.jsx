@@ -9,7 +9,6 @@ import { AuthContext } from "../context/AuthContext.jsx";
 // ========================= REGISTER FORM COMPONENT ======================== //
 
 function RegisterForm() {
-
   // ========================= STATE VARIABLES ========================= //
 
   // --- Form State ---
@@ -27,14 +26,13 @@ function RegisterForm() {
 
   // --- Registration State ---
   const [registrationSuccess, setRegistrationSuccess] = useState(false); // State for successful registration
-  const navigate = useNavigate(); 
-  const { setUser } = useContext(AuthContext); 
+  const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext);
 
   // --- Error and Success Messages ---
   const [error, setError] = useState(""); // State for error message on registration
   const [successMessage, setSuccessMessage] = useState(""); // State for success message on registration
   const [avatarError, setAvatarError] = useState(""); // State for avatar error message
-  
 
   ///////////////////////////////////////////////////////////////////////
   // ==================== EVENT HANDLERS SECTION ===================== //
@@ -50,7 +48,6 @@ function RegisterForm() {
     setAvatarError("");
     setAvatarPreview(null); // Clear previous preview
 
-
     //////////////////////////////////////////////////////////////////
     // ====================  AVATAR VALIDATION ==================== //
     //////////////////////////////////////////////////////////////////
@@ -58,7 +55,8 @@ function RegisterForm() {
     // =================== File Size Validation ==================== //
 
     if (file) {
-      if (file.size > 1024 * 1024) { //// 1MB limit
+      if (file.size > 1024 * 1024) {
+        //// 1MB limit
 
         setAvatarError("File must be less than 1MB.");
         setAvatar(null); // Reset the selected file
@@ -83,7 +81,7 @@ function RegisterForm() {
       }
 
       // ============== File Successfully Validated ============= //
-      
+
       setAvatarPreview(URL.createObjectURL(file));
     } else {
       // No file selected
@@ -133,7 +131,7 @@ function RegisterForm() {
     }
 
     // Check if all required fields are filled
-    
+
     try {
       const response = await axios.post("/api/register", formData, {
         headers: {
@@ -156,7 +154,7 @@ function RegisterForm() {
           return;
         }
 
-      // ========================= SET USER CONTEXT ========================= //
+        // ========================= SET USER CONTEXT ========================= //
 
         const newUser = {
           USER_ID: response.data.user.USER_ID,
@@ -173,8 +171,7 @@ function RegisterForm() {
 
         setRegistrationSuccess(true); // Set registration success state
 
-    // ========================= ERROR HANDLING ========================= //
-
+        // ========================= ERROR HANDLING ========================= //
       } else {
         setError(response.data?.message || "Registration failed");
       }
