@@ -38,6 +38,13 @@
   color: #333;
 }
 
+.inputLabelNick {
+  margin-top: 25px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
 .inputField {
   padding: 10px;
   margin-bottom: 15px;
@@ -61,11 +68,6 @@
   display: block;
 }
 
-.avatarInputContainer {
-  display: flex;
-  align-items: center;
-}
-
 .avatarPreviewContainer {
   margin-top: 10px;
   display: flex;
@@ -81,20 +83,41 @@
   margin-bottom: 10px;
 }
 
+.uploadAvatarSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.uploadAvatarSection label {
+  margin-right: 10px;
+}
+
+.uploadAvatarSection input[type="file"] {
+  flex-grow: 1;
+  margin-bottom: 0;
+}
+
+.uploadAvatarSection .uploadButton {
+  margin-left: 10px;
+}
+
 .avatarErrorMessage {
   color: red;
   font-size: 0.8em;
-  margin-bottom:10px;
+  margin-bottom: 10px;
 }
 
 .deleteButton {
-  background-color: #dc3545;
-  color: white;
+  padding: 8px 12px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  padding: 5px 10px;
-  margin-left: 10px; /* Space between input and button */
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  background-color: #dc3545;
+  color: white;
+  margin-left: 10px;
 }
 
 .deleteButton:hover {

@@ -269,10 +269,10 @@ function RegisterForm() {
       <div className={styles.inputContainer}>
         <h2 className={styles.inputHeader}>Profile</h2>
 
-        <label htmlFor="avatar-upload" className={styles.avatarLabel}>
-          Upload Avatar:
-        </label>
-        <div className={styles.avatarInputContainer}>
+        <div className={styles.uploadAvatarSection}>
+          <label htmlFor="avatar-upload" className={styles.avatarLabel}>
+            Avatar:
+          </label>
           <input
             type="file"
             id="avatar-upload"
@@ -280,7 +280,17 @@ function RegisterForm() {
             onChange={handleAvatarChange}
             className={styles.inputField}
           />
+          {avatarPreview && (
+            <button
+              type="button"
+              onClick={handleDeleteAvatar}
+              className={styles.deleteButton}
+            >
+              X
+            </button>
+          )}
         </div>
+
         {avatarError && (
           <div className={styles.avatarErrorMessage}>{avatarError}</div>
         )}
@@ -292,17 +302,10 @@ function RegisterForm() {
               alt="Avatar Preview"
               className={styles.avatarPreview}
             />
-            <button
-              type="button"
-              onClick={handleDeleteAvatar}
-              className={styles.deleteButton}
-            >
-              X
-            </button>
           </div>
         )}
 
-        <p className={styles.inputLabel}>Nickname: *</p>
+        <p className={styles.inputLabelNick}>Nickname:</p>
         <input
           type="text"
           placeholder="Nickname (Required)"

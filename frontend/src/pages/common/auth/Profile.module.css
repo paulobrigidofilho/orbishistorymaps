@@ -83,12 +83,30 @@
   margin-bottom: 10px;
 }
 
+.uploadAvatarSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.uploadAvatarSection label {
+  margin-right: 10px;
+}
+
+.uploadAvatarSection input[type="file"] {
+  flex-grow: 1;
+  margin-bottom: 0;
+}
+
+.uploadAvatarSection .uploadButton {
+  margin-left: 10px;
+}
+
 .avatarErrorMessage {
   color: red;
   font-size: 0.8em;
-  margin:10px;
+  margin: 10px;
 }
-
 
 .deleteButton {
   padding: 8px 12px;
@@ -97,10 +115,6 @@
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.3s ease;
-}
-
-
-.deleteButton {
   background-color: #dc3545;
   color: white;
   margin-left: 10px;
@@ -110,13 +124,9 @@
   background-color: #c82333;
 }
 
-.uploadAvatarContainer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+.deleteButton:hover {
+  background-color: #c82333;
 }
-
 
 .saveChangesButton {
   background-color: #007bff;
@@ -175,47 +185,26 @@
   margin-top: 10px;
 }
 
-/* New styles for Avatar Upload */
-.uploadAvatarSection {
-display: flex;
-align-items: center; /* Vertically align label, input, and button */
-justify-content: space-between; /* Put space between them */
-}
-
-.uploadAvatarSection label {
-margin-right: 10px; /* Add spacing between label and input */
-}
-
-.uploadAvatarSection input[type="file"] {
-flex-grow: 1; /* Allow the input to take up remaining space */
-margin-bottom: 0; /* Remove bottom margin as it's aligned horizontally */
-}
-
-.uploadAvatarSection .uploadButton {
-margin-left: 10px; /* Add spacing between input and button */
-}
-
-
 /* Responsive Design */
 @media (max-width: 600px) {
   .registerForm {
-      padding: 10px;
+    padding: 10px;
   }
 
   .inputContainer {
-      padding: 10px;
+    padding: 10px;
   }
 
   .inputHeader {
-      font-size: 1.2em;
+    font-size: 1.2em;
   }
 
   .inputField {
-      padding: 8px;
-      font-size: 14px;
+    padding: 8px;
+    font-size: 14px;
   }
 
   .registerButton {
-      font-size: 16px;
+    font-size: 16px;
   }
 }

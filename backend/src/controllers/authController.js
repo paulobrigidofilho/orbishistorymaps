@@ -145,8 +145,6 @@ const register = async (req, res) => {
           );
         }
 
-        console.log("User fetched by email:", existingUser); // Debugging log
-
         if (existingUser) {
           return res
             .status(400)

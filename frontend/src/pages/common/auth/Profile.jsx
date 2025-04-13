@@ -182,11 +182,18 @@ function Profile() {
     }
   };
 
-  
+  ///////////////////////////////////////////////////////////////////////
+  // ================================================================= //
+  // ========================= JSX BELOW ============================= //
+  // ================================================================= //
+  ///////////////////////////////////////////////////////////////////////  
 
   return (
     <form onSubmit={handleSubmit} className={styles.registerForm}>
+      {/* ============ Section Header =========== */}
       <h1 className={styles.editProfileTitle}>Edit Profile</h1>
+
+      {/* ============ PERSONAL DETAILS SECTION ============  */}
 
       <div className={styles.inputContainer}>
         <h2 className={styles.inputHeader}>Personal Details</h2>
@@ -215,6 +222,8 @@ function Profile() {
           className={styles.inputField}
         />
       </div>
+
+      {/* ============ PROFILE & AVATAR SECTION ============  */}
 
       <div className={styles.inputContainer}>
         <h2 className={styles.inputHeader}>Profile</h2>
@@ -264,6 +273,8 @@ function Profile() {
           className={styles.inputField}
         />
       </div>
+
+      {/* ============ FULL ADDRESS SECTION ============  */}
 
       <div className={styles.inputContainer}>
         <h2 className={styles.inputHeader}>Full Address</h2>

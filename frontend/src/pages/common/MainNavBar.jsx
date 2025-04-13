@@ -117,23 +117,23 @@ export default function MainNavBar() {
           {/* =================== LOGGED-IN USER UI =================== */}
           {/* ========================================================= */}
 
-          {user ? (
-            <div className={styles.profileContainer} ref={profileDropdownRef}>
-              
-              <button
-                onClick={toggleProfileDropdown}
-                className={styles.profileButton}
-              >
-                <img
-                  src={user.USER_AVATAR} 
-                  alt="User Avatar"
-                  className={styles.userAvatar}
-                />
-                
-                <div className={styles.userNickname}>{user.USER_NICKNAME}</div>
-              </button>
+                {user ? (
+                <div className={styles.profileContainer} ref={profileDropdownRef}>
+                  
+                  <button
+                  onClick={toggleProfileDropdown}
+                  className={styles.profileButton}
+                  >
+                  <img
+                    src={user.USER_AVATAR.startsWith("http") ? user.USER_AVATAR : `http://localhost:4000${user.USER_AVATAR}`}
+                    alt="User Avatar"
+                    className={styles.userAvatar}
+                  />
+                  
+                  <div className={styles.userNickname}>{user.USER_NICKNAME}</div>
+                  </button>
 
-              {/* ================= PROFILE DROPDOWN MENU ================= */}
+                  {/* ================= PROFILE DROPDOWN MENU ================= */}
               
               {isProfileDropdownOpen && (
                 <div className={styles.dropdownMenu}>
