@@ -1,6 +1,7 @@
 //  ========== Component imports  ========== //
 
 import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext"; // Import AuthContext
@@ -30,6 +31,7 @@ function Profile() {
   const [currentUserId, setCurrentUserId] = useState("");
   const { user, setUser } = useContext(AuthContext);
   const { userId: profileId } = useParams();
+  const navigate = useNavigate();
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -180,6 +182,8 @@ function Profile() {
     }
   };
 
+  
+
   return (
     <form onSubmit={handleSubmit} className={styles.registerForm}>
       <h1 className={styles.editProfileTitle}>Edit Profile</h1>
@@ -289,8 +293,16 @@ function Profile() {
         />
       </div>
 
-      <button type="submit" className={styles.registerButton}>
+      <button type="submit" className={styles.saveChangesButton}>
         Save Changes
+      </button>
+
+      <button
+        type="button"
+        onClick={() => navigate("/")}
+        className={styles.homeButton}
+      >
+        Return Home
       </button>
 
       {error && <div className={styles.error}>{error}</div>}

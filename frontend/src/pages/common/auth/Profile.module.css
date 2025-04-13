@@ -118,7 +118,7 @@
 }
 
 
-.registerButton {
+.saveChangesButton {
   background-color: #007bff;
   color: white;
   padding: 12px 20px;
@@ -130,8 +130,25 @@
   margin-top: 20px;
 }
 
-.registerButton:hover {
+.saveChangesButton:hover {
   background-color: #0056b3;
+}
+
+.homeButton {
+  background-color: #f9f9f9;
+  color: #333;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+}
+
+.homeButton:hover {
+  background-color: #333;
+  color: #f9f9f9;
 }
 
 .error {
