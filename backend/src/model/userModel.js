@@ -11,8 +11,14 @@ const userModel = {
   ///////////////////////////////////////////////////////////////////////
 
   getUserByEmail: (email, callback) => {
-    const query =
-      "SELECT USER_ID, USER_FIRSTNAME, USER_LASTNAME, USER_EMAIL, USER_PASSWORD, USER_NICKNAME, USER_AVATAR, USER_ADDRESS, USER_CITY, USER_ZIPCODE FROM users WHERE USER_EMAIL = ?";
+    const query = `
+      SELECT
+        USER_ID, USER_FIRSTNAME, USER_LASTNAME, USER_EMAIL, USER_PASSWORD,
+        USER_NICKNAME, USER_AVATAR,
+        USER_ADDRESS, USER_ADDRESS_LINE_2,
+        USER_CITY, USER_STATE, USER_ZIPCODE
+      FROM users
+      WHERE USER_EMAIL = ?`;
     userDB.query(query, [email], (err, results) => {
       if (err) {
         console.error("Database error:", err);
@@ -30,8 +36,13 @@ const userModel = {
   createUser: (userData, callback) => {
     console.log("createUser called with:", userData);
   
-    const query =
-      "INSERT INTO users (USER_ID, USER_FIRSTNAME, USER_LASTNAME, USER_EMAIL, USER_PASSWORD, USER_NICKNAME, USER_AVATAR, USER_ADDRESS, USER_CITY, USER_ZIPCODE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const query = `
+    INSERT INTO users (
+      USER_ID, USER_FIRSTNAME, USER_LASTNAME, USER_EMAIL, USER_PASSWORD,
+      USER_NICKNAME, USER_AVATAR,
+      USER_ADDRESS, USER_ADDRESS_LINE_2,  -- Combined street/number into USER_ADDRESS
+      USER_CITY, USER_STATE, USER_ZIPCODE
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   
     userDB.query(
       query,
@@ -42,10 +53,12 @@ const userModel = {
         userData.email,
         userData.password,
         userData.nickname,
-        userData.avatar, 
-        userData.address,
-        userData.city,
-        userData.zipCode,
+        userData.avatar,
+        userData.address,      
+        userData.addressLine2,   
+        userData.city,         
+        userData.state,       
+        userData.zipCode,       
       ],
       (err, result) => {
         if (err) {
@@ -84,12 +97,20 @@ const userModel = {
       email,
       nickname,
       avatar,
-      address,
+      address,    
+      addressLine2,    
       city,
+      state,
       zipCode,
     } = userData;
-    const query =
-      "UPDATE users SET USER_FIRSTNAME = ?, USER_LASTNAME = ?, USER_EMAIL = ?, USER_NICKNAME = ?, USER_AVATAR = ?, USER_ADDRESS = ?, USER_CITY = ?, USER_ZIPCODE = ? WHERE USER_ID = ?";
+
+    const query = `
+      UPDATE users SET
+        USER_FIRSTNAME = ?, USER_LASTNAME = ?, USER_EMAIL = ?, USER_NICKNAME = ?,
+        USER_AVATAR = ?,
+        USER_ADDRESS = ?, USER_ADDRESS_LINE_2 = ?, 
+        USER_CITY = ?, USER_STATE = ?, USER_ZIPCODE = ?
+      WHERE USER_ID = ?`;
     userDB.query(
       query,
       [
@@ -99,7 +120,9 @@ const userModel = {
         nickname,
         avatar,
         address,
+        addressLine2,
         city,
+        state,
         zipCode,
         userId,
       ],

@@ -64,8 +64,10 @@ const createUserProfile = (user) => ({
   USER_EMAIL: user.USER_EMAIL || "",
   USER_NICKNAME: user.USER_NICKNAME || "",
   USER_AVATAR: user.USER_AVATAR || "",
-  USER_ADDRESS: user.USER_ADDRESS || "",
+  USER_ADDRESS: user.USER_ADDRESS || "",  
+  USER_ADDRESS_LINE_2: user.USER_ADDRESS_LINE_2 || "",
   USER_CITY: user.USER_CITY || "",
+  USER_STATE: user.USER_STATE || "",
   USER_ZIPCODE: user.USER_ZIPCODE || "",
 });
 
@@ -98,8 +100,10 @@ const register = async (req, res) => {
         password,
         confirmPassword,
         nickname,
-        address,
+        address,     
+        addressLine2,    
         city,
+        state,
         zipCode,
       } = req.body;
 
@@ -118,7 +122,7 @@ const register = async (req, res) => {
 
       // ===================== Name Validation ===================== //
       // Check if firstName and lastName contain only valid characters (letters and spaces)
-      const nameRegex = /^[a-zA-Z\u00C0-\u017F\s-]*$/; // Allow letters (including accented characters), spaces, and hyphens
+      const nameRegex = /^[a-zA-Z\u00C0-\u017F\s\.-]*$/; // Allow letters (including accented characters), spaces, hyphens and periods
       if (!nameRegex.test(firstName) || !nameRegex.test(lastName)) {
         return res
           .status(400)
@@ -179,18 +183,19 @@ const register = async (req, res) => {
 
           // ========================= User Data Object ========================= //
           const userData = {
-            USER_ID: userId, // Use the generated UUID
+            USER_ID: userId,
             firstName: firstName,
             lastName: lastName,
             email: email,
-            password: hashedPassword, // Use the hashed password
+            password: hashedPassword,
             nickname: nickname,
+            avatar: avatarUrl,
             address: address,
+            addressLine2: addressLine2,
             city: city,
+            state: state,
             zipCode: zipCode,
-            avatar: avatarUrl, // Use the avatar URL generated above
           };
-
           console.log("UserData before createUser:", userData);
 
           /////////////////////////////////////////////////////////////////////////////////
@@ -213,15 +218,17 @@ const register = async (req, res) => {
               // Directly construct the user profile with the avatar URL.
               const userProfile = {
                 USER_ID: userData.USER_ID,
-                USER_FIRST_NAME: userData.firstName,
-                USER_LAST_NAME: userData.lastName,
+                USER_FIRSTNAME: userData.firstName,
+                USER_LASTNAME: userData.lastName,
                 USER_EMAIL: userData.email,
                 USER_NICKNAME: userData.nickname,
-                USER_AVATAR: avatarUrl, // <--- USE avatarUrl HERE!
-                USER_ADDRESS: userData.address,
-                USER_CITY: userData.city,
-                USER_ZIPCODE: userData.zipCode,
-              };
+                USER_AVATAR: avatarUrl,
+                USER_ADDRESS: userData.address || "", 
+                USER_ADDRESS_LINE_2: userData.addressLine2 || "",
+                USER_CITY: userData.city || "",
+                USER_STATE: userData.state || "",
+                USER_ZIPCODE: userData.zipCode || "",
+            };
 
               return res.status(201).json({
                 message: "User registered successfully",
@@ -362,9 +369,11 @@ const updateProfile = async (req, res) => {
         lastName,
         email,
         nickname,
-        avatarUrl, // This will be sent if using existing avatar
-        address,
+        avatarUrl,
+        address,        
+        addressLine2,    
         city,
+        state,
         zipCode,
       } = req.body;
       
@@ -390,8 +399,10 @@ const updateProfile = async (req, res) => {
           email,
           nickname,
           avatar: avatarPath,
-          address,
+          address,        
+          addressLine2,    
           city,
+          state,
           zipCode,
         },
         (err, result) => {
