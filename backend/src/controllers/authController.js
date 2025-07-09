@@ -1,49 +1,9 @@
 // ======= Module imports ======= //
-const bcrypt = require("bcrypt");
-const userModel = require("../model/userModel");
-const { v4: uuidv4 } = require("uuid");
-const multer = require("multer"); // Import multer directly
-const path = require("path");
-
-//////////////////////////////////////////
-// ======= MULTER CONFIGURATION ======= //
-//////////////////////////////////////////
-
-// Configure multer for avatar uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../../uploads/avatars")); // Set the upload directory
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
-    ); // Generate a unique filename
-  },
-});
-
-// Set up multer with the storage configuration and file filter
-
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif/; // Define allowed file types
-    const extname = allowedTypes.test(
-      path.extname(file.originalname).toLowerCase()
-    );
-    const mimetype = allowedTypes.test(file.mimetype);
-
-    if (extname && mimetype) {
-      return cb(null, true);
-    } else {
-      cb(new Error("Only .jpeg, .jpg, .png and .gif files are allowed!"));
-    }
-  },
-});
+const bcrypt = require('bcrypt');
+const userModel = require('../model/userModel');
+const { v4: uuidv4 } = require('uuid');
 
 // ======= BCRYPT CONFIGURATION ======= //
-
 const saltRounds = 10;
 
 ///////////////////////////////////////////////////////////////////////
@@ -52,228 +12,131 @@ const saltRounds = 10;
 
 // Centralized error handling function
 const handleServerError = (res, error, message) => {
-  console.error(message + ":", error);
-  return res.status(500).json({ message: error.message || message });
+    console.error(message + ':', error);
+    return res.status(500).json({ message: error.message || message });
 };
 
 // Function to create a user profile object (removes duplication)
 const createUserProfile = (user) => ({
-  USER_ID: user.USER_ID,
-  USER_FIRSTNAME: user.USER_FIRSTNAME || "",
-  USER_LASTNAME: user.USER_LASTNAME || "",
-  USER_EMAIL: user.USER_EMAIL || "",
-  USER_NICKNAME: user.USER_NICKNAME || "",
-  USER_AVATAR: user.USER_AVATAR || "",
-  USER_ADDRESS: user.USER_ADDRESS || "",  
-  USER_ADDRESS_LINE_2: user.USER_ADDRESS_LINE_2 || "",
-  USER_CITY: user.USER_CITY || "",
-  USER_STATE: user.USER_STATE || "",
-  USER_ZIPCODE: user.USER_ZIPCODE || "",
+    USER_ID: user.USER_ID,
+    USER_FIRSTNAME: user.USER_FIRSTNAME || '',
+    USER_LASTNAME: user.USER_LASTNAME || '',
+    USER_EMAIL: user.USER_EMAIL || '',
+    USER_NICKNAME: user.USER_NICKNAME || '',
+    USER_AVATAR: user.USER_AVATAR || '',
+    USER_ADDRESS: user.USER_ADDRESS || '',
+    USER_CITY: user.USER_CITY || '',
+    USER_ZIPCODE: user.USER_ZIPCODE || '',
 });
 
 /////////////////////////////////////////////////////////////////////
 // ======================= CONTROLLER FUNCTIONS ================== //
 /////////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////////////
-// ========================= REGISTER USER ======================= //
-/////////////////////////////////////////////////////////////////////
+// ======================== REGISTER USER ======================== //
 
 const register = async (req, res) => {
-  console.log("Register request received!");
-
-  upload.single("avatar")(req, res, async (err) => {
-    if (err) {
-      return handleServerError(res, err, "File upload failed");
-    }
-
-    console.log("Req.file:", req.file);
+    console.log("Register request received!");
+    console.log("Request body:", req.body); // Debugging log to inspect incoming data
 
     try {
-      console.log("Request body:", req.body);
+        const { firstName, lastName, email, password, confirmPassword, nickname, avatar, address, city, zipCode } = req.body;
 
-      // Check if the request body contains the required fields
-      const {
-        firstName,
-        lastName,
-        email,
-        password,
-        confirmPassword,
-        nickname,
-        address,     
-        addressLine2,    
-        city,
-        state,
-        zipCode,
-      } = req.body;
-
-      // ================ Required Fields Validation ================ //
-      // Validate required fields
-      if (
-        !firstName ||
-        !lastName ||
-        !email ||
-        !password ||
-        !confirmPassword ||
-        !nickname
-      ) {
-        return res.status(400).json({ message: "Missing required fields" });
-      }
-
-      // ===================== Name Validation ===================== //
-      // Check if firstName and lastName contain only valid characters (letters and spaces)
-      const nameRegex = /^[a-zA-Z\u00C0-\u017F\s\.-]*$/; // Allow letters (including accented characters), spaces, hyphens and periods
-      if (!nameRegex.test(firstName) || !nameRegex.test(lastName)) {
-        return res
-          .status(400)
-          .json({
-            message:
-              "Please use only letters, spaces, and hyphens in your first and last name.",
-          });
-      }
-
-      // ===================== Password Validation ===================== //
-      // Check if password and confirmPassword match
-      if (password !== confirmPassword) {
-        return res.status(400).json({ message: "Passwords do not match" });
-      }
-
-      // ==================== Email Validation ===================== //
-      // Check if email already exists
-      userModel.getUserByEmail(email, (err, existingUser) => {
-        if (err) {
-          return handleServerError(
-            res,
-            err,
-            "Database error during email check"
-          );
+        // Validate required fields
+        if (!email || !password || !confirmPassword || !firstName || !lastName) {
+            return res.status(400).json({ message: 'Missing required fields' });
         }
 
-        if (existingUser) {
-          return res
-            .status(400)
-            .json({ message: "This email is already in use." });
+        // Check if password and confirmPassword match
+        if (password !== confirmPassword) {
+            return res.status(400).json({ message: 'Passwords do not match' });
         }
 
-        //////////////////////////////////////////////////////////////////////////////////
-        // ======================== PASSWORD AND UUID HASHING ========================= //
-        // ========== userData is the object that will be inserted into the DB ======== //
-        //////////////////////////////////////////////////////////////////////////////////
-
-        // ========================= Password Hashing ========================= //
-        // Hash the password using bcrypt
-        bcrypt.hash(password, saltRounds, (hashError, hashedPassword) => {
-          if (hashError) {
-            return handleServerError(
-              res,
-              hashError,
-              "Password hashing error"
-            );
-          }
-
-          // ========================= UUID Generation ========================= //
-          const userId = uuidv4(); // Generate unique user ID
-
-          // ========================= Avatar URL ========================= //
-          // Set the avatar URL based on whether a file was uploaded or not
-          const avatarUrl = req.file
-            ? `/uploads/avatars/${req.file.filename}`
-            : "/uploads/avatars/pre-set/default.png";
-          console.log("Avatar URL being saved:", avatarUrl);
-
-          // ========================= User Data Object ========================= //
-          const userData = {
-            USER_ID: userId,
-            firstName: firstName,
-            lastName: lastName,
-            email: email,
-            password: hashedPassword,
-            nickname: nickname,
-            avatar: avatarUrl,
-            address: address,
-            addressLine2: addressLine2,
-            city: city,
-            state: state,
-            zipCode: zipCode,
-          };
-          console.log("UserData before createUser:", userData);
-
-          /////////////////////////////////////////////////////////////////////////////////
-          // ======================== CREATE USER IN DATABASE =========================== //
-          // == userModel.createUser is the function that inserts the user into the DB == //
-          //////////////////////////////////////////////////////////////////////////////////
-          userModel.createUser(
-            userData,
-            (createUserErr, _createUserResult) => {
-              if (createUserErr) {
-                console.error("Database error:", createUserErr);
-                return res
-                  .status(500)
-                  .json({
-                    message: createUserErr.message || "Registration failed",
-                  });
-              }
-
-              // ======================== USER PROFILE CREATION ========================= //
-              // Directly construct the user profile with the avatar URL.
-              const userProfile = {
-                USER_ID: userData.USER_ID,
-                USER_FIRSTNAME: userData.firstName,
-                USER_LASTNAME: userData.lastName,
-                USER_EMAIL: userData.email,
-                USER_NICKNAME: userData.nickname,
-                USER_AVATAR: avatarUrl,
-                USER_ADDRESS: userData.address || "", 
-                USER_ADDRESS_LINE_2: userData.addressLine2 || "",
-                USER_CITY: userData.city || "",
-                USER_STATE: userData.state || "",
-                USER_ZIPCODE: userData.zipCode || "",
-            };
-
-              return res.status(201).json({
-                message: "User registered successfully",
-                user: userProfile,
-              });
+        // Check if email already exists
+        userModel.getUserByEmail(email, (err, existingUser) => {
+            if (err) {
+                return handleServerError(res, err, 'Database error during email check');
             }
-          ); // Close userModel.createUser callback
-        }); // Close bcrypt.hash callback
-      }); // Close userModel.getUserByEmail callback
-    } catch (error) {
-      return handleServerError(res, error, "Registration error");
-    }
-  }); // Close upload.single callback
-}; // Close register function
 
-/////////////////////////////////////////////////////////////////////
+            console.log("User fetched by email:", existingUser); // Debugging log
+
+            if (existingUser) {
+                return res.status(400).json({ message: 'This email is already in use.' });
+            }
+
+            // ======================== PASSWORD AND UUID HASHING ========================= //
+           
+            bcrypt.hash(password, saltRounds).then((hashedPassword) => {
+                
+            const userId = uuidv4();
+
+                const userData = {
+                  USER_ID: userId,
+                  USER_FIRSTNAME: firstName,
+                  USER_LASTNAME: lastName,
+                  USER_EMAIL: email,
+                  USER_PASSWORD: hashedPassword,  // Change from password to USER_PASSWORD
+                  USER_NICKNAME: nickname,
+                  USER_ADDRESS: address,
+                  USER_CITY: city,
+                  USER_ZIPCODE: zipCode,
+                  USER_AVATAR: avatar,
+                };
+
+                // ========================= CREATE USER ========================= //
+
+                userModel.createUser(userData, (err, result) => {
+                    if (err) {
+                        console.error('Database error:', err);
+                        return res.status(500).json({ message: err.message || 'Registration failed' });
+                    }
+                    console.log('User registered successfully');
+
+                    // Fetch the complete user profile from the database using the email
+                    userModel.getUserByEmail(userData.email, (err, user) => {
+                        if (err) {
+                            return handleServerError(res, err, 'Failed to get newly created profile');
+                        }
+
+                        if (!user) {
+                            return res.status(500).json({ message: 'User registered but not found' });
+                        }
+
+                        // Ensure the avatar URL is correctly included
+                        const userProfile = createUserProfile(user);
+
+                        console.log('User profile after registration:', userProfile); // Debugging log
+
+                        return res.status(201).json({
+                            message: 'User registered successfully',
+                            user: userProfile
+                        });
+                    });
+                });
+            });
+        });
+    } catch (error) {
+        return handleServerError(res, error, 'Registration error');
+    }
+};
+
 // ======================== UPLOAD AVATAR ======================== //
-/////////////////////////////////////////////////////////////////////
 
 const uploadAvatar = async (req, res) => {
   try {
-    let avatarUrl;
-
     if (!req.file) {
-      // Use the default avatar URL from the database
-      avatarUrl = "/uploads/avatars/default-avatar.png"; // Replace with your actual default value
-      console.log("No avatar file provided. Using default avatar.");
-    } else {
-      // Use the uploaded file's URL
-      avatarUrl = `/uploads/avatars/${req.file.filename}`;
-      console.log("Avatar uploaded successfully");
+      return res.status(400).json({ message: 'No avatar file provided' });
     }
 
-    return res
-      .status(200)
-      .json({ message: "Avatar processed successfully", avatarUrl });
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    console.log('Avatar uploaded successfully');
+    return res.status(200).json({ message: 'Avatar uploaded successfully', avatarUrl });
   } catch (error) {
-    return handleServerError(res, error, `Avatar upload error: ${error.message}`);
+    return handleServerError(res, error, 'Avatar upload error');
   }
 };
 
-
-// ////////////////////////////////////////////////////////////////
 // ======================== LOGIN USER ========================= //
-///////////////////////////////////////////////////////////////////
 
 const login = async (req, res) => {
   try {
@@ -281,153 +144,91 @@ const login = async (req, res) => {
 
     userModel.getUserByEmail(email, async (err, user) => {
       if (err) {
-        // Handle database error
-        return handleServerError(res, err, `Login failed: ${err.message}`);
+        return handleServerError(res, err, 'Login failed');
       }
+
+      console.log('User object from database:', user); // Debugging log
 
       if (!user) {
-        // Handle user not found
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res.status(401).json({ message: 'Invalid credentials' });
       }
 
-      // ======================== PASSWORD CHECK ========================= //
+    // ======================== PASSWORD CHECK ========================= //  
 
       try {
-        const passwordMatch = await bcrypt.compare(
-          password,
-          user.USER_PASSWORD
-        );
+        console.log("login password: ", password)
+        console.log("Database USER PASSWORD: ", user.USER_PASSWORD);
+        const passwordMatch = await bcrypt.compare(password, user.USER_PASSWORD);
 
         if (!passwordMatch) {
-          return res.status(401).json({ message: "Invalid credentials" });
+          return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // ======================== USER PROFILE CREATION ========================= //
+    // ======================== USER PROFILE CREATION ========================= //
 
         const userProfile = createUserProfile(user);
 
-        return res.status(200).json({ user: userProfile });
+        console.log('Login successful. Sending user profile:', userProfile); // Log the user profile being sent
+        
+        return res.status(200).json({ message: 'Login successful', user: userProfile });
+
       } catch (compareError) {
-        return handleServerError(
-          res,
-          compareError,
-          "Error occurred while comparing passwords"
-        );
+        return handleServerError(res, compareError, 'Login failed (bcrypt error)');
       }
     });
   } catch (error) {
-    return handleServerError(res, error, `Login error: ${error.message}`);
+    return handleServerError(res, error, 'Login error');
   }
 };
 
-////////////////////////////////////////////////////////////////////
 // ======================== GET PROFILE ========================= //
-////////////////////////////////////////////////////////////////////
 
 const getProfile = async (req, res) => {
   try {
-    // Check if userId is provided in the request parameters
     const userId = req.params.userId;
 
     userModel.getUserById(userId, (err, user) => {
       if (err) {
-        return handleServerError(res, err, "Failed to get profile"); // Handle database error
+        return handleServerError(res, err, 'Failed to get profile');
       }
 
       if (!user) {
-        return res.status(404).json({ message: "Profile not found" }); // Handle user not found
+        console.log("User not found for ID:", userId);
+        return res.status(404).json({ message: 'Profile not found' });
       }
 
-      const userProfile = createUserProfile(user); // Create user profile object
-      return res
-        .status(200)
-        .json({ message: "Profile retrieved successfully", user: userProfile });
+      const userProfile = createUserProfile(user);
+      console.log('Profile retrieved successfully');
+      return res.status(200).json({ message: 'Profile retrieved successfully', user: userProfile });
     });
   } catch (error) {
-    return handleServerError(res, error, `Get profile error: ${error.message}`);
+    return handleServerError(res, error, 'Get profile error');
   }
 };
 
-///////////////////////////////////////////////////////////////////
 // ======================== UPDATE PROFILE ===================== //
-///////////////////////////////////////////////////////////////////
 
 const updateProfile = async (req, res) => {
-  // Use multer middleware for file uploads
-  upload.single("avatar")(req, res, async (err) => {
-    if (err) {
-      return handleServerError(res, err, "File upload failed");
-    }
-    
-    try {
-      // Get userId from params
-      const userId = req.params.userId;
-      
-      // Get form data
-      const {
-        firstName,
-        lastName,
-        email,
-        nickname,
-        avatarUrl,
-        address,        
-        addressLine2,    
-        city,
-        state,
-        zipCode,
-      } = req.body;
-      
-      // Determine avatar path - use uploaded file, existing path, or default
-      let avatarPath;
-      if (req.file) {
-        // New file was uploaded
-        avatarPath = `/uploads/avatars/${req.file.filename}`;
-      } else if (avatarUrl) {
-        // Use existing avatar URL
-        avatarPath = avatarUrl;
-      } else {
-        // Use default avatar
-        avatarPath = "/uploads/avatars/pre-set/default.png";
+  try {
+    const userId = req.params.userId;
+    const { firstName, lastName, email, nickname, avatar, address, city, zipCode } = req.body;
+
+    // Update user data in the database
+    userModel.updateUser(userId, { firstName, lastName, email, nickname, avatar, address, city, zipCode }, (err, result) => {
+      if (err) {
+        return handleServerError(res, err, 'Profile update failed');
       }
-      
-      // Update user in database
-      userModel.updateUser(
-        userId,
-        {
-          firstName,
-          lastName,
-          email,
-          nickname,
-          avatar: avatarPath,
-          address,        
-          addressLine2,    
-          city,
-          state,
-          zipCode,
-        },
-        (err, result) => {
-          if (err) {
-            return handleServerError(res, err, "Profile update failed");
-          }
-          
-          // Get updated user
-          userModel.getUserById(userId, (getUserErr, updatedUser) => {
-            if (getUserErr) {
-              return handleServerError(res, getUserErr, "Failed to get updated profile");
-            }
-            
-            const userProfile = createUserProfile(updatedUser);
-            return res.status(200).json({
-              message: "Profile updated successfully",
-              user: userProfile,
-            });
-          });
-        }
-      );
-    } catch (error) {
-      return handleServerError(res, error, `Profile update error: ${error.message}`);
-    }
-  });
+
+      console.log('Profile updated successfully:', result); // Log the result for debugging
+
+      return res.status(200).json({ 
+        message: 'Profile updated successfully', 
+        result // Optionally include the result in the response
+      });
+    });
+  } catch (error) {
+    return handleServerError(res, error, 'Profile update error');
+  }
 };
 
 ///////////////////////////////////////////////////////////////////////
