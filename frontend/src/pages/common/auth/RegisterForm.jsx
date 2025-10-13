@@ -148,12 +148,24 @@ function RegisterForm() {
       formData.append("avatar", avatar);
     }
 
+    // Log the form data to verify it's being populated
+    console.log("Form data being sent:");
+    for (let [key, value] of formData.entries()) {
+      if (key !== 'avatar') { // Don't log binary files
+        console.log(`${key}: ${value}`);
+      } else {
+        console.log(`${key}: [File object]`);
+      }
+    }
+
     // ========================= API CALL ========================= //
     try {
-      const response = await axios.post("/api/register", formData, {
+      // Use the full URL to ensure proper routing
+      const response = await axios.post("http://localhost:4000/api/register", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        withCredentials: true, // Include cookies in the request
       });
 
       // ========================= SUCCESS HANDLING ========================= //
@@ -161,28 +173,28 @@ function RegisterForm() {
         console.log("Full registration response:", response);
 
         // Basic validation of response structure
-        if (!response.data || !response.data.user || !response.data.user.USER_ID) {
+        if (!response.data || !response.data.user || !response.data.user.id) {
           setError("Registration successful, but invalid user data received. Check backend response.");
           console.error("Invalid response format:", response.data);
           return;
         }
 
-        // ========================= SET USER CONTEXT (REVERTED) ========================= //
+        // ========================= SET USER CONTEXT ========================= //
         // Construct user object for context using data from response
         const newUser = {
-          USER_ID: response.data.user.USER_ID,
-          USER_FIRSTNAME: response.data.user.USER_FIRSTNAME || firstName,
-          USER_LASTNAME: response.data.user.USER_LASTNAME || lastName,
-          USER_EMAIL: response.data.user.USER_EMAIL || email,
-          USER_NICKNAME: response.data.user.USER_NICKNAME || nickname,
-          USER_AVATAR: response.data.user.USER_AVATAR.startsWith('http')
-                       ? response.data.user.USER_AVATAR
-                       : "http://localhost:4000" + response.data.user.USER_AVATAR,
-          USER_ADDRESS: response.data.user.USER_ADDRESS || "", 
-          USER_ADDRESS_LINE_2: response.data.user.USER_ADDRESS_LINE_2 || "",
-          USER_CITY: response.data.user.USER_CITY || "",
-          USER_STATE: response.data.user.USER_STATE || "",
-          USER_ZIPCODE: response.data.user.USER_ZIPCODE || "",
+          id: response.data.user.id,
+          firstName: response.data.user.firstName || firstName,
+          lastName: response.data.user.lastName || lastName,
+          email: response.data.user.email || email,
+          nickname: response.data.user.nickname || nickname,
+          avatar: response.data.user.avatar.startsWith('http')
+                   ? response.data.user.avatar
+                   : "http://localhost:4000" + response.data.user.avatar,
+          address: response.data.user.address || "", 
+          addressLine2: response.data.user.addressLine2 || "",
+          city: response.data.user.city || "",
+          state: response.data.user.state || "",
+          zipCode: response.data.user.zipCode || "",
         };
         setUser(newUser); // Set user in context
 

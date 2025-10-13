@@ -1,5 +1,5 @@
 // ======= Module imports ======= //
-const userDB = require("../db/userDB");
+const db = require("../config/config").db;
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= USER MODEL ============================ //
@@ -13,13 +13,13 @@ const userModel = {
   getUserByEmail: (email, callback) => {
     const query = `
       SELECT
-        USER_ID, USER_FIRSTNAME, USER_LASTNAME, USER_EMAIL, USER_PASSWORD,
-        USER_NICKNAME, USER_AVATAR,
-        USER_ADDRESS, USER_ADDRESS_LINE_2,
-        USER_CITY, USER_STATE, USER_ZIPCODE
+        user_id, user_firstname, user_lastname, user_email, user_password,
+        user_nickname, user_avatar,
+        user_address, user_address_line_2,
+        user_city, user_state, user_zipcode
       FROM users
-      WHERE USER_EMAIL = ?`;
-    userDB.query(query, [email], (err, results) => {
+      WHERE user_email = ?`;
+    db.query(query, [email], (err, results) => {
       if (err) {
         console.error("Database error:", err);
         return callback(err, null);
@@ -35,30 +35,30 @@ const userModel = {
 
   createUser: (userData, callback) => {
     console.log("createUser called with:", userData);
-  
+
     const query = `
     INSERT INTO users (
-      USER_ID, USER_FIRSTNAME, USER_LASTNAME, USER_EMAIL, USER_PASSWORD,
-      USER_NICKNAME, USER_AVATAR,
-      USER_ADDRESS, USER_ADDRESS_LINE_2,  -- Combined street/number into USER_ADDRESS
-      USER_CITY, USER_STATE, USER_ZIPCODE
+      user_id, user_firstname, user_lastname, user_email, user_password,
+      user_nickname, user_avatar,
+      user_address, user_address_line_2,
+      user_city, user_state, user_zipcode
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-  
-    userDB.query(
+
+    db.query(
       query,
       [
-        userData.USER_ID,
-        userData.firstName,
-        userData.lastName,
-        userData.email,
-        userData.password,
-        userData.nickname,
-        userData.avatar,
-        userData.address,      
-        userData.addressLine2,   
-        userData.city,         
-        userData.state,       
-        userData.zipCode,       
+        userData.user_id,
+        userData.user_firstname,
+        userData.user_lastname,
+        userData.user_email,
+        userData.user_password,
+        userData.user_nickname,
+        userData.user_avatar,
+        userData.user_address,
+        userData.user_address_line_2,
+        userData.user_city,
+        userData.user_state,
+        userData.user_zipcode,
       ],
       (err, result) => {
         if (err) {
@@ -75,16 +75,29 @@ const userModel = {
   ///////////////////////////////////////////////////////////////////////
 
   getUserById: (userId, callback) => {
-    const query = "SELECT * FROM users WHERE USER_ID = ?";
-    userDB.query(query, [userId], (err, results) => {
-      if (err) {
-        console.error("Database error:", err);
-        return callback(err, null);
-      }
+    const query = `
+    SELECT 
+      user_id, user_firstname, user_lastname, user_email, user_password,
+      user_nickname, user_avatar,
+      user_address, user_address_line_2,
+      user_city, user_state, user_zipcode
+    FROM users 
+    WHERE user_id = ?`;
+    
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return callback(err, null);
+    }
 
-      return callback(null, results[0]);
-    });
-  },
+    if (!results || results.length === 0) {
+      return callback(null, null); // No user found
+    }
+    
+    console.log("Database returned user:", results[0]);
+    return callback(null, results[0]);
+  });
+},
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= UPDATE USER =========================== //
@@ -92,38 +105,38 @@ const userModel = {
 
   updateUser: (userId, userData, callback) => {
     const {
-      firstName,
-      lastName,
-      email,
-      nickname,
-      avatar,
-      address,    
-      addressLine2,    
-      city,
-      state,
-      zipCode,
+      firstName: user_firstname,
+      lastName: user_lastname,
+      email: user_email,
+      nickname: user_nickname,
+      avatar: user_avatar,
+      address: user_address,
+      addressLine2: user_address_line_2,
+      city: user_city,
+      state: user_state,
+      zipCode: user_zipcode,
     } = userData;
 
     const query = `
       UPDATE users SET
-        USER_FIRSTNAME = ?, USER_LASTNAME = ?, USER_EMAIL = ?, USER_NICKNAME = ?,
-        USER_AVATAR = ?,
-        USER_ADDRESS = ?, USER_ADDRESS_LINE_2 = ?, 
-        USER_CITY = ?, USER_STATE = ?, USER_ZIPCODE = ?
-      WHERE USER_ID = ?`;
-    userDB.query(
+        user_firstname = ?, user_lastname = ?, user_email = ?, user_nickname = ?,
+        user_avatar = ?,
+        user_address = ?, user_address_line_2 = ?, 
+        user_city = ?, user_state = ?, user_zipcode = ?
+      WHERE user_id = ?`;
+    db.query(
       query,
       [
-        firstName,
-        lastName,
-        email,
-        nickname,
-        avatar,
-        address,
-        addressLine2,
-        city,
-        state,
-        zipCode,
+        user_firstname,
+        user_lastname,
+        user_email,
+        user_nickname,
+        user_avatar,
+        user_address,
+        user_address_line_2,
+        user_city,
+        user_state,
+        user_zipcode,
         userId,
       ],
       (err, result) => {

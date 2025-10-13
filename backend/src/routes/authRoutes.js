@@ -2,14 +2,14 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const upload = require('../middleware/multer');
-// console.log("Value of upload:", upload);  
+const config = require('../config/config');
+const upload = config.upload;  
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= ROUTES DEFINITION ===================== //
 ///////////////////////////////////////////////////////////////////////
 
-router.post('/register', authController.register);
+router.post('/register', upload.single('avatar'), authController.register);
 router.post('/login', authController.login);
 router.get('/profile/:userId', authController.getProfile);
 router.put('/profile/:userId', authController.updateProfile);

@@ -46,60 +46,86 @@ function Profile() {
   useEffect(() => {
     const fetchUserData = async () => {
       setError(""); // Clear previous errors
+      
+      // Check if profileId exists
+      if (!profileId) {
+        setError("No profile ID provided.");
+        return;
+      }
+      
+      console.log("Attempting to fetch profile data for ID:", profileId);
+      
       try {
-        // Use the profileId from URL params to fetch data
-        const response = await axios.get(`/api/profile/${profileId}`);
+        // Use the full URL for the API call
+        const response = await axios.get(`http://localhost:4000/api/profile/${profileId}`);
+        console.log("Profile API response:", response.data);
 
         if (response.status === 200 && response.data.user) {
+          // Get user data from response
           const userData = response.data.user;
-          setFirstName(userData.USER_FIRSTNAME || "");
-          setLastName(userData.USER_LASTNAME || "");
-          setEmail(userData.USER_EMAIL || "");
-          setNickname(userData.USER_NICKNAME || "");
-          setAddress(userData.USER_ADDRESS || "");         
-          setAddressLine2(userData.USER_ADDRESS_LINE_2 || "");
-          setCity(userData.USER_CITY || "");
-          setStateName(userData.USER_STATE || "");
-          setZipCode(userData.USER_ZIPCODE || "");
-          setCurrentUserId(userData.USER_ID || ""); 
+          
+          // Log the exact structure for debugging
+          console.log("User data structure:", Object.keys(userData));
+          console.log("User data values:", JSON.stringify(userData));
+          
+          // Check if all required fields are empty
+          const allFieldsEmpty = 
+            !userData.firstName && 
+            !userData.lastName && 
+            !userData.email && 
+            !userData.nickname;
+            
+          if (allFieldsEmpty) {
+            setError("Profile data appears to be empty. Please try refreshing or contact support.");
+            return;
+          }
+          
+          // Populate form with data, with fallbacks to prevent empty fields
+          setFirstName(userData.firstName || "");
+          setLastName(userData.lastName || "");
+          setEmail(userData.email || "");
+          setNickname(userData.nickname || "");
+          setAddress(userData.address || "");         
+          setAddressLine2(userData.addressLine2 || "");
+          setCity(userData.city || "");
+          setStateName(userData.state || "");
+          setZipCode(userData.zipCode || "");
+          setCurrentUserId(userData.id || ""); 
 
           // Handle avatar display logic
-          const currentAvatarPath = userData.USER_AVATAR || null;
+          const currentAvatarPath = userData.avatar || null;
           setAvatar(currentAvatarPath); // Store the path/URL from DB initially
+          
           if (currentAvatarPath) {
-            // Ensure preview URL is correctly formed (assuming backend serves from root)
+            // Ensure preview URL is correctly formed
             setAvatarPreview(currentAvatarPath.startsWith('http')
-                             ? currentAvatarPath
-                             : `http://localhost:4000${currentAvatarPath}`);
+                            ? currentAvatarPath
+                            : `http://localhost:4000${currentAvatarPath}`);
           } else {
             setAvatarPreview(null); // No avatar
           }
-
+          
+          console.log("Profile data successfully loaded");
         } else {
-          // Handle cases where user is found but data is missing, or other non-404 errors
           setError(response.data?.message || "Failed to load profile data");
           console.error("Fetch profile failed:", response);
         }
       } catch (err) {
+        console.error("Profile fetch error details:", err);
         if (err.response && err.response.status === 404) {
           setError("Profile not found.");
         } else {
-          setError("Failed to fetch profile data. Please try again later.");
+          setError(`Failed to fetch profile data: ${err.message}`);
         }
-        console.error("Fetch profile error", err);
-        // Optionally clear form fields on error
-        // setFirstName(''); setLastName(''); ... etc.
       }
     };
 
-    if (profileId) {
+    // Only fetch if profileId is valid
+    if (profileId && profileId !== 'undefined') {
       fetchUserData();
     } else {
-      setError("Profile ID is missing from the URL.");
-      // Redirect or show an error message if profileId is invalid/missing
-      // navigate('/'); // Example redirect
+      setError("Invalid or missing profile ID");
     }
-  // Dependency array includes profileId to refetch if the URL changes
   }, [profileId]); // Removed user and setUser as dependencies to avoid potential loops unless needed for auth checks here
 
   ///////////////////////////////////////////////////////////////////////
@@ -199,7 +225,7 @@ function Profile() {
     }
 
     // Check if the logged-in user is allowed to edit this profile
-    if (!user || user.USER_ID !== currentUserId) {
+    if (!user || user.id !== currentUserId) {
       setError("You are not authorized to edit this profile.");
       // Optionally redirect or disable form
       return;
@@ -234,37 +260,37 @@ function Profile() {
         },
       });
 
-      // Handle success response
-      if (response.status === 200 && response.data.user) {
+      // Handle success response correctly based on actual API response format
+      if (response.status === 200) {
         setSuccessMessage("Profile updated successfully!");
 
-        // Extract updated user data from response for context update
-        const updatedUserData = response.data.user;
+        // Extract updated user data from response
+        const updatedUserData = response.data.result?.user || response.data.user || {};
 
-        // Determine the correct avatar URL for context (prefer response)
-        const finalAvatarPath = updatedUserData.USER_AVATAR || (avatar instanceof File ? URL.createObjectURL(avatar) : avatar); // Fallback logic might need refinement
+        // Determine avatar URL properly
+        const finalAvatarPath = updatedUserData.avatar || (avatar instanceof File ? URL.createObjectURL(avatar) : avatar);
         const finalAvatarUrl = finalAvatarPath && finalAvatarPath.startsWith('http')
-                               ? finalAvatarPath
-                               : `http://localhost:4000${finalAvatarPath}`;
+                            ? finalAvatarPath
+                            : `http://localhost:4000${finalAvatarPath}`;
 
         // Update the AuthContext if the updated profile belongs to the logged-in user
-        if (user && setUser && user.USER_ID === currentUserId) {
+        if (user && setUser && user.id === currentUserId) {
           setUser({
-            ...user, // Spread existing user data to keep other fields intact
-            USER_FIRSTNAME: updatedUserData.USER_FIRSTNAME,
-            USER_LASTNAME: updatedUserData.USER_LASTNAME,
-            USER_EMAIL: updatedUserData.USER_EMAIL,
-            USER_NICKNAME: updatedUserData.USER_NICKNAME,
-            USER_AVATAR: finalAvatarUrl, 
-            USER_ADDRESS: updatedUserData.USER_ADDRESS || "",
-            USER_ADDRESS_LINE_2: updatedUserData.USER_ADDRESS_LINE_2 || "",
-            USER_CITY: updatedUserData.USER_CITY || "",
-            USER_STATE: updatedUserData.USER_STATE || "",
-            USER_ZIPCODE: updatedUserData.USER_ZIPCODE || "",
+            ...user,
+            firstName: updatedUserData.firstName || firstName,
+            lastName: updatedUserData.lastName || lastName,
+            email: updatedUserData.email || email,
+            nickname: updatedUserData.nickname || nickname,
+            avatar: finalAvatarUrl,
+            address: updatedUserData.address || address,
+            addressLine2: updatedUserData.addressLine2 || addressLine2,
+            city: updatedUserData.city || city,
+            state: updatedUserData.state || stateName,
+            zipCode: updatedUserData.zipCode || zipCode,
           });
         }
 
-         // Update avatar preview to reflect the saved state
+        // Update avatar preview to reflect the saved state
          if (finalAvatarPath) {
              setAvatarPreview(finalAvatarUrl);
              // If a new file was uploaded, we might want to update the 'avatar' state
@@ -299,7 +325,7 @@ function Profile() {
   ///////////////////////////////////////////////////////////////////////
 
   // Check if the logged-in user is viewing their own profile
-  const isOwnProfile = user && user.USER_ID === currentUserId;
+  const isOwnProfile = user && user.id && currentUserId && (user.id === currentUserId);
 
   // Display loading or error state before rendering the form
   if (!currentUserId && !error) {

@@ -80,6 +80,28 @@ export default function MainNavBar() {
     };
   }, [dropdownRef, profileDropdownRef]);
 
+  // Improve the getAvatarUrl function to handle all edge cases
+  const getAvatarUrl = (userObj) => {
+    // Safely check if user exists and has an avatar property
+    if (!userObj || !userObj.avatar) {
+      // Return a specific path to a local default avatar image
+      return OrbisLogo; // Use an existing image as fallback or specify a different one
+    }
+    
+    // Check if the avatar URL is already absolute (starts with http/https)
+    if (userObj.avatar.startsWith('http')) {
+      return userObj.avatar;
+    }
+    
+    // Check if avatar is an empty string or null-like value
+    if (!userObj.avatar.trim()) {
+      return OrbisLogo; // Use fallback image
+    }
+    
+    // Otherwise, prepend the server URL
+    return `http://localhost:4000${userObj.avatar}`;
+  };
+
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
   ///////////////////////////////////////////////////////////////////////
@@ -124,20 +146,27 @@ export default function MainNavBar() {
                   onClick={toggleProfileDropdown}
                   className={styles.profileButton}
                   >
+                  {/* Use memo to prevent unnecessary re-renders */}
                   <img
-                    src={user.USER_AVATAR.startsWith("http") ? user.USER_AVATAR : `http://localhost:4000${user.USER_AVATAR}`}
-                    alt="User Avatar"
+                    src={getAvatarUrl(user)}
+                    alt="User avatar"
                     className={styles.userAvatar}
+                    onError={(e) => {
+                      e.target.onerror = null; // Prevent infinite error loops
+                      e.target.src = OrbisLogo; // Use an existing image as fallback
+                    }}
                   />
                   
-                  <div className={styles.userNickname}>{user.USER_NICKNAME}</div>
+                  {/* Use lowercase property names as returned by the API */}
+                  <div className={styles.userNickname}>{user.nickname || 'User'}</div>
                   </button>
 
                   {/* ================= PROFILE DROPDOWN MENU ================= */}
               
               {isProfileDropdownOpen && (
                 <div className={styles.dropdownMenu}>
-                  <NavLink to={`/profile/${user.USER_ID}`}>Edit Profile</NavLink>
+                  {/* Use lowercase property names as returned by the API */}
+                  <NavLink to={`/profile/${user.id}`}>Edit Profile</NavLink>
                   <button onClick={handleLogout}>Log Out</button>
                 </div>
               )}

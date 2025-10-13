@@ -9,6 +9,22 @@ import axios from "axios";
 // Create the AuthContext
 export const AuthContext = createContext(null);
 
+// Define the formatUserData helper function before using it
+const formatUserData = (userData) => {
+  if (!userData) return null;
+  
+  // Ensure avatar URL is properly formatted
+  let avatarUrl = userData.avatar;
+  if (avatarUrl && !avatarUrl.startsWith('http')) {
+    avatarUrl = `http://localhost:4000${avatarUrl}`;
+  }
+  
+  return {
+    ...userData,
+    avatar: avatarUrl
+  };
+};
+
 // AuthProvider component
 export const AuthProvider = ({ children }) => {
     
@@ -19,7 +35,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     // Get user from localStorage on initial load
     const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
+    return storedUser ? formatUserData(JSON.parse(storedUser)) : null;
   });
 
   const [loading, setLoading] = useState(true);
@@ -59,10 +75,9 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (response.status === 200) {
-        // Check if login was successful
-
-        const userProfile = response.data.user; // return user profile from response
-
+        // Format the user data
+        const userProfile = formatUserData(response.data.user);
+        
         // Set the user in the context
         setUser(userProfile);
 

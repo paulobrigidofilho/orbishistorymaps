@@ -2,8 +2,9 @@
 
 const express = require('express');
 const path = require('path');
+const cors = require('cors');
+const config = require('./config/config');
 require('dotenv').config();
-const { setupMiddleware } = require('./middleware/middleware'); 
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -11,14 +12,18 @@ const { setupMiddleware } = require('./middleware/middleware');
 ///////////////////////////////////////////////////////////////////////
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = config.port;
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= MIDDLEWARE ============================ //
 ///////////////////////////////////////////////////////////////////////
 
-setupMiddleware(app); 
+// Configure CORS
+app.use(cors(config.corsConfig));
+
+// Parse JSON and URL-encoded bodies
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= ROUTES ================================ //
@@ -36,7 +41,7 @@ app.use('/api', authRoutes);
 // ========================= STATIC FILES ========================== //
 ///////////////////////////////////////////////////////////////////////
 
-app.use('/uploads/avatars', express.static(path.join(__dirname, '../uploads/avatars'))); // Serve static files from the avatars directory
+app.use('/uploads/avatars', express.static(config.staticPaths.avatars)); // Serve static files from the avatars directory
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= SERVER START ========================== //
