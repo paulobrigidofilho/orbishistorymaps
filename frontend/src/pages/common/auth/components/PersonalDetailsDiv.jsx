@@ -23,7 +23,8 @@ function PersonalDetailsDiv({
   setPassword, 
   confirmPassword, 
   setConfirmPassword,
-  capitalizeWords 
+  capitalizeWords,
+  readOnly = false
 }) {
   ///////////////////////////////////////////////////////////////////////
   // ================================================================= //
@@ -38,47 +39,55 @@ function PersonalDetailsDiv({
       <p className={styles.inputLabel}>First Name: *</p>
       <input
         type="text"
-        placeholder="First Name (Required)"
+        placeholder={!readOnly ? "First Name (Required)" : ""}
         value={firstName}
-        onChange={(e) => setFirstName(capitalizeWords(e.target.value))}
-        className={styles.inputField}
+        onChange={!readOnly ? (e) => setFirstName(capitalizeWords(e.target.value)) : undefined}
+        readOnly={readOnly}
+        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
 
       <p className={styles.inputLabel}>Last Name: *</p>
       <input
         type="text"
-        placeholder="Last Name (Required)"
+        placeholder={!readOnly ? "Last Name (Required)" : ""}
         value={lastName}
-        onChange={(e) => setLastName(capitalizeWords(e.target.value))}
-        className={styles.inputField}
+        onChange={!readOnly ? (e) => setLastName(capitalizeWords(e.target.value)) : undefined}
+        readOnly={readOnly}
+        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
 
       <p className={styles.inputLabel}>Email: *</p>
       <input
         type="email"
-        placeholder="Email (Required)"
+        placeholder={!readOnly ? "Email (Required)" : ""}
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className={styles.inputField}
+        onChange={!readOnly ? (e) => setEmail(e.target.value) : undefined}
+        readOnly={readOnly}
+        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
 
-      <p className={styles.inputLabel}>Password: *</p>
-      <input
-        type="password"
-        placeholder="Password (Required)"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className={styles.inputField}
-      />
+      {/* Only show password fields if not in readOnly mode */}
+      {!readOnly && (
+        <>
+          <p className={styles.inputLabel}>Password: *</p>
+          <input
+            type="password"
+            placeholder="Password (Required)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={styles.inputField}
+          />
 
-      <p className={styles.inputLabel}>Confirm Password: *</p>
-      <input
-        type="password"
-        placeholder="Confirm Password (Required)"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-        className={styles.inputField}
-      />
+          <p className={styles.inputLabel}>Confirm Password: *</p>
+          <input
+            type="password"
+            placeholder="Confirm Password (Required)"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className={styles.inputField}
+          />
+        </>
+      )}
     </div>
   );
 }

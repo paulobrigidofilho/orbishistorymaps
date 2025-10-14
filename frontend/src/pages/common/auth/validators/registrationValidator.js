@@ -3,38 +3,21 @@
 ////////////////////////////////////////
 
 // This validator handles validation for user registration fields
-// ensuring data integrity and security requirements
+// using specialized validators for different data types
 
-import { z } from 'zod';
-
-/**
- * Zod schema for validating personal details
- */
-export const personalDetailsSchema = z.object({
-  firstName: z.string()
-    .min(1, { message: "First name is required" })
-    .max(50, { message: "First name must be less than 50 characters" }),
-  lastName: z.string()
-    .min(1, { message: "Last name is required" })
-    .max(50, { message: "Last name must be less than 50 characters" }),
-  email: z.string()
-    .email({ message: "Invalid email address" }),
-  password: z.string()
-    .min(8, { message: "Password must be at least 8 characters" })
-    .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
-    .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
-    .regex(/[0-9]/, { message: "Password must contain at least one number" })
-    .regex(/[^A-Za-z0-9]/, { message: "Password must contain at least one special character" }),
-  confirmPassword: z.string()
-});
+import { z } from "zod";
+import { validateFirstName, validateLastName } from "./nameValidator";
+import { validateEmail } from "./emailValidator";
+import { validatePasswordWithConfirmation } from "./passwordValidator";
 
 /**
  * Zod schema for validating profile details
  */
 export const profileDetailsSchema = z.object({
-  nickname: z.string()
+  nickname: z
+    .string()
     .min(1, { message: "Nickname is required" })
-    .max(30, { message: "Nickname must be less than 30 characters" })
+    .max(30, { message: "Nickname must be less than 30 characters" }),
 });
 
 /**
@@ -45,41 +28,44 @@ export const addressDetailsSchema = z.object({
   addressLine2: z.string().optional(),
   city: z.string().optional(),
   stateName: z.string().optional(),
-  zipCode: z.string().optional()
+  zipCode: z.string().optional(),
 });
 
 /**
- * Validates password and confirm password match
- * @param {Object} data - Object containing password and confirmPassword
- * @returns {Object} - { success: boolean, error: string | null }
- */
-export const validatePasswordMatch = (data) => {
-  if (data.password !== data.confirmPassword) {
-    return { 
-      success: false, 
-      error: "Passwords don't match" 
-    };
-  }
-  return { success: true, error: null };
-};
-
-/**
- * Validates personal details using the schema
+ * Validates personal details using specialized validators
  * @param {Object} data - The personal details data
  * @returns {Object} - { success: boolean, error: string | null }
  */
 export const validatePersonalDetails = (data) => {
-  try {
-    personalDetailsSchema.parse(data);
-    const passwordMatch = validatePasswordMatch(data);
-    if (!passwordMatch.success) {
-      return passwordMatch;
-    }
-    return { success: true, error: null };
-  } catch (error) {
-    const errorMessage = error.errors?.[0]?.message || "Invalid personal details";
-    return { success: false, error: errorMessage };
+  // Validate first name
+  const firstNameValidation = validateFirstName(data.firstName);
+  if (!firstNameValidation.success) {
+    return firstNameValidation;
   }
+
+  // Validate last name
+  const lastNameValidation = validateLastName(data.lastName);
+  if (!lastNameValidation.success) {
+    return lastNameValidation;
+  }
+
+  // Validate email
+  const emailValidation = validateEmail(data.email);
+  if (!emailValidation.success) {
+    return emailValidation;
+  }
+
+  // Validate password and confirmation
+  const passwordValidation = validatePasswordWithConfirmation(
+    data.password,
+    data.confirmPassword,
+    true // Use strict validation
+  );
+  if (!passwordValidation.success) {
+    return passwordValidation;
+  }
+
+  return { success: true, error: null };
 };
 
 /**
@@ -92,7 +78,8 @@ export const validateProfileDetails = (data) => {
     profileDetailsSchema.parse(data);
     return { success: true, error: null };
   } catch (error) {
-    const errorMessage = error.errors?.[0]?.message || "Invalid profile details";
+    const errorMessage =
+      error.errors?.[0]?.message || "Invalid profile details";
     return { success: false, error: errorMessage };
   }
 };

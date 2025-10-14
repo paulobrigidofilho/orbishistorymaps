@@ -18,7 +18,8 @@ function ProfileDiv({
   avatarPreview,
   avatarError,
   handleAvatarChange,
-  handleDeleteAvatar
+  handleDeleteAvatar,
+  readOnly = false
 }) {
   ///////////////////////////////////////////////////////////////////////
   // ================================================================= //
@@ -30,37 +31,44 @@ function ProfileDiv({
     <div className={styles.inputContainer}>
       <h2 className={styles.inputHeader}>Profile</h2>
       
-      {/* Avatar upload inputs/preview */}
-      <div className={styles.uploadAvatarSection}>
-        <label htmlFor="avatar-upload" className={styles.avatarLabel}>Avatar:</label>
-        <input 
-          type="file" 
-          id="avatar-upload" 
-          accept="image/*" 
-          onChange={handleAvatarChange} 
-          className={styles.inputField} 
-        />
-        {avatarPreview && (
-          <button 
-            type="button" 
-            onClick={handleDeleteAvatar} 
-            className={styles.deleteButton}
-          >
-            X
-          </button>
-        )}
-      </div>
+      {/* Only show avatar upload controls if not in readOnly mode */}
+      {!readOnly ? (
+        <>
+          {/* Avatar upload inputs/preview */}
+          <div className={styles.uploadAvatarSection}>
+            <label htmlFor="avatar-upload" className={styles.avatarLabel}>Avatar:</label>
+            <input 
+              type="file" 
+              id="avatar-upload" 
+              accept="image/*" 
+              onChange={handleAvatarChange} 
+              className={styles.inputField} 
+            />
+            {avatarPreview && (
+              <button 
+                type="button" 
+                onClick={handleDeleteAvatar} 
+                className={styles.deleteButton}
+              >
+                X
+              </button>
+            )}
+          </div>
+          
+          {avatarError && (
+            <div className={styles.avatarErrorMessage}>{avatarError}</div>
+          )}
+        </>
+      ) : null}
       
-      {avatarError && (
-        <div className={styles.avatarErrorMessage}>{avatarError}</div>
-      )}
-      
+      {/* Always show avatar preview if available */}
       {avatarPreview && (
         <div className={styles.avatarPreviewContainer}>
           <img 
             src={avatarPreview} 
             alt="Avatar Preview" 
-            className={styles.avatarPreview} 
+            className={styles.avatarPreview}
+            onError={(e) => { e.target.onerror = null; e.target.src="/path/to/default/avatar.png"; }}
           />
         </div>
       )}
@@ -69,10 +77,11 @@ function ProfileDiv({
       <p className={styles.inputLabelNick}>Nickname:</p>
       <input 
         type="text" 
-        placeholder="Nickname (Required)" 
+        placeholder={!readOnly ? "Nickname (Required)" : ""}
         value={nickname} 
-        onChange={(e) => setNickname(e.target.value)} 
-        className={styles.inputField} 
+        onChange={!readOnly ? (e) => setNickname(e.target.value) : undefined}
+        readOnly={readOnly}
+        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
     </div>
   );

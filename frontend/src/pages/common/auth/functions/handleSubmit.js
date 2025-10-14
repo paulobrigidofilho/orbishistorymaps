@@ -24,7 +24,7 @@ const handleSubmit = async (e, formData, setters) => {
   e.preventDefault();
   setters.setError("");
   setters.setSuccessMessage("");
-
+  
   // ========================= FORM VALIDATION ========================= //
   // Validate personal details
   const personalValidation = validatePersonalDetails({

@@ -141,127 +141,54 @@ function Profile() {
     return <div className={styles.error}>{error}</div>;
   }
 
-  // Create modified versions of the components for read-only mode
-  const ReadOnlyPersonalDetails = (
-    <div className={styles.inputContainer}>
-      <h2 className={styles.inputHeader}>Personal Details</h2>
-      <p className={styles.inputLabel}>First Name:</p>
-      <input
-        type="text"
-        value={firstName}
-        readOnly
-        className={`${styles.inputField} ${styles.readOnly}`}
-      />
-      <p className={styles.inputLabel}>Last Name:</p>
-      <input
-        type="text"
-        value={lastName}
-        readOnly
-        className={`${styles.inputField} ${styles.readOnly}`}
-      />
-      <p className={styles.inputLabel}>Email:</p>
-      <input
-        type="email"
-        value={email}
-        readOnly
-        className={`${styles.inputField} ${styles.readOnly}`}
-      />
-    </div>
-  );
-
   return (
     <form onSubmit={isOwnProfile ? handleSubmitWithContext : (e) => e.preventDefault()} className={styles.registerForm} autoComplete="off">
       {/* ============ Section Header =========== */}
       <h1 className={styles.registerTitle}>{isOwnProfile ? "Edit Profile" : "View Profile"}</h1>
 
       {/* ============ PERSONAL DETAILS SECTION ============  */}
-      {isOwnProfile ? (
-        <PersonalDetailsDiv 
-          firstName={firstName}
-          setFirstName={setFirstName}
-          lastName={lastName}
-          setLastName={setLastName}
-          email={email}
-          setEmail={setEmail}
-          // No password fields for profile editing
-          password=""
-          setPassword={() => {}}
-          confirmPassword=""
-          setConfirmPassword={() => {}}
-          capitalizeWords={capitalizeWords}
-        />
-      ) : ReadOnlyPersonalDetails}
+      <PersonalDetailsDiv 
+        firstName={firstName}
+        setFirstName={setFirstName}
+        lastName={lastName}
+        setLastName={setLastName}
+        email={email}
+        setEmail={setEmail}
+        // No password fields for profile editing
+        password=""
+        setPassword={() => {}}
+        confirmPassword=""
+        setConfirmPassword={() => {}}
+        capitalizeWords={capitalizeWords}
+        readOnly={!isOwnProfile}
+      />
 
       {/* ============ PROFILE & AVATAR SECTION ============  */}
-      {isOwnProfile ? (
-        <ProfileDiv 
-          nickname={nickname}
-          setNickname={setNickname}
-          avatarPreview={avatarPreview}
-          avatarError={avatarError}
-          handleAvatarChange={handleAvatarChangeWithContext}
-          handleDeleteAvatar={handleDeleteAvatarWithContext}
-        />
-      ) : (
-        <div className={styles.inputContainer}>
-          <h2 className={styles.inputHeader}>Profile</h2>
-          
-          {avatarPreview && (
-            <div className={styles.avatarPreviewContainer}>
-              <img
-                src={avatarPreview}
-                alt="Avatar Preview"
-                className={styles.avatarPreview}
-                onError={(e) => { e.target.onerror = null; e.target.src="/path/to/default/avatar.png"; }}
-              />
-            </div>
-          )}
-          
-          <p className={styles.inputLabelNick}>Nickname:</p>
-          <input
-            type="text"
-            value={nickname}
-            readOnly
-            className={`${styles.inputField} ${styles.readOnly}`}
-          />
-        </div>
-      )}
+      <ProfileDiv 
+        nickname={nickname}
+        setNickname={setNickname}
+        avatarPreview={avatarPreview}
+        avatarError={avatarError}
+        handleAvatarChange={handleAvatarChangeWithContext}
+        handleDeleteAvatar={handleDeleteAvatarWithContext}
+        readOnly={!isOwnProfile}
+      />
 
       {/* ============ FULL ADDRESS SECTION ============  */}
-      {isOwnProfile ? (
-        <FullAddressDiv 
-          address={address}
-          setAddress={setAddress}
-          addressLine2={addressLine2}
-          setAddressLine2={setAddressLine2}
-          city={city}
-          setCity={setCity}
-          stateName={stateName}
-          setStateName={setStateName}
-          zipCode={zipCode}
-          setZipCode={setZipCode}
-          capitalizeWords={capitalizeWords}
-        />
-      ) : (
-        <div className={styles.inputContainer}>
-          <h2 className={styles.inputHeader}>Full Address</h2>
-          
-          <p className={styles.inputLabel}>Address:</p>
-          <input type="text" value={address} readOnly className={`${styles.inputField} ${styles.readOnly}`} />
-          
-          <p className={styles.inputLabel}>Apartment / Unit:</p>
-          <input type="text" value={addressLine2} readOnly className={`${styles.inputField} ${styles.readOnly}`} />
-          
-          <p className={styles.inputLabel}>City / Suburb:</p>
-          <input type="text" value={city} readOnly className={`${styles.inputField} ${styles.readOnly}`} />
-          
-          <p className={styles.inputLabel}>State / Region:</p>
-          <input type="text" value={stateName} readOnly className={`${styles.inputField} ${styles.readOnly}`} />
-          
-          <p className={styles.inputLabel}>Zip Code / Postcode:</p>
-          <input type="text" value={zipCode} readOnly className={`${styles.inputField} ${styles.readOnly}`} />
-        </div>
-      )}
+      <FullAddressDiv 
+        address={address}
+        setAddress={setAddress}
+        addressLine2={addressLine2}
+        setAddressLine2={setAddressLine2}
+        city={city}
+        setCity={setCity}
+        stateName={stateName}
+        setStateName={setStateName}
+        zipCode={zipCode}
+        setZipCode={setZipCode}
+        capitalizeWords={capitalizeWords}
+        readOnly={!isOwnProfile}
+      />
 
       {/* Only show Save Changes button if it's the user's own profile */}
       {isOwnProfile && (

@@ -23,6 +23,7 @@ function FullAddressDiv({
   zipCode,
   setZipCode,
   capitalizeWords,
+  readOnly = false,
 }) {
   ///////////////////////////////////////////////////////////////////////
   // ================================================================= //
@@ -38,50 +39,55 @@ function FullAddressDiv({
       <p className={styles.inputLabel}>Address:</p>
       <input
         type="text"
-        placeholder="Street Number & Name"
+        placeholder={!readOnly ? "Street Number & Name" : ""}
         value={address}
-        onChange={(e) => setAddress(capitalizeWords(e.target.value))}
-        className={styles.inputField}
+        onChange={!readOnly ? (e) => setAddress(capitalizeWords(e.target.value)) : undefined}
+        readOnly={readOnly}
+        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
 
       {/* Unit/Apartment Input (Address Line 2) */}
-      <p className={styles.inputLabel}>Apartment / Unit: (Optional)</p>
+      <p className={styles.inputLabel}>Apartment / Unit: {!readOnly && "(Optional)"}</p>
       <input
         type="text"
-        placeholder="Unit, Apt, Suite Number"
+        placeholder={!readOnly ? "Unit, Apt, Suite Number" : ""}
         value={addressLine2}
-        onChange={(e) => setAddressLine2(e.target.value)}
-        className={styles.inputField}
+        onChange={!readOnly ? (e) => setAddressLine2(e.target.value) : undefined}
+        readOnly={readOnly}
+        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
 
       {/* City Input */}
       <p className={styles.inputLabel}>City / Suburb:</p>
       <input
         type="text"
-        placeholder="City or Suburb"
+        placeholder={!readOnly ? "City or Suburb" : ""}
         value={city}
-        onChange={(e) => setCity(capitalizeWords(e.target.value))}
-        className={styles.inputField}
+        onChange={!readOnly ? (e) => setCity(capitalizeWords(e.target.value)) : undefined}
+        readOnly={readOnly}
+        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
 
       {/* State/Region Input */}
       <p className={styles.inputLabel}>State / Region:</p>
       <input
         type="text"
-        placeholder="State or Region"
+        placeholder={!readOnly ? "State or Region" : ""}
         value={stateName}
-        onChange={(e) => setStateName(capitalizeWords(e.target.value))}
-        className={styles.inputField}
+        onChange={!readOnly ? (e) => setStateName(capitalizeWords(e.target.value)) : undefined}
+        readOnly={readOnly}
+        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
 
       {/* Postcode Input */}
       <p className={styles.inputLabel}>Zip Code:</p>
       <input
         type="text"
-        placeholder="Zip Code or Postcode"
+        placeholder={!readOnly ? "Zip Code or Postcode" : ""}
         value={zipCode}
-        onChange={(e) => setZipCode(e.target.value)}
-        className={styles.inputField}
+        onChange={!readOnly ? (e) => setZipCode(e.target.value) : undefined}
+        readOnly={readOnly}
+        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
     </div>
   );
