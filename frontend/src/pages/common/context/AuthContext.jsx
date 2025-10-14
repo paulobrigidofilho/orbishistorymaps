@@ -13,10 +13,10 @@ export const AuthContext = createContext(null);
 const formatUserData = (userData) => {
   if (!userData) return null;
   
-  // Ensure avatar URL is properly formatted
+  // Ensure avatar URL is properly formatted using environment variable
   let avatarUrl = userData.avatar;
   if (avatarUrl && !avatarUrl.startsWith('http')) {
-    avatarUrl = `http://localhost:4000${avatarUrl}`;
+    avatarUrl = `${process.env.REACT_APP_API_URL}${avatarUrl}`;
   }
   
   return {
@@ -68,8 +68,8 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = async (email, password) => {
     try {
-      // Make API call to your backend to authenticate user
-      const response = await axios.post("http://localhost:4000/api/login", {
+      // Make API call to your backend to authenticate user using environment variable
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/login`, {
         email,
         password,
       });

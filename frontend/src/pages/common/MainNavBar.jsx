@@ -98,8 +98,8 @@ export default function MainNavBar() {
       return OrbisLogo; // Use fallback image
     }
     
-    // Otherwise, prepend the server URL
-    return `http://localhost:4000${userObj.avatar}`;
+    // Otherwise, prepend the server URL using environment variable
+    return `${process.env.REACT_APP_API_URL}${userObj.avatar}`;
   };
 
   ///////////////////////////////////////////////////////////////////////

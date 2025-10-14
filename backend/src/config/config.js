@@ -4,33 +4,32 @@
 ////////////////////////////////////////////////////////////
 
 // ======= Package Imports ======== //
-require('dotenv').config();
-const path = require('path');
-const mysql = require('mysql2');
-const multer = require('multer');
-const fs = require('fs');
+require("dotenv").config();
+const path = require("path");
+const mysql = require("mysql2");
+const multer = require("multer");
+const fs = require("fs");
 
 /////////////////////////////////////////////
 //// ===== MYSQL DB CONFIGURATION ===== /////
 /////////////////////////////////////////////
 
 const dbConfig = {
-  host: process.env.MYSQL_HOST || 'localhost',
-  user: process.env.MYSQL_USER || 'root',
+  host: process.env.MYSQL_HOST || "localhost",
+  user: process.env.MYSQL_USER || "root",
   password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE || 'orbis_db',
+  database: process.env.MYSQL_DATABASE || "orbis_db",
 };
 
-// Create database connection
-const db = mysql.createConnection(dbConfig);
+// Create database connection pool
+const db = mysql.createPool(dbConfig);
 
-// Connect to database
-db.connect((err) => {
+// Test database connection
+db.query("SELECT 1", (err) => {
   if (err) {
-    console.error('Database connection error:', err);
-    throw err;
+    console.error("Database connection error:", err);
   } else {
-    console.log('Connected to database');
+    console.log("Connected to database");
   }
 });
 
@@ -39,11 +38,17 @@ db.connect((err) => {
 ////////////////////////////////////////
 
 const corsConfig = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: process.env.CORS_ORIGIN || "http://localhost:5173",
   optionsSuccessStatus: 200,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+    "Origin",
+  ],
 };
 
 ///////////////////////////////////////////
@@ -53,11 +58,11 @@ const corsConfig = {
 // Create directory for file uploads if it doesn't exist
 const createUploadDirs = () => {
   const dirs = [
-    path.resolve(__dirname, '../../uploads'),
-    path.resolve(__dirname, '../../uploads/avatars'),
+    path.resolve(__dirname, "../../uploads"),
+    path.resolve(__dirname, "../../uploads/avatars"),
   ];
-  
-  dirs.forEach(dir => {
+
+  dirs.forEach((dir) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
       console.log(`Directory created: ${dir}`);
@@ -70,12 +75,15 @@ createUploadDirs();
 // Configure storage for uploaded files
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.resolve(__dirname, '../../uploads/avatars');
+    const uploadDir = path.resolve(__dirname, "../../uploads/avatars");
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+    );
   },
 });
 
@@ -85,8 +93,8 @@ const uploadConfig = {
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (req, file, cb) => {
     // Accept only image files
-    if (!file.mimetype.startsWith('image/')) {
-      return cb(new Error('Only image files are allowed!'), false);
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"), false);
     }
     cb(null, true);
   },
@@ -100,26 +108,28 @@ const upload = multer(uploadConfig);
 
 const authConfig = {
   bcrypt: {
-    saltRounds: 10
+    saltRounds: 10,
   },
   session: {
-    secret: process.env.SESSION_SECRET || 'orbis-secret-key',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 1 day
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-    }
-  }
+    },
+  },
 };
 
 //////////////////////////////////////
 // ===== CONFIGURATION OBJECT ===== //
 //////////////////////////////////////
 
+// Add API URL to the config object
 const config = {
   port: process.env.PORT || 4000,
+  apiUrl: process.env.REACT_APP_API_URL || "http://localhost:4000",
   db,
   dbConfig,
   corsConfig,
@@ -127,8 +137,8 @@ const config = {
   uploadConfig,
   authConfig,
   staticPaths: {
-    avatars: path.resolve(__dirname, '../../uploads/avatars')
-  }
+    avatars: path.resolve(__dirname, "../../uploads/avatars"),
+  },
 };
 
 module.exports = config;
