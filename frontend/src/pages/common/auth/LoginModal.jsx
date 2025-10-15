@@ -1,6 +1,7 @@
 //  ========== Component imports  ========== //
-import React, { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext.jsx'; // Import AuthContext
+import styles from "./Auth.module.css"; 
+import { useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext.jsx'; 
 
 //  ==========  FUNCTIONS SECTION ========== //
 
@@ -33,27 +34,42 @@ function LoginModal({ onClose }) {
     ///////////////////////////////////////////////////////////////////////
 
   return (
-    <div className="login-modal">
-      <form onSubmit={handleSubmit}>
-        {error && <div className="error">{error}</div>}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Login</button>
-        <p>
+    <div className={styles.loginModal}>
+      <div className={styles.modalContent}>
+        <button onClick={onClose} className={styles.closeButton}>×</button>
+        
+        <h2 className={styles.loginTitle}>Log In</h2>
+        
+        <form onSubmit={handleSubmit}>
+          {error && <div className={styles.error}>{error}</div>}
+          
+          <div className={styles.inputContainer}>
+            <p className={styles.inputLabel}>Email:</p>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={styles.inputField}
+            />
+            
+            <p className={styles.inputLabel}>Password:</p>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={styles.inputField}
+            />
+            
+            <button type="submit" className={styles.loginButton}>Log In</button>
+          </div>
+        </form>
+        
+        <p className={styles.registerLink}>
           Not a user? <a href="/register">Register here</a>
         </p>
-      </form>
-      <button onClick={onClose}>Close</button>
+      </div>
     </div>
   );
 }
