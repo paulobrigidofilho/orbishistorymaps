@@ -18,12 +18,7 @@ const register = async (req, res) => {
     console.log("Request file:", req.file); // Log the uploaded file
 
     try {
-        const { firstName, lastName, email, password, confirmPassword, nickname, address, addressLine2, city, state, zipCode } = req.body;
-
-        // Check if password and confirmPassword match
-        if (password !== confirmPassword) {
-            return res.status(400).json({ message: 'Passwords do not match' });
-        }
+        const { firstName, lastName, email, password, nickname, address, addressLine2, city, state, zipCode } = req.body;
 
         // Get avatar path if a file was uploaded
         const avatarPath = req.file ? `/uploads/avatars/${req.file.filename}` : null;
