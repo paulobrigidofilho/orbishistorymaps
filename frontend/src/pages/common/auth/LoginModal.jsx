@@ -1,7 +1,8 @@
 //  ========== Component imports  ========== //
 import styles from "./Auth.module.css"; 
 import { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext.jsx'; 
+import { AuthContext } from '../context/AuthContext.jsx';
+import { NavLink } from 'react-router-dom';
 
 //  ==========  FUNCTIONS SECTION ========== //
 
@@ -36,9 +37,8 @@ function LoginModal({ onClose }) {
   return (
     <div className={styles.loginModal}>
       <div className={styles.modalContent}>
-        <button onClick={onClose} className={styles.closeButton}>×</button>
-        
         <h2 className={styles.loginTitle}>Log In</h2>
+        <button onClick={onClose} className={styles.closeButton}>×</button>
         
         <form onSubmit={handleSubmit}>
           {error && <div className={styles.error}>{error}</div>}
@@ -62,13 +62,15 @@ function LoginModal({ onClose }) {
               className={styles.inputField}
             />
             
-            <button type="submit" className={styles.loginButton}>Log In</button>
+            <button type="submit" className={styles.loginButton}>
+              Log In
+            </button>
           </div>
         </form>
         
-        <p className={styles.registerLink}>
-          Not a user? <a href="/register">Register here</a>
-        </p>
+        <div className={styles.registerLink}>
+          Not a user? <NavLink to="/register">Register here</NavLink>
+        </div>
       </div>
     </div>
   );
