@@ -1,7 +1,6 @@
 //  ========== Component imports  ========== //
 
-import React from 'react'
-import MainNavBar from '../common/MainNavBar'
+import MainNavBar from "../common/MainNavBar";
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= JSX BELOW ============================= //
@@ -10,8 +9,8 @@ import MainNavBar from '../common/MainNavBar'
 export default function Shop() {
   return (
     <div>
-        <MainNavBar />
-        This will be the Shop
+      <MainNavBar />
+      This will be the Shop
     </div>
-  )
+  );
 }

@@ -1,6 +1,5 @@
 //  ========== Component imports  ========== //
 
-import React from "react";
 import MainNavBar from "../common/MainNavBar";
 
 ///////////////////////////////////////////////////////////////////////

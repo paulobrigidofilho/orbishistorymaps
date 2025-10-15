@@ -1,12 +1,6 @@
-import axios from "axios";
-import { 
-  validatePersonalDetails, 
-  validateProfileDetails 
-} from "../validators/registrationValidator";
-
-///////////////////////////////////////
-// ===== HANDLE SUBMIT FUNCTION ===== //
-///////////////////////////////////////
+/////////////////////////////////////////////////
+// ===== HANDLE REGISTRATION SUBMISSION ===== //
+/////////////////////////////////////////////////
 
 // This function handles the form submission for user registration
 // validating data and making the API call
@@ -20,7 +14,7 @@ import {
  * @param {Object} setters - Object containing state setter functions
  * @returns {Promise<void>}
  */
-const handleSubmit = async (e, formData, setters) => {
+const handleSubmitRegistration = async (e, formData, setters) => {
   e.preventDefault();
   setters.setError("");
   setters.setSuccessMessage("");
@@ -129,4 +123,4 @@ const handleSubmit = async (e, formData, setters) => {
   }
 };
 
-export default handleSubmit;
+export default handleSubmitRegistration;

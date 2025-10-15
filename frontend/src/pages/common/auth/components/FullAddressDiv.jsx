@@ -26,9 +26,7 @@ function FullAddressDiv({
   readOnly = false,
 }) {
   ///////////////////////////////////////////////////////////////////////
-  // ================================================================= //
   // ========================= JSX BELOW ============================= //
-  // ================================================================= //
   ///////////////////////////////////////////////////////////////////////
 
   return (
@@ -41,18 +39,26 @@ function FullAddressDiv({
         type="text"
         placeholder={!readOnly ? "Street Number & Name" : ""}
         value={address}
-        onChange={!readOnly ? (e) => setAddress(capitalizeWords(e.target.value)) : undefined}
+        onChange={
+          !readOnly
+            ? (e) => setAddress(capitalizeWords(e.target.value))
+            : undefined
+        }
         readOnly={readOnly}
         className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
 
       {/* Unit/Apartment Input (Address Line 2) */}
-      <p className={styles.inputLabel}>Apartment / Unit: {!readOnly && "(Optional)"}</p>
+      <p className={styles.inputLabel}>
+        Apartment / Unit: {!readOnly && "(Optional)"}
+      </p>
       <input
         type="text"
         placeholder={!readOnly ? "Unit, Apt, Suite Number" : ""}
         value={addressLine2}
-        onChange={!readOnly ? (e) => setAddressLine2(e.target.value) : undefined}
+        onChange={
+          !readOnly ? (e) => setAddressLine2(e.target.value) : undefined
+        }
         readOnly={readOnly}
         className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
@@ -63,7 +69,11 @@ function FullAddressDiv({
         type="text"
         placeholder={!readOnly ? "City or Suburb" : ""}
         value={city}
-        onChange={!readOnly ? (e) => setCity(capitalizeWords(e.target.value)) : undefined}
+        onChange={
+          !readOnly
+            ? (e) => setCity(capitalizeWords(e.target.value))
+            : undefined
+        }
         readOnly={readOnly}
         className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
@@ -74,7 +84,11 @@ function FullAddressDiv({
         type="text"
         placeholder={!readOnly ? "State or Region" : ""}
         value={stateName}
-        onChange={!readOnly ? (e) => setStateName(capitalizeWords(e.target.value)) : undefined}
+        onChange={
+          !readOnly
+            ? (e) => setStateName(capitalizeWords(e.target.value))
+            : undefined
+        }
         readOnly={readOnly}
         className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />

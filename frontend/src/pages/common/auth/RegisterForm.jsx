@@ -7,7 +7,7 @@
 
 //  ========== Module imports  ========== //
 
-import styles from "./Auth.module.css"; 
+import styles from "./Auth.module.css";
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -21,7 +21,7 @@ import FullAddressDiv from "./components/FullAddressDiv";
 import handleAvatarChange from "./functions/handleAvatarChange";
 import handleDeleteAvatar from "./functions/handleDeleteAvatar";
 import capitalizeWords from "./functions/capitalizeWords";
-import handleSubmit from "./functions/handleSubmit";
+import handleSubmitRegistration from "./functions/handleSubmitRegistration";
 import useRedirectAfterRegistration from "./functions/useRedirectAfterRegistration";
 
 // ========================= REGISTER FORM COMPONENT ======================== //
@@ -38,10 +38,10 @@ function RegisterForm() {
   const [nickname, setNickname] = useState("");
   const [avatar, setAvatar] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
-  const [address, setAddress] = useState(""); 
-  const [addressLine2, setAddressLine2] = useState(""); 
+  const [address, setAddress] = useState("");
+  const [addressLine2, setAddressLine2] = useState("");
   const [city, setCity] = useState("");
-  const [stateName, setStateName] = useState(""); 
+  const [stateName, setStateName] = useState("");
   const [zipCode, setZipCode] = useState("");
 
   // --- Registration State ---
@@ -55,7 +55,11 @@ function RegisterForm() {
   const [avatarError, setAvatarError] = useState("");
 
   // --- Apply the redirect hook ---
-  useRedirectAfterRegistration(registrationSuccess, setSuccessMessage, navigate);
+  useRedirectAfterRegistration(
+    registrationSuccess,
+    setSuccessMessage,
+    navigate
+  );
 
   // --- Handler functions with proper context ---
   const handleAvatarChangeWithContext = (e) => {
@@ -68,10 +72,10 @@ function RegisterForm() {
 
   const handleSubmitWithContext = (e) => {
     const formData = {
-      firstName, 
-      lastName, 
-      email, 
-      password, 
+      firstName,
+      lastName,
+      email,
+      password,
       confirmPassword,
       nickname,
       avatar,
@@ -79,32 +83,34 @@ function RegisterForm() {
       addressLine2,
       city,
       stateName,
-      zipCode
+      zipCode,
     };
-    
+
     const setters = {
       setError,
       setSuccessMessage,
       setRegistrationSuccess,
-      setUser
+      setUser,
     };
-    
-    handleSubmit(e, formData, setters);
+
+    handleSubmitRegistration(e, formData, setters);
   };
 
   ///////////////////////////////////////////////////////////////////////
-  // ================================================================= //
   // ========================= JSX BELOW ============================= //
-  // ================================================================= //
   ///////////////////////////////////////////////////////////////////////
 
   return (
-    <form onSubmit={handleSubmitWithContext} className={styles.registerForm} autoComplete="off">
+    <form
+      onSubmit={handleSubmitWithContext}
+      className={styles.registerForm}
+      autoComplete="off"
+    >
       {/* ============ Section Header =========== */}
-      <h1 className={styles.registerTitle}>Register</h1> 
+      <h1 className={styles.registerTitle}>Register</h1>
 
       {/* ============ PERSONAL DETAILS SECTION ============  */}
-      <PersonalDetailsDiv 
+      <PersonalDetailsDiv
         firstName={firstName}
         setFirstName={setFirstName}
         lastName={lastName}
@@ -119,7 +125,7 @@ function RegisterForm() {
       />
 
       {/* ============ PROFILE & AVATAR SECTION ============  */}
-      <ProfileDiv 
+      <ProfileDiv
         nickname={nickname}
         setNickname={setNickname}
         avatarPreview={avatarPreview}
@@ -129,7 +135,7 @@ function RegisterForm() {
       />
 
       {/* ============ FULL ADDRESS SECTION ============  */}
-      <FullAddressDiv 
+      <FullAddressDiv
         address={address}
         setAddress={setAddress}
         addressLine2={addressLine2}

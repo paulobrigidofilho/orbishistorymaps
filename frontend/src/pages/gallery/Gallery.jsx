@@ -1,7 +1,5 @@
 //  ========== Component imports  ========== //
 
-import React from 'react'
-import { NavLink, useNavigate } from "react-router-dom";
 import MainNavBar from "../common/MainNavBar";
 
 ///////////////////////////////////////////////////////////////////////
@@ -11,8 +9,8 @@ import MainNavBar from "../common/MainNavBar";
 export default function Gallery() {
   return (
     <div>
-        <MainNavBar />
-        This will be the Gallery
+      <MainNavBar />
+      This will be the Gallery
     </div>
-  )
+  );
 }

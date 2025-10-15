@@ -12,36 +12,38 @@ import styles from "../Auth.module.css";
 
 // ========== PersonalDetailsDiv Component ========== //
 
-function PersonalDetailsDiv({ 
-  firstName, 
-  setFirstName, 
-  lastName, 
-  setLastName, 
-  email, 
-  setEmail, 
-  password, 
-  setPassword, 
-  confirmPassword, 
+function PersonalDetailsDiv({
+  firstName,
+  setFirstName,
+  lastName,
+  setLastName,
+  email,
+  setEmail,
+  password,
+  setPassword,
+  confirmPassword,
   setConfirmPassword,
   capitalizeWords,
-  readOnly = false
+  readOnly = false,
 }) {
   ///////////////////////////////////////////////////////////////////////
-  // ================================================================= //
   // ========================= JSX BELOW ============================= //
-  // ================================================================= //
   ///////////////////////////////////////////////////////////////////////
 
   return (
     <div className={styles.inputContainer}>
       <h2 className={styles.inputHeader}>Personal Details</h2>
-      
+
       <p className={styles.inputLabel}>First Name: *</p>
       <input
         type="text"
         placeholder={!readOnly ? "First Name (Required)" : ""}
         value={firstName}
-        onChange={!readOnly ? (e) => setFirstName(capitalizeWords(e.target.value)) : undefined}
+        onChange={
+          !readOnly
+            ? (e) => setFirstName(capitalizeWords(e.target.value))
+            : undefined
+        }
         readOnly={readOnly}
         className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
@@ -51,7 +53,11 @@ function PersonalDetailsDiv({
         type="text"
         placeholder={!readOnly ? "Last Name (Required)" : ""}
         value={lastName}
-        onChange={!readOnly ? (e) => setLastName(capitalizeWords(e.target.value)) : undefined}
+        onChange={
+          !readOnly
+            ? (e) => setLastName(capitalizeWords(e.target.value))
+            : undefined
+        }
         readOnly={readOnly}
         className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />

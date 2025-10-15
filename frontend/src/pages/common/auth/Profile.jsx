@@ -9,7 +9,7 @@
 import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import styles from "./Auth.module.css"; 
+import styles from "./Auth.module.css";
 
 //  ========== Component imports  ========== //
 import PersonalDetailsDiv from "./components/PersonalDetailsDiv";
@@ -36,31 +36,31 @@ function Profile() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [nickname, setNickname] = useState("");
-  const [avatar, setAvatar] = useState(null); 
-  const [avatarPreview, setAvatarPreview] = useState(null); 
-  const [address, setAddress] = useState("");         
+  const [avatar, setAvatar] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [address, setAddress] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
   const [city, setCity] = useState("");
-  const [stateName, setStateName] = useState("");  
+  const [stateName, setStateName] = useState("");
   const [zipCode, setZipCode] = useState("");
 
   // --- Component State ---
   const [error, setError] = useState("");
-  const [avatarError, setAvatarError] = useState(""); 
+  const [avatarError, setAvatarError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [currentUserId, setCurrentUserId] = useState(""); 
+  const [currentUserId, setCurrentUserId] = useState("");
 
   // --- Context and Routing ---
-  const { user, setUser } = useContext(AuthContext); 
-  const { userId: profileId } = useParams();        
+  const { user, setUser } = useContext(AuthContext);
+  const { userId: profileId } = useParams();
   const navigate = useNavigate();
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
-  // Fetch profile data when the component mounts or profileId changes
+  // Fetch profile data when the component mounts or profileId changes //
   ///////////////////////////////////////////////////////////////////////
   useEffect(() => {
-    if (profileId && profileId !== 'undefined') {
+    if (profileId && profileId !== "undefined") {
       const setters = {
         setFirstName,
         setLastName,
@@ -74,9 +74,9 @@ function Profile() {
         setStateName,
         setZipCode,
         setCurrentUserId,
-        setError
+        setError,
       };
-      
+
       fetchProfileData(profileId, setters);
     } else {
       setError("Invalid or missing profile ID");
@@ -86,7 +86,7 @@ function Profile() {
   ///////////////////////////////////////////////////////////////////////
   // ========================= HANDLER FUNCTIONS ===================== //
   ///////////////////////////////////////////////////////////////////////
-  
+
   // --- Handler functions with proper context ---
   const handleAvatarChangeWithContext = (e) => {
     handleProfileAvatarChange(e, setAvatar, setAvatarError, setAvatarPreview);
@@ -108,28 +108,23 @@ function Profile() {
       city,
       stateName,
       zipCode,
-      currentUserId
+      currentUserId,
     };
-    
+
     const setters = {
       setError,
       setSuccessMessage,
       setUser,
       setAvatar,
-      setAvatarPreview
+      setAvatarPreview,
     };
-    
+
     handleProfileSubmit(e, profileData, setters, profileId, user);
   };
 
-  ///////////////////////////////////////////////////////////////////////
-  // ================================================================= //
-  // ========================= JSX BELOW ============================= //
-  // ================================================================= //
-  ///////////////////////////////////////////////////////////////////////
-
   // Check if the logged-in user is viewing their own profile
-  const isOwnProfile = user && user.id && currentUserId && (user.id === currentUserId);
+  const isOwnProfile =
+    user && user.id && currentUserId && user.id === currentUserId;
 
   // Display loading or error state before rendering the form
   if (!currentUserId && !error) {
@@ -141,13 +136,25 @@ function Profile() {
     return <div className={styles.error}>{error}</div>;
   }
 
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= JSX BELOW ============================= //
+  ///////////////////////////////////////////////////////////////////////
+
   return (
-    <form onSubmit={isOwnProfile ? handleSubmitWithContext : (e) => e.preventDefault()} className={styles.registerForm} autoComplete="off">
+    <form
+      onSubmit={
+        isOwnProfile ? handleSubmitWithContext : (e) => e.preventDefault()
+      }
+      className={styles.registerForm}
+      autoComplete="off"
+    >
       {/* ============ Section Header =========== */}
-      <h1 className={styles.registerTitle}>{isOwnProfile ? "Edit Profile" : "View Profile"}</h1>
+      <h1 className={styles.registerTitle}>
+        {isOwnProfile ? "Edit Profile" : "View Profile"}
+      </h1>
 
       {/* ============ PERSONAL DETAILS SECTION ============  */}
-      <PersonalDetailsDiv 
+      <PersonalDetailsDiv
         firstName={firstName}
         setFirstName={setFirstName}
         lastName={lastName}
@@ -164,7 +171,7 @@ function Profile() {
       />
 
       {/* ============ PROFILE & AVATAR SECTION ============  */}
-      <ProfileDiv 
+      <ProfileDiv
         nickname={nickname}
         setNickname={setNickname}
         avatarPreview={avatarPreview}
@@ -175,7 +182,7 @@ function Profile() {
       />
 
       {/* ============ FULL ADDRESS SECTION ============  */}
-      <FullAddressDiv 
+      <FullAddressDiv
         address={address}
         setAddress={setAddress}
         addressLine2={addressLine2}
@@ -192,7 +199,7 @@ function Profile() {
 
       {/* Only show Save Changes button if it's the user's own profile */}
       {isOwnProfile && (
-        <button type="submit" className={styles.registerButton}>
+        <button type="submit" className={styles.submitButton}>
           Save Changes
         </button>
       )}
@@ -201,7 +208,7 @@ function Profile() {
       <button
         type="button"
         onClick={() => navigate("/")}
-        className={styles.homeButton || styles.registerButton}
+        className={styles.homeButton}
       >
         Return Home
       </button>

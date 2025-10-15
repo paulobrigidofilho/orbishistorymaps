@@ -1,15 +1,20 @@
-///////////////////////////////////
+//////////////////////////////////////////
 // ===== PROFILE BUTTON COMPONENT ===== //
-///////////////////////////////////
+//////////////////////////////////////////
 
 // This component handles user authentication UI elements including
 // profile display, login/signup options, and related dropdowns
 
+// =========== Module imports  ========== //
+import styles from "../MainNavBar.module.css";
 import { useState, useRef, useEffect, useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import styles from "../MainNavBar.module.css";
 import { AuthContext } from "../context/AuthContext.jsx";
+
+// =========== Component imports  ========== //
 import LoginModal from "../auth/LoginModal.jsx";
+
+// =========== Asset imports  ========== //
 import OrbisLogo from "../../../assets/common/orbislogo.png"; // Adjust path as needed
 
 const ProfileBtn = () => {
@@ -38,15 +43,20 @@ const ProfileBtn = () => {
 
   // ========================= DROPDOWN TOGGLE FUNCTIONS ========================= //
   const toggleLoginDropdown = () => setIsDropdownOpen(!isDropdownOpen);
-  const toggleProfileDropdown = () => setIsProfileDropdownOpen(!isProfileDropdownOpen);
+  const toggleProfileDropdown = () =>
+    setIsProfileDropdownOpen(!isProfileDropdownOpen);
 
   // ========================= CLICK OUTSIDE HANDLER ========================= //
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
       }
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target)
+      ) {
         setIsProfileDropdownOpen(false);
       }
     }
@@ -56,27 +66,35 @@ const ProfileBtn = () => {
   }, [dropdownRef, profileDropdownRef]);
 
   // ========================= HELPER FUNCTIONS ========================= //
+  // Get the correct avatar URL or fallback to default logo
   const getAvatarUrl = (userObj) => {
     if (!userObj || !userObj.avatar) {
       return OrbisLogo;
     }
-    
-    if (userObj.avatar.startsWith('http')) {
+
+    if (userObj.avatar.startsWith("http")) {
       return userObj.avatar;
     }
-    
+
     if (!userObj.avatar.trim()) {
       return OrbisLogo;
     }
-    
+
     return `${process.env.REACT_APP_API_URL}${userObj.avatar}`;
   };
+
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= JSX BELOW ============================= //
+  ///////////////////////////////////////////////////////////////////////
 
   return (
     <>
       {user ? (
         <div className={styles.profileContainer} ref={profileDropdownRef}>
-          <button onClick={toggleProfileDropdown} className={styles.profileButton}>
+          <button
+            onClick={toggleProfileDropdown}
+            className={styles.profileButton}
+          >
             <img
               src={getAvatarUrl(user)}
               alt="User avatar"
@@ -86,7 +104,7 @@ const ProfileBtn = () => {
                 e.target.src = OrbisLogo;
               }}
             />
-            <div className={styles.userNickname}>{user.nickname || 'User'}</div>
+            <div className={styles.userNickname}>{user.nickname || "User"}</div>
           </button>
 
           {isProfileDropdownOpen && (
@@ -110,7 +128,7 @@ const ProfileBtn = () => {
           )}
         </div>
       )}
-      
+
       {isLoginModalOpen && <LoginModal onClose={closeLoginModal} />}
     </>
   );

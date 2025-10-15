@@ -1,9 +1,16 @@
-import React, { createContext, useState, useEffect } from "react";
+///////////////////////////////////////////////////////////////////////
+// ======================= AUTH PROVIDER COMPONENT ================= //
+///////////////////////////////////////////////////////////////////////
+
+// This component provides authentication context to the app, managing user state,
+// login, and logout functionalities, and ensuring user data is persisted across sessions.
+
+// ====== Module imports ====== //
+import { createContext, useState, useEffect } from "react";
 import axios from "axios";
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= CREATE AUTH CONTEXT =================== //
-// ======================= AUTH PROVIDER COMPONENT ================= //
 ///////////////////////////////////////////////////////////////////////
 
 // Create the AuthContext
@@ -12,22 +19,21 @@ export const AuthContext = createContext(null);
 // Define the formatUserData helper function before using it
 const formatUserData = (userData) => {
   if (!userData) return null;
-  
+
   // Ensure avatar URL is properly formatted using environment variable
   let avatarUrl = userData.avatar;
-  if (avatarUrl && !avatarUrl.startsWith('http')) {
+  if (avatarUrl && !avatarUrl.startsWith("http")) {
     avatarUrl = `${process.env.REACT_APP_API_URL}${avatarUrl}`;
   }
-  
+
   return {
     ...userData,
-    avatar: avatarUrl
+    avatar: avatarUrl,
   };
 };
 
 // AuthProvider component
 export const AuthProvider = ({ children }) => {
-    
   ///////////////////////////////////////////////////////////////////////
   // ========================= STATE VARIABLES ======================= //
   ///////////////////////////////////////////////////////////////////////
@@ -69,15 +75,18 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       // Make API call to your backend to authenticate user using environment variable
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/login`, {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/login`,
+        {
+          email,
+          password,
+        }
+      );
 
       if (response.status === 200) {
         // Format the user data
         const userProfile = formatUserData(response.data.user);
-        
+
         // Set the user in the context
         setUser(userProfile);
 
