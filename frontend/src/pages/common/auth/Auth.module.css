@@ -1,0 +1,492 @@
+/****************************************************************
+ * AUTH MODULE STYLES
+ * 
+ * TABLE OF CONTENTS:
+ * 1. Responsive Design
+ * 2. Form Container & General Elements
+ * 3. Form Input Elements & Labels
+ * 4. Avatar & File Upload Styles
+ * 5. Button Styles
+ * 6. Messages (Error & Success)
+ * 7. Links & Navigation
+ * 8. Modal Styles
+ ****************************************************************/
+
+/****************************************************************
+ * 1. RESPONSIVE DESIGN
+ ****************************************************************/
+
+@media (max-width: 600px) {
+  .inputContainer {
+    padding: 10px;
+  }
+
+  .inputHeader {
+    font-size: 1.2em;
+  }
+
+  .inputField {
+    padding: 8px;
+    font-size: 14px;
+  }
+  
+  .registerButton,
+  .submitButton,
+  .loginButton,
+  .homeButton {
+    padding: 10px 15px;
+    font-size: 16px;
+  }
+  
+  .registerTitle,
+  .loginTitle {
+    font-size: 1.6em;
+  }
+}
+
+/****************************************************************
+ * 2. FORM CONTAINER & GENERAL ELEMENTS
+ ****************************************************************/
+
+/* Main form container */
+.registerForm {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin: 0 auto;
+}
+
+/* Form section containers */
+.inputContainer {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+/* Section headers */
+.inputHeader {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  color: #555;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+/* Main title */
+.registerTitle {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+/* Loading indicator */
+.loading {
+  text-align: center;
+  margin: 20px;
+  font-size: 18px;
+  color: #666;
+}
+
+/* Required fields note */
+.requiredNote {
+  font-style: italic;
+  color: #777;
+  margin-top: 10px;
+}
+
+/****************************************************************
+ * 3. FORM INPUT ELEMENTS & LABELS
+ ****************************************************************/
+
+/* Standard input field */
+.inputField {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.inputField:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+}
+
+/* Read-only field styling */
+.readOnly {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+  color: #666;
+  border-color: #ddd;
+}
+
+/* Standard label */
+.inputLabel {
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Nickname label (with top margin) */
+.inputLabelNick {
+  margin-top: 25px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+/****************************************************************
+ * 4. AVATAR & FILE UPLOAD STYLES
+ ****************************************************************/
+
+/* Avatar label */
+.avatarLabel {
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+  display: block;
+}
+
+/* Avatar preview container */
+.avatarPreviewContainer {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Avatar image */
+.avatarPreview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+/* File upload section layout */
+.uploadAvatarSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.uploadAvatarSection label {
+  margin-right: 10px;
+}
+
+.uploadAvatarSection input[type="file"] {
+  flex-grow: 1;
+  margin-bottom: 0;
+}
+
+.uploadAvatarSection .uploadButton {
+  margin-left: 10px;
+}
+
+/* Avatar error message */
+.avatarErrorMessage {
+  color: red;
+  font-size: 0.8em;
+  margin-bottom: 10px;
+}
+
+/****************************************************************
+ * 5. BUTTON STYLES
+ ****************************************************************/
+
+/* Primary button - Register */
+.registerButton {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+.registerButton:hover {
+  background-color: #0056b3;
+}
+
+/* Secondary button - Submit */
+.submitButton {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+.submitButton:hover {
+  background-color: #0056b3;
+}
+
+/* Third button - Home */
+.homeButton {
+  background-color: #6c757d;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.homeButton:hover {
+  background-color: #5a6268;
+}
+
+/* Delete button for avatar */
+.deleteButton {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  background-color: #dc3545;
+  color: white;
+  margin-left: 10px;
+}
+
+.deleteButton:hover {
+  background-color: #c82333;
+}
+
+/* Login button */
+.loginButton {
+  background-color: #007bff;
+  color: white;
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
+  margin-top: 15px;
+  text-align: center;
+  font-weight: bold;
+  display: block;
+}
+
+.loginButton:hover {
+  background-color: #0056b3;
+}
+
+/****************************************************************
+ * 6. MESSAGES (ERROR & SUCCESS)
+ ****************************************************************/
+
+/* Error message */
+.error {
+  color: red;
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid red;
+  border-radius: 4px;
+  background-color: #ffe6e6;
+}
+
+/* Success message */
+.success {
+  color: green;
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid green;
+  border-radius: 4px;
+  background-color: #e6ffe6;
+}
+
+/* Common spacing for messages */
+.error,
+.success {
+  margin-top: 30px;
+}
+
+/****************************************************************
+ * 7. LINKS & NAVIGATION
+ ****************************************************************/
+
+/* Register and login links */
+.registerLink,
+.loginLink {
+  text-align: center;
+  margin-top: 15px;
+  color: #555;
+  display: block;
+  width: 100%;
+}
+
+.registerLink a,
+.loginLink a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.registerLink a:hover,
+.loginLink a:hover {
+  text-decoration: underline;
+}
+
+/* Register link specific styles */
+.registerLink {
+  text-align: center;
+  margin-top: 20px;
+  color: #555;
+  display: block;
+  width: 100%;
+  font-size: 16px;
+  padding: 10px 0;
+}
+
+.registerLink a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 0 5px;
+}
+
+.registerLink a:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+/****************************************************************
+ * 8. MODAL STYLES
+ ****************************************************************/
+
+/* Login modal overlay */
+.loginModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal content container */
+.modalContent {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+}
+
+/* Close button */
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #bbb;
+  font-weight: 300;
+}
+
+.closeButton:hover {
+  color: #999;
+}
+
+/* Modal title */
+.loginTitle {
+  font-size: 2em;
+  margin-bottom: 30px;
+  color: #333;
+  text-align: center;
+  font-weight: 400;
+}
+
+/* Modal-specific styles */
+.loginModal .inputContainer {
+  margin-bottom: 0;
+}
+
+.loginModal .inputLabel {
+  color: #333;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.loginModal .inputField {
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.loginModal .loginButton {
+  background-color: #007bff;
+  color: white;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 15px;
+  text-align: center;
+  font-weight: 500;
+  display: block;
+}
+
+.loginModal .loginButton:hover {
+  background-color: #0056b3;
+}
+
+.loginModal .registerLink {
+  text-align: center;
+  margin-top: 15px;
+  color: #555;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  font-size: 14px;
+  gap: 5px;
+}
+
+.loginModal .registerLink a,
+.loginModal .registerLink NavLink {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px; 
+}

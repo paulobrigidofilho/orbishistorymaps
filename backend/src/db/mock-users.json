@@ -1,0 +1,17 @@
+[
+  {
+    "user_id": "a1b2c3d4-e5f6-47b8-b9d0-c1d2e3f4a5b6",
+    "user_firstname": "Admin",
+    "user_lastname": "User",
+    "user_email": "admin@orbis.com",
+    "user_password": "$2b$10$eCyEXE3.Fm5qT0PuSfA8b.eSyvRzZQEGYpwHwNadoEf5ngQjUBzTy",
+    "user_nickname": "OrbisAdmin",
+    "user_avatar": "",
+    "user_address": "123 History Avenue",
+    "user_address_line_2": "Floor 3",
+    "user_city": "São Paulo",
+    "user_state": "SP",
+    "user_zipcode": "01310-200",
+    "user_role": "admin"
+  }
+]

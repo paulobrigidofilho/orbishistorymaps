@@ -1,8 +1,20 @@
-//  ========== Component imports  ========== //
-import React, { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext.jsx'; // Import AuthContext
+///////////////////////////////////////
+// ===== LOGIN MODAL COMPONENT ===== //
+///////////////////////////////////////
 
-//  ==========  FUNCTIONS SECTION ========== //
+// This component renders a modal for user login, handling email and password input,
+// and providing feedback for login errors.
+
+//  ========== Module imports  ========== //
+import styles from "./Auth.module.css"; 
+import { useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext.jsx';
+import { NavLink } from 'react-router-dom';
+
+//  ========== Function imports  ========== //
+import handleSubmitLogin from './functions/handleSubmitLogin';
+
+// ========================= STATE VARIABLES ========================= //
 
 function LoginModal({ onClose }) {
   const [email, setEmail] = useState('');
@@ -10,50 +22,54 @@ function LoginModal({ onClose }) {
   const [error, setError] = useState('');
   const { login } = useContext(AuthContext); // Get login function from context
 
-////////////////////////////////////////////////////////////////////////
-// ========================= LOGIN FUNCTION ========================= //
-// ======= handleSubmit handles the form submission for login ======= //
-////////////////////////////////////////////////////////////////////////
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      
-      await login(email, password); // Call the login function from AuthContext
-      
-      onClose(); // Close the modal on successful login
-    } catch (err) {
-      console.error('Login error:', err);
-      setError(err.message || 'Login failed');
-    }
+  // Handler function with proper context
+  const handleSubmitWithContext = (e) => {
+    const credentials = { email, password };
+    handleSubmitLogin(e, credentials, login, setError, onClose);
   };
 
-    ///////////////////////////////////////////////////////////////////////
-    // ========================= JSX BELOW ============================= //
-    ///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ========================= JSX BELOW ============================= //
+///////////////////////////////////////////////////////////////////////
 
   return (
-    <div className="login-modal">
-      <form onSubmit={handleSubmit}>
-        {error && <div className="error">{error}</div>}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Login</button>
-        <p>
-          Not a user? <a href="/register">Register here</a>
-        </p>
-      </form>
-      <button onClick={onClose}>Close</button>
+    <div className={styles.loginModal}>
+      <div className={styles.modalContent}>
+        <h2 className={styles.loginTitle}>Log In</h2>
+        <button onClick={onClose} className={styles.closeButton}>×</button>
+        
+        <form onSubmit={handleSubmitWithContext}>
+          {error && <div className={styles.error}>{error}</div>}
+          
+          <div className={styles.inputContainer}>
+            <p className={styles.inputLabel}>Email:</p>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={styles.inputField}
+            />
+            
+            <p className={styles.inputLabel}>Password:</p>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={styles.inputField}
+            />
+            
+            <button type="submit" className={styles.loginButton}>
+              Log In
+            </button>
+          </div>
+        </form>
+        
+        <div className={styles.registerLink}>
+          Not a user? <NavLink to="/register">Register here</NavLink>
+        </div>
+      </div>
     </div>
   );
 }
