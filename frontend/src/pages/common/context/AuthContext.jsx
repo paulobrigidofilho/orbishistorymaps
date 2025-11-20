@@ -8,6 +8,7 @@
 // ====== Module imports ====== //
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import getPublicConfig from "../auth/helpers/getPublicConfig"; // new import
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= CREATE AUTH CONTEXT =================== //
@@ -67,40 +68,50 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  // Restore session user from server on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const baseUrl = await getPublicConfig();
+        const url = baseUrl ? `${baseUrl}/api/session` : `/api/session`;
+        const res = await axios.get(url, { withCredentials: true });
+        if (res.status === 200 && res.data && res.data.user) {
+          setUser(res.data.user);
+        }
+      } catch (err) {
+        // If fetching session fails, we keep user as-is (no crash)
+        console.warn("Failed to restore session user:", err.message || err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
   ///////////////////////////////////////////////////////////////////////
   // ========================= LOGIN FUNCTION ======================== //
   ///////////////////////////////////////////////////////////////////////
 
   // Login function
   const login = async (email, password) => {
+    const baseUrl = await getPublicConfig();
+    const url = baseUrl ? `${baseUrl}/api/login` : `/api/login`;
+
     try {
-      // Make API call to your backend to authenticate user using environment variable
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/login`,
-        {
-          email,
-          password,
-        }
+      const res = await axios.post(
+        url,
+        { email, password },
+        { withCredentials: true }
       );
 
-      if (response.status === 200) {
-        // Format the user data
-        const userProfile = formatUserData(response.data.user);
-
-        // Set the user in the context
-        setUser(userProfile);
-
-        // Store the user data in local storage
-        localStorage.setItem("user", JSON.stringify(userProfile));
-      } else {
-        // Handle unsuccessful login
-        console.error("Login failed:", response.data.message);
-        throw new Error(response.data.message || "Login failed");
+      if (res.status === 200 && res.data && res.data.user) {
+        // persist user in context so NavBar updates immediately
+        setUser(res.data.user);
+        return res.data.user;
       }
-    } catch (error) {
-      // Handle network errors or other exceptions
-      console.error("Login error:", error);
-      throw new Error(error.response?.data?.message || "Login failed");
+      throw new Error(res.data?.message || "Login failed");
+    } catch (err) {
+      console.error("Login error:", err);
+      throw err;
     }
   };
 
@@ -109,10 +120,16 @@ export const AuthProvider = ({ children }) => {
   ///////////////////////////////////////////////////////////////////////
 
   // Logout function
-  const logout = () => {
-    // Clear user data from state and storage
-    setUser(null);
-    localStorage.removeItem("user");
+  const logout = async () => {
+    try {
+      const baseUrl = await getPublicConfig();
+      const url = baseUrl ? `${baseUrl}/api/logout` : `/api/logout`;
+      await axios.post(url, {}, { withCredentials: true }).catch(() => {});
+    } catch (err) {
+      // ignore errors from logout call, still clear client state
+    } finally {
+      setUser(null);
+    }
   };
 
   ///////////////////////////////////////////////////////////////////////
@@ -122,10 +139,9 @@ export const AuthProvider = ({ children }) => {
   // Value object to be provided by the context
   const value = {
     user,
-    loading,
+    setUser,
     login,
     logout,
-    setUser, // Make setUser available in the context
   };
 
   ///////////////////////////////////////////////////////////////////////

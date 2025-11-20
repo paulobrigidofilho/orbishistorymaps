@@ -111,7 +111,7 @@ const authConfig = {
     saltRounds: 10,
   },
   session: {
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'default-secret',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -121,6 +121,47 @@ const authConfig = {
     },
   },
 };
+
+/////////////////////////////////////////////////////////////
+// ===== GUARD: create session store & middleware if lib present =====
+/////////////////////////////////////////////////////////////
+
+let sessionStore = null;
+let sessionMiddleware = null;
+
+try {
+  // Require session packages only if available
+  const session = require('express-session');
+  const MySQLStoreFactory = require('express-mysql-session');
+
+  // Create MySQL session store options based on dbConfig
+  const sessionStoreOptions = {
+    host: process.env.MYSQL_HOST || "localhost",
+    port: process.env.MYSQL_PORT ? Number(process.env.MYSQL_PORT) : 3306,
+    user: process.env.MYSQL_USER || "root",
+    password: process.env.MYSQL_PASSWORD || "",
+    database: process.env.MYSQL_DATABASE || "orbis_db",
+  };
+
+  const MySQLStore = MySQLStoreFactory(session);
+  sessionStore = new MySQLStore(sessionStoreOptions);
+
+  // Build express-session middleware using authConfig and the created store
+  sessionMiddleware = session({
+    secret: authConfig.session.secret,
+    resave: authConfig.session.resave,
+    saveUninitialized: authConfig.session.saveUninitialized,
+    cookie: authConfig.session.cookie,
+    store: sessionStore,
+  });
+
+  console.log('Session middleware configured with MySQL store.');
+} catch (err) {
+  // If packages not installed, warn and continue without session support
+  console.warn('express-session or express-mysql-session not available. Session middleware disabled.', err.message || err);
+  sessionStore = null;
+  sessionMiddleware = null;
+}
 
 //////////////////////////////////////
 // ===== CONFIGURATION OBJECT ===== //
@@ -136,6 +177,8 @@ const config = {
   upload,
   uploadConfig,
   authConfig,
+  sessionStore,      
+  sessionMiddleware, 
   staticPaths: {
     avatars: path.resolve(__dirname, "../../uploads/avatars"),
   },

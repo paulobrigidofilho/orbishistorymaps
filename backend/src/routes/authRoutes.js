@@ -6,7 +6,7 @@ const config = require('../config/config');
 const upload = config.upload;  
 
 // Import validation middleware
-const validate = require('../middleware/validationMiddleware');
+const validate = require('../middleware/validationMiddleware'); // <== new
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= ROUTES DEFINITION ===================== //
@@ -25,10 +25,12 @@ router.post('/login',
   authController.login
 );
 
-router.get('/profile/:userId', 
-  authController.getProfile
+// New logout route
+router.post('/logout',
+  authController.logout
 );
 
+// Protect profile update - require session
 router.put('/profile/:userId', 
   upload.single('avatar'),
   validate.validateAvatarUpload,
@@ -47,5 +49,13 @@ router.post('/upload-avatar/:userId',
   validate.validateAvatarUpload,
   authController.uploadAvatar
 );
+
+// Add back GET profile route so frontend can fetch a user's profile
+router.get('/profile/:userId',
+  authController.getProfile
+);
+
+// Session endpoint to allow frontend to restore user from server session
+router.get('/session', authController.getSession);
 
 module.exports = router;

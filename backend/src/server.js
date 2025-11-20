@@ -1,11 +1,12 @@
 // ==== Module imports ======= //
 
-const express = require('express');
-const path = require('path');
-const cors = require('cors');
-const config = require('./config/config');
-require('dotenv').config();
-
+require("dotenv").config();
+const express = require("express");
+const path = require("path");
+const cors = require("cors");
+const config = require("./config/config");
+const session = require("express-session");
+const MySQLStore = require("express-mysql-session")(session);
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= APP INITIALIZATION ==================== //
@@ -17,6 +18,9 @@ const port = config.port;
 ///////////////////////////////////////////////////////////////////////
 // ========================= MIDDLEWARE ============================ //
 ///////////////////////////////////////////////////////////////////////
+
+// Mount session middleware from config (session store and options are defined in config.js)
+app.use(config.sessionMiddleware);
 
 // Configure CORS
 app.use(cors(config.corsConfig));
@@ -30,18 +34,18 @@ app.use(express.urlencoded({ extended: true }));
 ///////////////////////////////////////////////////////////////////////
 
 // ===================== Routes Imports ============================ //
-const authRoutes = require('./routes/authRoutes.js'); 
-const configRoutes = require('./routes/configRoutes.js'); 
+const authRoutes = require("./routes/authRoutes.js");
+const configRoutes = require("./routes/configRoutes.js");
 
 // ====================== Routes Setup ============================= //
-app.use('/api', authRoutes); 
-app.use('/config', configRoutes); 
+app.use("/api", authRoutes);
+app.use("/config", configRoutes);
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= STATIC FILES ========================== //
 ///////////////////////////////////////////////////////////////////////
 
-app.use('/uploads/avatars', express.static(config.staticPaths.avatars)); // Serve static files from the avatars directory
+app.use("/uploads/avatars", express.static(config.staticPaths.avatars)); // Serve static files from the avatars directory
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= SERVER START ========================== //

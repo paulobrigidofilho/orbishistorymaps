@@ -74,6 +74,13 @@ const login = async (req, res) => {
         
         const userProfile = await authService.loginUser({ email, password });
         
+        // Persist user in session
+        if (req.session) {
+            req.session.user = userProfile;
+            // optional: set last activity or regenerate session id for security
+            // req.session.save();
+        }
+
         console.log('Login successful. Sending user profile:', userProfile);
         return res.status(200).json({ message: 'Login successful', user: userProfile });
     } catch (error) {
@@ -84,16 +91,49 @@ const login = async (req, res) => {
     }
 };
 
+// ======================== LOGOUT USER ========================= //
+const logout = (req, res) => {
+    if (!req.session) {
+        return res.status(200).json({ message: 'No active session' });
+    }
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Session destroy error:', err);
+            return res.status(500).json({ message: 'Failed to log out' });
+        }
+        // clear cookie on client
+        res.clearCookie('connect.sid');
+        return res.status(200).json({ message: 'Logged out successfully' });
+    });
+};
+
+// ======================== GET SESSION (current user) ========================= //
+// Return the user stored in server session (if any)
+const getSession = (req, res) => {
+  try {
+    if (req.session && req.session.user) {
+      return res.status(200).json({ user: req.session.user });
+    }
+    return res.status(200).json({ user: null });
+  } catch (err) {
+    return handleServerError(res, err, 'Get session error');
+  }
+};
+
 // ======================== GET PROFILE ========================= //
 const getProfile = async (req, res) => {
     try {
         const userId = req.params.userId;
-        
+
+        // DEBUG: log incoming request id for troubleshooting
+        console.log(`GET /api/profile/${userId} requested. Session user:`, req.session && req.session.user ? req.session.user.id : null);
+
         const userProfile = await authService.getUserProfile(userId);
-        
-        console.log('Profile retrieved successfully');
+
+        console.log('Profile retrieved successfully for userId:', userId, '->', userProfile);
         return res.status(200).json({ message: 'Profile retrieved successfully', user: userProfile });
     } catch (error) {
+        console.error('Error in getProfile:', error);
         if (error.message === 'Profile not found') {
             return res.status(404).json({ message: 'Profile not found' });
         }
@@ -134,6 +174,8 @@ const authController = {
     register,
     uploadAvatar,
     login,
+    logout,
+    getSession,      // <== added
     getProfile,
     updateProfile,
 };
