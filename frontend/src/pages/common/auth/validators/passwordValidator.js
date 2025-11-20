@@ -48,7 +48,16 @@ export const validatePassword = (password, useStrict = true) => {
     }
     return { success: true, error: null };
   } catch (error) {
-    const errorMessage = error.errors?.[0]?.message || "Invalid password";
+    // Robust extraction of messages from Zod errors (supports .errors and .issues)
+    const issues = error?.errors || error?.issues || [];
+    const messages = Array.isArray(issues) && issues.length
+      ? issues.map(i => i?.message || String(i)).filter(Boolean)
+      : [];
+
+    const errorMessage = messages.length
+      ? messages.join('; ')
+      : (error?.message || "Invalid password");
+
     return { success: false, error: errorMessage };
   }
 };

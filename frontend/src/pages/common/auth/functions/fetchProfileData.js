@@ -7,6 +7,7 @@
 
 import axios from "axios";
 import { z } from "zod";
+import getPublicConfig from "../helpers/getPublicConfig";
 
 /**
  * Zod schema for validating profile ID
@@ -52,7 +53,11 @@ const fetchProfileData = async (profileId, setters) => {
   }
   
   try {
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/profile/${profileId}`);
+    // Resolve API base at runtime (may be '' for relative paths)
+    const baseUrl = await getPublicConfig();
+    const url = baseUrl ? `${baseUrl}/api/profile/${profileId}` : `/api/profile/${profileId}`;
+
+    const response = await axios.get(url);
 
     if (response.status === 200 && response.data) {
       // Validate response data
@@ -82,11 +87,12 @@ const fetchProfileData = async (profileId, setters) => {
         const currentAvatarPath = userData.avatar || null;
         setters.setAvatar(currentAvatarPath); 
         
-        // Update avatar URL construction using environment variable
+        // Update avatar URL construction using resolved baseUrl or keep relative
         if (currentAvatarPath) {
-          setters.setAvatarPreview(currentAvatarPath.startsWith('http')
+          const preview = currentAvatarPath.startsWith('http')
                           ? currentAvatarPath
-                          : `${process.env.REACT_APP_API_URL}${currentAvatarPath}`);
+                          : (baseUrl ? `${baseUrl.replace(/\/$/, '')}${currentAvatarPath}` : currentAvatarPath);
+          setters.setAvatarPreview(preview);
         } else {
           setters.setAvatarPreview(null);
         }

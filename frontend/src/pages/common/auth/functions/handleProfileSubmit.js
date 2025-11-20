@@ -3,6 +3,7 @@ import {
   validateProfileUpdate, 
   validateProfileAccess 
 } from "../validators/profileValidator";
+import getPublicConfig from "../helpers/getPublicConfig"; // added
 
 //////////////////////////////////////////
 // ===== HANDLE PROFILE SUBMIT ===== //
@@ -70,25 +71,28 @@ const handleProfileSubmit = async (e, profileData, setters, profileId, user) => 
       formData.append("avatarUrl", profileData.avatar);
     }
 
+    const baseUrl = await getPublicConfig(); // resolve base URL
+    const url = baseUrl ? `${baseUrl}/api/profile/${profileId}` : `/api/profile/${profileId}`;
+
     // Send PUT request to the update endpoint
-    const response = await axios.put(`/api/profile/${profileId}`, formData, {
+    const response = await axios.put(url, formData, {
       headers: {
         "Content-Type": "multipart/form-data", // Important for file uploads
       },
+      withCredentials: true,
     });
 
     // Handle success response
     if (response.status === 200) {
       setters.setSuccessMessage("Profile updated successfully!");
 
-      // Extract updated user data from response
       const updatedUserData = response.data.result?.user || response.data.user || {};
 
-      // Determine avatar URL properly
+      // Determine avatar URL properly using baseUrl (no direct process.env)
       const finalAvatarPath = updatedUserData.avatar || (profileData.avatar instanceof File ? URL.createObjectURL(profileData.avatar) : profileData.avatar);
       const finalAvatarUrl = finalAvatarPath && finalAvatarPath.startsWith('http')
                           ? finalAvatarPath
-                          : `${process.env.REACT_APP_API_URL}${finalAvatarPath}`;
+                          : (baseUrl ? `${baseUrl.replace(/\/$/, '')}${finalAvatarPath}` : finalAvatarPath);
 
       // Update the AuthContext if the updated profile belongs to the logged-in user
       if (user && setters.setUser && user.id === profileData.currentUserId) {

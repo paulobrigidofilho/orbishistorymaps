@@ -30,12 +30,12 @@ app.use(express.urlencoded({ extended: true }));
 ///////////////////////////////////////////////////////////////////////
 
 // ===================== Routes Imports ============================ //
-
 const authRoutes = require('./routes/authRoutes.js'); 
+const configRoutes = require('./routes/configRoutes.js'); 
 
 // ====================== Routes Setup ============================= //
-
 app.use('/api', authRoutes); 
+app.use('/config', configRoutes); 
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= STATIC FILES ========================== //

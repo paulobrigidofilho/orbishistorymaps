@@ -72,15 +72,19 @@ const ProfileBtn = () => {
       return OrbisLogo;
     }
 
-    if (userObj.avatar.startsWith("http")) {
+    // If it's already an absolute URL, return it
+    if (typeof userObj.avatar === 'string' && userObj.avatar.startsWith("http")) {
       return userObj.avatar;
     }
 
-    if (!userObj.avatar.trim()) {
+    // If it's an empty or whitespace-only string, return fallback
+    if (!userObj.avatar || (typeof userObj.avatar === 'string' && !userObj.avatar.trim())) {
       return OrbisLogo;
     }
 
-    return `${process.env.REACT_APP_API_URL}${userObj.avatar}`;
+    // Otherwise assume it's a relative path served by the backend (e.g., /uploads/avatars/...)
+    // Return as-is so the browser will request same-origin /uploads/avatars/...
+    return userObj.avatar;
   };
 
   ///////////////////////////////////////////////////////////////////////
