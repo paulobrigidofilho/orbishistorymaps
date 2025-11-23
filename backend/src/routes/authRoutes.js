@@ -38,24 +38,27 @@ router.put('/profile/:userId',
   authController.updateProfile
 );
 
+// Avatar upload route
 router.post('/upload-avatar', 
   upload.single('avatar'), 
   validate.validateAvatarUpload,
   authController.uploadAvatar
 );
 
+// Avatar upload route with userId param
 router.post('/upload-avatar/:userId', 
   upload.single('avatar'), 
   validate.validateAvatarUpload,
   authController.uploadAvatar
 );
 
-// Add back GET profile route so frontend can fetch a user's profile
-router.get('/profile/:userId',
-  authController.getProfile
-);
-
 // Session endpoint to allow frontend to restore user from server session
 router.get('/session', authController.getSession);
+
+// Get user profile by ID
+router.get('/profile/:userId', authController.getProfile);
+
+// Healthcheck endpoint for Docker/infra
+router.get('/health', authController.health);
 
 module.exports = router;

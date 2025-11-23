@@ -3,7 +3,6 @@ import {
   validateProfileUpdate, 
   validateProfileAccess 
 } from "../validators/profileValidator";
-import getPublicConfig from "../helpers/getPublicConfig"; // added
 
 //////////////////////////////////////////
 // ===== HANDLE PROFILE SUBMIT ===== //
@@ -71,13 +70,10 @@ const handleProfileSubmit = async (e, profileData, setters, profileId, user) => 
       formData.append("avatarUrl", profileData.avatar);
     }
 
-    const baseUrl = await getPublicConfig(); // resolve base URL
-    const url = baseUrl ? `${baseUrl}/api/profile/${profileId}` : `/api/profile/${profileId}`;
-
-    // Send PUT request to the update endpoint
-    const response = await axios.put(url, formData, {
+    // Use relative path - Vite proxy handles routing to backend
+    const response = await axios.put(`/api/profile/${profileId}`, formData, {
       headers: {
-        "Content-Type": "multipart/form-data", // Important for file uploads
+        "Content-Type": "multipart/form-data",
       },
       withCredentials: true,
     });
@@ -88,11 +84,11 @@ const handleProfileSubmit = async (e, profileData, setters, profileId, user) => 
 
       const updatedUserData = response.data.result?.user || response.data.user || {};
 
-      // Determine avatar URL properly using baseUrl (no direct process.env)
+      // Simplified avatar URL handling - no baseUrl needed
       const finalAvatarPath = updatedUserData.avatar || (profileData.avatar instanceof File ? URL.createObjectURL(profileData.avatar) : profileData.avatar);
       const finalAvatarUrl = finalAvatarPath && finalAvatarPath.startsWith('http')
                           ? finalAvatarPath
-                          : (baseUrl ? `${baseUrl.replace(/\/$/, '')}${finalAvatarPath}` : finalAvatarPath);
+                          : finalAvatarPath; // Keep as relative path
 
       // Update the AuthContext if the updated profile belongs to the logged-in user
       if (user && setters.setUser && user.id === profileData.currentUserId) {

@@ -4,8 +4,6 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const config = require("./config/config");
-const session = require("express-session");
-const MySQLStore = require("express-mysql-session")(session);
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= APP INITIALIZATION ==================== //
@@ -14,12 +12,20 @@ const MySQLStore = require("express-mysql-session")(session);
 const app = express();
 const port = config.port;
 
-///////////////////////////////////////////////////////////////////////
-// ========================= MIDDLEWARE ============================ //
-///////////////////////////////////////////////////////////////////////
+console.log("Starting Orbis backend server...");
 
 // Mount session middleware from config (session store and options are defined in config.js)
-app.use(config.sessionMiddleware);
+if (config.sessionMiddleware) {
+  app.use(config.sessionMiddleware);
+  console.log("Session middleware mounted.");
+  if (config.sessionStore) {
+    config.sessionStore.on("error", function (error) {
+      console.error("Session store error:", error);
+    });
+  }
+} else {
+  console.warn("Session middleware is not configured!");
+}
 
 // Configure CORS
 app.use(cors(config.corsConfig));

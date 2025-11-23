@@ -1,0 +1,19 @@
+FROM node:20
+
+# Set workdir
+WORKDIR /usr/src/app
+
+# Only copy package files first to leverage layer caching
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy application source
+COPY . .
+
+# Expose backend port
+EXPOSE 4000
+
+# Use dev script (ensure package.json has "dev": "nodemon src/server.js" or similar)
+CMD ["npm", "run", "dev"]

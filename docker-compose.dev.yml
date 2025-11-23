@@ -1,0 +1,62 @@
+services:
+  db:
+    image: mysql:8
+    restart: unless-stopped
+    command: ["mysqld", "--mysql-native-password=ON"]
+    env_file:
+      - ./backend/.env.dev
+    environment:
+      - MYSQL_DATABASE=orbishm
+    ports:
+      - "3307:3306" # map host 3307 to container 3306 to avoid conflicts with host MySQL
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./backend/docker-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    command: npm run dev
+    env_file:
+      - ./backend/.env.dev
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_USER=root
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:4000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    command: npm run dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: "http://localhost:4000"
+
+volumes:
+  db_data:

@@ -7,7 +7,6 @@
 
 import axios from "axios";
 import { z } from "zod";
-import getPublicConfig from "../helpers/getPublicConfig";
 
 /**
  * Zod schema for validating profile ID
@@ -53,11 +52,8 @@ const fetchProfileData = async (profileId, setters) => {
   }
   
   try {
-    // Resolve API base at runtime (may be '' for relative paths)
-    const baseUrl = await getPublicConfig();
-    const url = baseUrl ? `${baseUrl}/api/profile/${profileId}` : `/api/profile/${profileId}`;
-
-    const response = await axios.get(url);
+    // Use relative path - Vite proxy handles routing to backend
+    const response = await axios.get(`/api/profile/${profileId}`);
 
     if (response.status === 200 && response.data) {
       // Validate response data
@@ -91,7 +87,7 @@ const fetchProfileData = async (profileId, setters) => {
         if (currentAvatarPath) {
           const preview = currentAvatarPath.startsWith('http')
                           ? currentAvatarPath
-                          : (baseUrl ? `${baseUrl.replace(/\/$/, '')}${currentAvatarPath}` : currentAvatarPath);
+                          : currentAvatarPath; // Keep as relative path
           setters.setAvatarPreview(preview);
         } else {
           setters.setAvatarPreview(null);

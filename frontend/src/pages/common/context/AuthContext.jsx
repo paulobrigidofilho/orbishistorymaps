@@ -8,7 +8,6 @@
 // ====== Module imports ====== //
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
-import getPublicConfig from "../auth/helpers/getPublicConfig";
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= CREATE AUTH CONTEXT =================== //
@@ -45,7 +44,6 @@ const AuthProvider = ({ children }) => {
   ///////////////////////////////////////////////////////////////////////
 
   // useEffect hook to check for existing user data on initial load
-
   useEffect(() => {
     // Update localStorage whenever user changes
     if (user) {
@@ -55,29 +53,31 @@ const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
+  // Single useEffect for session restore - remove the duplicate ones
   useEffect(() => {
-    // New useEffect to handle initial loading
-    // Set loading to false after initial check, regardless of whether a user is found
-    setLoading(false);
-  }, []);
-
-  // Restore session user from server on mount
-  useEffect(() => {
-    (async () => {
+    const restoreSession = async () => {
       try {
-        const baseUrl = await getPublicConfig();
-        const url = baseUrl ? `${baseUrl}/api/session` : `/api/session`;
-        const res = await axios.get(url, { withCredentials: true });
-        if (res.status === 200 && res.data && res.data.user) {
-          setUser(res.data.user);
+        // Add a small delay to ensure backend is ready
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const res = await axios.get("/api/session", { 
+          withCredentials: true,
+          timeout: 5000
+        });
+        if (res.status === 200 && res.data) {
+          setUser(formatUserData(res.data.user));
+        } else {
+          setUser(null);
         }
       } catch (err) {
-        // If fetching session fails, we keep user as-is (no crash)
         console.warn("Failed to restore session user:", err.message || err);
+        setUser(null);
       } finally {
         setLoading(false);
       }
-    })();
+    };
+    
+    restoreSession();
   }, []);
 
   ///////////////////////////////////////////////////////////////////////
@@ -86,12 +86,10 @@ const AuthProvider = ({ children }) => {
 
   // Login function
   const login = async (email, password) => {
-    const baseUrl = await getPublicConfig();
-    const url = baseUrl ? `${baseUrl}/api/login` : `/api/login`;
-
     try {
+      // Use relative path - Vite proxy routes to backend
       const res = await axios.post(
-        url,
+        "/api/login",
         { email, password },
         { withCredentials: true }
       );
@@ -115,9 +113,10 @@ const AuthProvider = ({ children }) => {
   // Logout function
   const logout = async () => {
     try {
-      const baseUrl = await getPublicConfig();
-      const url = baseUrl ? `${baseUrl}/api/logout` : `/api/logout`;
-      await axios.post(url, {}, { withCredentials: true }).catch(() => {});
+      // Use relative path - Vite proxy routes to backend
+      await axios.post("/api/logout", {}, { withCredentials: true }).catch(
+        () => {}
+      );
     } catch (err) {
       // ignore errors from logout call, still clear client state
     } finally {
@@ -142,7 +141,10 @@ const AuthProvider = ({ children }) => {
   ///////////////////////////////////////////////////////////////////////
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>
+      Loading...
+      
+    </div>;
   }
 
   ///////////////////////////////////////////////////////////////////////

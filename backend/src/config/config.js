@@ -24,11 +24,18 @@ const fs = require("fs");
 /////////////////////////////////////////////
 
 const dbConfig = {
-  host: process.env.MYSQL_HOST || "localhost",
-  user: process.env.MYSQL_USER || "root",
+  host: process.env.MYSQL_HOST,
+  user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE || "orbis_db",
+  database: process.env.MYSQL_DATABASE,
 };
+
+// Warn if DB password missing
+if (!dbConfig.password) {
+  console.warn(
+    "WARNING: MYSQL_PASSWORD is not set. Do NOT run this in production."
+  );
+}
 
 // Create database connection pool
 const db = mysql.createPool(dbConfig);
@@ -38,7 +45,7 @@ db.query("SELECT 1", (err) => {
   if (err) {
     console.error("Database connection error:", err);
   } else {
-    console.log("Connected to database");
+    console.log("Connected to database (pool is open)");
   }
 });
 
@@ -116,20 +123,23 @@ const upload = multer(uploadConfig);
 //////////////////////////////////////
 
 const authConfig = {
-  bcrypt: {
-    saltRounds: 10,
-  },
+  bcrypt: { saltRounds: 10 },
   session: {
-    secret: process.env.SESSION_SECRET || 'default-secret',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 24 * 60 * 60 * 1000,
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
     },
   },
 };
+if (!process.env.SESSION_SECRET) {
+  console.warn(
+    "WARNING: SESSION_SECRET missing. Set it in .env for a public repo."
+  );
+}
 
 ///////////////////////////////////////
 // ===== SESSION CONFIGURATION ===== //
@@ -138,45 +148,44 @@ const authConfig = {
 let sessionStore = null;
 let sessionMiddleware = null;
 
-try {
-  // Require session packages only if available
-  const session = require('express-session');
-  const MySQLStoreFactory = require('express-mysql-session');
+const session = require("express-session");
+const MySQLStoreFactory = require("express-mysql-session");
 
-  // Create MySQL session store options based on dbConfig
-  const sessionStoreOptions = {
-    host: process.env.MYSQL_HOST || "localhost",
-    port: process.env.MYSQL_PORT ? Number(process.env.MYSQL_PORT) : 3306,
-    user: process.env.MYSQL_USER || "root",
-    password: process.env.MYSQL_PASSWORD || "",
-    database: process.env.MYSQL_DATABASE || "orbis_db",
-  };
+// Create MySQL session store options based on dbConfig
+const sessionStoreOptions = {
+  host: process.env.MYSQL_HOST,
+  port: process.env.MYSQL_PORT ? Number(process.env.MYSQL_PORT) : 3306,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD, 
+  database: process.env.MYSQL_DATABASE,
+};
 
-  const MySQLStore = MySQLStoreFactory(session);
-  sessionStore = new MySQLStore(sessionStoreOptions);
+const MySQLStore = MySQLStoreFactory(session);
+sessionStore = new MySQLStore(sessionStoreOptions);
 
-  // Build express-session middleware using authConfig and the created store
-  sessionMiddleware = session({
-    secret: authConfig.session.secret,
-    resave: authConfig.session.resave,
-    saveUninitialized: authConfig.session.saveUninitialized,
-    cookie: authConfig.session.cookie,
-    store: sessionStore,
-  });
+sessionStore.on("connect", () => {
+  console.log("Session store connected to MySQL successfully.");
+});
+sessionStore.on("error", (err) => {
+  console.error("Session store connection error:", err);
+  throw err;
+});
 
-  console.log('Session middleware configured with MySQL store.');
-} catch (err) {
-  // If packages not installed, warn and continue without session support
-  console.warn('express-session or express-mysql-session not available. Session middleware disabled.', err.message || err);
-  sessionStore = null;
-  sessionMiddleware = null;
-}
+// Build express-session middleware using authConfig and the created store
+sessionMiddleware = session({
+  secret: authConfig.session.secret,
+  resave: authConfig.session.resave,
+  saveUninitialized: authConfig.session.saveUninitialized,
+  cookie: authConfig.session.cookie,
+  store: sessionStore,
+});
+
+console.log("Session middleware configured with MySQL store.");
 
 //////////////////////////////////////
 // ===== CONFIGURATION OBJECT ===== //
 //////////////////////////////////////
 
-// Add API URL to the config object
 const config = {
   port: process.env.PORT || 4000,
   apiUrl: process.env.REACT_APP_API_URL || "http://localhost:4000",
@@ -186,8 +195,8 @@ const config = {
   upload,
   uploadConfig,
   authConfig,
-  sessionStore,      
-  sessionMiddleware, 
+  sessionStore,
+  sessionMiddleware,
   staticPaths: {
     avatars: path.resolve(__dirname, "../../uploads/avatars"),
   },

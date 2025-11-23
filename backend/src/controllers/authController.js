@@ -7,15 +7,29 @@ const authService = require('../services/authService');
 
 // Centralized error handling function
 const handleServerError = (res, error, message) => {
+    // Log full stack for debugging
     console.error(message + ':', error);
-    return res.status(500).json({ message: error.message || message });
+    if (error && error.stack) {
+        console.error(error.stack);
+    }
+
+    const payload = {
+        message: error.message || message
+    };
+    if (process.env.NODE_ENV !== 'production') {
+        payload.stack = error.stack;
+    }
+
+    return res.status(500).json(payload);
 };
 
 // ======================== REGISTER USER ======================== //
 const register = async (req, res) => {
     console.log("Register request received!");
-    console.log("Request body:", req.body); // Debugging log to inspect incoming data
-    console.log("Request file:", req.file); // Log the uploaded file
+    // Removed full body log to avoid exposing plaintext password
+    if (req.body && req.body.email) {
+        console.log("Incoming registration for email:", req.body.email);
+    }
 
     try {
         const { firstName, lastName, email, password, nickname, address, addressLine2, city, state, zipCode } = req.body;
@@ -71,14 +85,13 @@ const uploadAvatar = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+        console.log("Login attempt for email:", email);
         
         const userProfile = await authService.loginUser({ email, password });
         
         // Persist user in session
         if (req.session) {
             req.session.user = userProfile;
-            // optional: set last activity or regenerate session id for security
-            // req.session.save();
         }
 
         console.log('Login successful. Sending user profile:', userProfile);
@@ -107,15 +120,28 @@ const logout = (req, res) => {
     });
 };
 
+// ======================== HEALTH ENDPOINT ========================= //
+const health = (req, res) => {
+  res.status(200).send('OK');
+};
+
 // ======================== GET SESSION (current user) ========================= //
-// Return the user stored in server session (if any)
 const getSession = (req, res) => {
   try {
-    if (req.session && req.session.user) {
+    console.log('GET /api/session called. Session exists:', !!req.session);
+    console.log('Session user:', req.session?.user?.id || 'No user in session');
+
+    if (!req.session) {
+      console.error('Session object is undefined! This usually means session middleware is not mounted or failed to connect to the session store.');
+      return res.status(500).json({ message: 'Session error: session object missing. Check session middleware and store configuration.' });
+    }
+
+    if (req.session.user) {
       return res.status(200).json({ user: req.session.user });
     }
     return res.status(200).json({ user: null });
   } catch (err) {
+    console.error('Session error:', err);
     return handleServerError(res, err, 'Get session error');
   }
 };
@@ -175,9 +201,10 @@ const authController = {
     uploadAvatar,
     login,
     logout,
-    getSession,      // <== added
+    getSession,
     getProfile,
     updateProfile,
+    health
 };
 
 module.exports = authController;

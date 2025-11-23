@@ -22,9 +22,6 @@ import {
   validateProfileDetails 
 } from "../validators/registrationValidator";
 
-// import runtime resolver from frontend helpers
-import getPublicConfig from '../helpers/getPublicConfig';
-
 ////////////////////////////////////////////////////////////////////////////////
 // ===== Handle Registration Submission (uses getPublicConfig) ============== //
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,11 +80,8 @@ const handleSubmitRegistration = async (e, formData, setters) => {
 
   // ========================= API CALL ========================= //
   try {
-    // resolve base URL via new helper
-    const baseUrl = await getPublicConfig(); // may be '' for relative paths
-    const url = baseUrl ? `${baseUrl}/api/register` : `/api/register`;
-
-    const response = await axios.post(url, submitData, {
+    // Use relative path - Vite proxy handles routing to backend
+    const response = await axios.post('/api/register', submitData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -105,11 +99,9 @@ const handleSubmitRegistration = async (e, formData, setters) => {
         return;
       }
 
-      // ========================= SET USER CONTEXT ========================= //
-      // Construct user object for context using data from response
+      // Simplified avatar handling - no baseUrl needed
       const avatarPath = response.data.user.avatar || '';
-      const avatarIsAbsolute = avatarPath && avatarPath.startsWith('http');
-      const resolvedAvatar = avatarIsAbsolute ? avatarPath : (baseUrl ? `${baseUrl.replace(/\/$/, '')}${avatarPath}` : avatarPath);
+      const resolvedAvatar = avatarPath && avatarPath.startsWith('http') ? avatarPath : avatarPath;
 
       const newUser = {
         id: response.data.user.id,

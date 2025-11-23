@@ -1,0 +1,86 @@
+# ---- Node dependencies ----
+backend/node_modules/
+frontend/node_modules/
+
+# ---- Build output / bundles ----
+frontend/dist/
+backend/dist/
+*.tsbuildinfo
+
+# ---- Environment & secrets ----
+*.env
+.env.*
+!.env.example
+backend/.env.dev
+backend/.env.prod
+frontend/.env
+*.env
+!.env.example
+
+# ---- Logs & diagnostics ----
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+backend/debug/
+frontend/debug/
+
+# ---- Runtime cache / temp ----
+.tmp/
+temp/
+.cache/
+frontend/.vite/
+frontend/coverage/
+backend/coverage/
+
+# ---- Uploaded / generated media ----
+backend/uploads/
+# Keep directory structure (add a .gitkeep inside if needed)
+!backend/uploads/.gitkeep
+!backend/uploads/avatars/.gitkeep
+
+# ---- OS / editor artifacts ----
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*.orig
+
+# ---- IDE settings ----
+.vscode/
+.idea/
+*.iml
+
+# ---- Docker / Container artifacts ----
+# Keep canonical Docker definitions
+!Dockerfile
+!**/Dockerfile*
+!docker-compose.yml
+!docker-compose.dev.yml
+
+# Ignore optional local overrides and ephemeral files
+docker-compose.override.yml
+docker-compose.local.yml
+*.pid
+*.seed.lock
+
+# Ignore exported images / temp bundles
+*.tar
+image-manifest.json
+
+# Local docker volume data (if ever mapped into repo path)
+volume-data/
+.cache-docker/
+
+# ---- Misc archives ----
+*.tgz
+*.zip
+
+# ---- Security: avoid committing session store dumps (if exported) ----
+session-dump.json
+
+# ---- Optional: ignore seed output if generated ----
+backend/src/seeder/output/
