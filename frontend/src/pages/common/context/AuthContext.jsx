@@ -8,7 +8,7 @@
 // ====== Module imports ====== //
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
-import getPublicConfig from "../auth/helpers/getPublicConfig"; // new import
+import getPublicConfig from "../auth/helpers/getPublicConfig";
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= CREATE AUTH CONTEXT =================== //
@@ -20,21 +20,14 @@ export const AuthContext = createContext(null);
 // Define the formatUserData helper function before using it
 const formatUserData = (userData) => {
   if (!userData) return null;
-
-  // Ensure avatar URL is properly formatted using environment variable
-  let avatarUrl = userData.avatar;
-  if (avatarUrl && !avatarUrl.startsWith("http")) {
-    avatarUrl = `${process.env.REACT_APP_API_URL}${avatarUrl}`;
-  }
-
   return {
     ...userData,
-    avatar: avatarUrl,
+    avatar: userData.avatar || null,
   };
 };
 
 // AuthProvider component
-export const AuthProvider = ({ children }) => {
+const AuthProvider = ({ children }) => {
   ///////////////////////////////////////////////////////////////////////
   // ========================= STATE VARIABLES ======================= //
   ///////////////////////////////////////////////////////////////////////
@@ -158,3 +151,5 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+export { AuthProvider };

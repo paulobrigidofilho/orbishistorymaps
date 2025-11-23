@@ -1,8 +1,7 @@
 // ==== Module imports ======= //
 
-require("dotenv").config();
-const express = require("express");
 const path = require("path");
+const express = require("express");
 const cors = require("cors");
 const config = require("./config/config");
 const session = require("express-session");
@@ -52,5 +51,6 @@ app.use("/uploads/avatars", express.static(config.staticPaths.avatars)); // Serv
 ///////////////////////////////////////////////////////////////////////
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  const env = process.env.NODE_ENV === "production" ? "production" : "development";
+  console.log(`Server is running on port ${port} (${env} mode)`);
 });

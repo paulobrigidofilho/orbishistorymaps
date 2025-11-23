@@ -4,8 +4,17 @@
 ////////////////////////////////////////////////////////////
 
 // ======= Package Imports ======== //
-require("dotenv").config();
 const path = require("path");
+
+// Load environment file based on NODE_ENV (production -> .env.prod, otherwise .env.dev)
+const envFilePath =
+  process.env.NODE_ENV === "production"
+    ? path.resolve(__dirname, "../../.env.prod")
+    : path.resolve(__dirname, "../../.env.dev");
+
+require("dotenv").config({ path: envFilePath });
+console.log(`Loaded environment variables from: ${envFilePath}`);
+
 const mysql = require("mysql2");
 const multer = require("multer");
 const fs = require("fs");
@@ -122,9 +131,9 @@ const authConfig = {
   },
 };
 
-/////////////////////////////////////////////////////////////
-// ===== GUARD: create session store & middleware if lib present =====
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////
+// ===== SESSION CONFIGURATION ===== //
+///////////////////////////////////////
 
 let sessionStore = null;
 let sessionMiddleware = null;
