@@ -25,9 +25,12 @@ if (config.sessionMiddleware) {
   app.use(config.sessionMiddleware);
   console.log("Session middleware mounted.");
   if (config.sessionStore) {
-    config.sessionStore.on("error", function (error) {
-      console.error("Session store error:", error);
-    });
+    const store = typeof config.sessionStore === 'function' ? config.sessionStore() : config.sessionStore;
+    if (store) {
+      store.on("error", function (error) {
+        console.error("Session store error:", error);
+      });
+    }
   }
 } else {
   console.warn("Session middleware is not configured!");

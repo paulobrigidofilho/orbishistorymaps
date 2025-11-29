@@ -126,98 +126,37 @@ const authConfig = {
   bcrypt: { saltRounds: 10 },
   session: {
     secret: process.env.SESSION_SECRET,
-    cookieName: process.env.SESSION_COOKIE_NAME, 
+    cookieName: process.env.SESSION_COOKIE_NAME,
     resave: false,
     saveUninitialized: false,
     cookie: {
       maxAge: 24 * 60 * 60 * 1000,
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-      sameSite: 'lax' 
+      sameSite: "lax",
     },
   },
 };
 if (!process.env.SESSION_SECRET) {
-  console.warn("WARNING: SESSION_SECRET missing. Set it in .env for a public repo.");
+  console.warn(
+    "WARNING: SESSION_SECRET missing. Set it in .env for a public repo."
+  );
 }
 if (!process.env.SESSION_COOKIE_NAME) {
-  console.warn("INFO: SESSION_COOKIE_NAME not set, using default 'connect.sid'.");
+  console.warn(
+    "INFO: SESSION_COOKIE_NAME not set, using default 'connect.sid'."
+  );
 }
 
 ///////////////////////////////////////
 // ===== SESSION MANAGEMENT ======== //
 ///////////////////////////////////////
 
-let sessionStore = null;
-let sessionMiddleware = null;
-
-const session = require("express-session");
-const MySQLStoreFactory = require("express-mysql-session");
-const MemoryStore = session.MemoryStore; // fallback
-
-// Create MySQL session store options based on dbConfig
-const sessionStoreOptions = {
-  host: process.env.MYSQL_HOST,
-  port: process.env.MYSQL_PORT ? Number(process.env.MYSQL_PORT) : 3306,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE,
-};
-
-const maxAttempts = 5;
-function initMySQLSessionStore(attempt = 1) {
-  console.log(`Initializing MySQL session store (attempt ${attempt}/${maxAttempts})`);
-  try {
-    const MySQLStore = MySQLStoreFactory(session);
-    const store = new MySQLStore(sessionStoreOptions);
-
-    store.on("connect", () => {
-      console.log("Session store connected to MySQL successfully.");
-      sessionStore = store;
-      // swap store in middleware if already created with fallback
-      if (sessionMiddleware) {
-        sessionMiddleware.store = sessionStore;
-        console.log("Session middleware store swapped to MySQL store.");
-      }
-    });
-
-    store.on("error", (err) => {
-      console.error("Session store error:", err.message);
-      if (attempt < maxAttempts) {
-        const delay = Math.min(1000 * attempt, 5000);
-        console.log(`Retrying session store in ${delay}ms...`);
-        setTimeout(() => initMySQLSessionStore(attempt + 1), delay);
-      } else {
-        console.warn("Max session store attempts reached. Using in-memory session store (NOT for production).");
-        sessionStore = sessionStore || new MemoryStore();
-      }
-    });
-  } catch (e) {
-    console.error("Session store initialization exception:", e.message);
-    if (attempt < maxAttempts) {
-      const delay = Math.min(1000 * attempt, 5000);
-      console.log(`Retrying session store in ${delay}ms...`);
-      setTimeout(() => initMySQLSessionStore(attempt + 1), delay);
-    } else {
-      console.warn("Failed to initialize MySQL session store after retries. Falling back to MemoryStore.");
-      sessionStore = new MemoryStore();
-    }
-  }
-}
-
-// Create middleware immediately with fallback store; will be swapped later if MySQL connects
-sessionStore = new MemoryStore();
-sessionMiddleware = session({
-  name: authConfig.session.cookieName,
-  secret: authConfig.session.secret,
-  resave: authConfig.session.resave,
-  saveUninitialized: authConfig.session.saveUninitialized,
-  cookie: authConfig.session.cookie,
-  store: sessionStore
-});
-
-console.log("Session middleware initialized with temporary in-memory store.");
-initMySQLSessionStore();
+const { createSessionMiddleware } = require("../middleware/sessionMiddleware");
+const { sessionMiddleware, getSessionStore } = createSessionMiddleware(
+  authConfig,
+  dbConfig
+);
 
 //////////////////////////////////////
 // ===== CONFIGURATION OBJECT ===== //
@@ -232,7 +171,7 @@ const config = {
   upload,
   uploadConfig,
   authConfig,
-  sessionStore,
+  sessionStore: getSessionStore,
   sessionMiddleware,
   staticPaths: {
     avatars: path.resolve(__dirname, "../../uploads/avatars"),
