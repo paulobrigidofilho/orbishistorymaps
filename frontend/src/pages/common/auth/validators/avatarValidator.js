@@ -5,13 +5,16 @@
 // This validator handles validation for avatar uploads
 // ensuring correct file size and type requirements
 
-import { z } from 'zod';
-
 /**
  * Zod schema for validating avatar files
  * - Size must be less than 1MB
  * - Type must be one of: jpeg, jpg, png, gif
  */
+
+// ===== Module Imports ===== //
+import { z } from 'zod';
+
+// ===== Avatar Schema ===== //
 export const avatarSchema = z.object({
   size: z.number()
     .max(1024 * 1024, { message: "File must be less than 1MB." }),

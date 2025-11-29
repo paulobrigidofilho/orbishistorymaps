@@ -5,6 +5,14 @@
 // This validator handles validation for email addresses
 // ensuring proper format and domain requirements
 
+/**
+ * Validates an email address using the email schema
+ * @param {string} email - The email address to validate
+ * @returns {Object} - { success: boolean, error: string | null }
+ */
+
+// ===== Module Imports ===== //
+
 import { z } from 'zod';
 
 /**
@@ -16,11 +24,8 @@ export const emailSchema = z.string()
     message: "Email is required"
   });
 
-/**
- * Validates an email address using the email schema
- * @param {string} email - The email address to validate
- * @returns {Object} - { success: boolean, error: string | null }
- */
+// ===== validateEmail Function ===== //
+
 export const validateEmail = (email) => {
   try {
     emailSchema.parse(email);

@@ -1,6 +1,6 @@
-//////////////////////////////////
+/////////////////////////////////////
 // ===== HANDLE LOGIN SUBMIT ===== //
-//////////////////////////////////
+/////////////////////////////////////
 
 // This function handles the login form submission, validating credentials
 // and managing the authentication flow with error handling.
@@ -13,6 +13,7 @@
  * @param {Function} setError - Function to set error message
  * @param {Function} onClose - Function to close the modal on success
  */
+
 const handleSubmitLogin = async (e, credentials, login, setError, onClose) => {
   e.preventDefault();
   

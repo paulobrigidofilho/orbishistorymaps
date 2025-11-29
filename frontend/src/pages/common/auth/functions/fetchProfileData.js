@@ -1,22 +1,31 @@
-//////////////////////////////////////
+////////////////////////////////////
 // ===== FETCH PROFILE DATA ===== //
-//////////////////////////////////////
+////////////////////////////////////
 
 // This function fetches profile data for a given user ID
 // and handles validation and data parsing
 
+/**
+ * Fetches profile data for a given user ID
+ *
+ * @param {string} profileId - The ID of the profile to fetch
+ * @param {Object} setters - Object containing state setter functions
+ * @returns {Promise<void>}
+ */
+
+// ===== Module Imports ===== //
+
 import axios from "axios";
 import { z } from "zod";
 
-/**
- * Zod schema for validating profile ID
- */
-const profileIdSchema = z.string()
+// ======= Zod Schemas ======= //
+
+// Schema for validating profileId
+const profileIdSchema = z
+  .string()
   .min(1, { message: "No profile ID provided." });
 
-/**
- * Zod schema for validating profile response data
- */
+// Schema for validating profile response data
 const profileResponseSchema = z.object({
   user: z.object({
     id: z.string(),
@@ -29,20 +38,15 @@ const profileResponseSchema = z.object({
     addressLine2: z.string().optional(),
     city: z.string().optional(),
     state: z.string().optional(),
-    zipCode: z.string().optional()
-  })
+    zipCode: z.string().optional(),
+  }),
 });
 
-/**
- * Fetches profile data for a given user ID
- * 
- * @param {string} profileId - The ID of the profile to fetch
- * @param {Object} setters - Object containing state setter functions
- * @returns {Promise<void>}
- */
+// ======= fetchProfileData Function ======= //
+
 const fetchProfileData = async (profileId, setters) => {
   setters.setError(""); // Clear previous errors
-  
+
   // Validate profileId
   try {
     profileIdSchema.parse(profileId);
@@ -50,7 +54,7 @@ const fetchProfileData = async (profileId, setters) => {
     setters.setError("Invalid or missing profile ID");
     return;
   }
-  
+
   try {
     // Use relative path - Vite proxy handles routing to backend
     const response = await axios.get(`/api/profile/${profileId}`);
@@ -60,40 +64,49 @@ const fetchProfileData = async (profileId, setters) => {
       try {
         const validatedData = profileResponseSchema.parse(response.data);
         const userData = validatedData.user;
-        
+
         // Check if all required fields are empty
-        if (!userData.firstName && !userData.lastName && !userData.email && !userData.nickname) {
-          setters.setError("Profile data appears to be empty. Please try refreshing or contact support.");
+        if (
+          !userData.firstName &&
+          !userData.lastName &&
+          !userData.email &&
+          !userData.nickname
+        ) {
+          setters.setError(
+            "Profile data appears to be empty. Please try refreshing or contact support."
+          );
           return;
         }
-        
+
         // Populate form with data, with fallbacks to prevent empty fields
         setters.setFirstName(userData.firstName || "");
         setters.setLastName(userData.lastName || "");
         setters.setEmail(userData.email || "");
         setters.setNickname(userData.nickname || "");
-        setters.setAddress(userData.address || "");         
+        setters.setAddress(userData.address || "");
         setters.setAddressLine2(userData.addressLine2 || "");
         setters.setCity(userData.city || "");
         setters.setStateName(userData.state || "");
         setters.setZipCode(userData.zipCode || "");
-        setters.setCurrentUserId(userData.id || ""); 
+        setters.setCurrentUserId(userData.id || "");
 
         // Handle avatar display logic
         const currentAvatarPath = userData.avatar || null;
-        setters.setAvatar(currentAvatarPath); 
-        
+        setters.setAvatar(currentAvatarPath);
+
         // Update avatar URL construction using resolved baseUrl or keep relative
         if (currentAvatarPath) {
-          const preview = currentAvatarPath.startsWith('http')
-                          ? currentAvatarPath
-                          : currentAvatarPath; // Keep as relative path
+          const preview = currentAvatarPath.startsWith("http")
+            ? currentAvatarPath
+            : currentAvatarPath; // Keep as relative path
           setters.setAvatarPreview(preview);
         } else {
           setters.setAvatarPreview(null);
         }
       } catch (validationError) {
-        setters.setError("Invalid profile data format. Please contact support.");
+        setters.setError(
+          "Invalid profile data format. Please contact support."
+        );
         console.error("Profile data validation error:", validationError);
       }
     } else {

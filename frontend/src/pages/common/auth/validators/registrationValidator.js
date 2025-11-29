@@ -5,14 +5,15 @@
 // This validator handles validation for user registration fields
 // using specialized validators for different data types
 
+// ===== Module Imports ===== //
 import { z } from "zod";
 import { validateFirstName, validateLastName } from "./nameValidator";
 import { validateEmail } from "./emailValidator";
 import { validatePasswordWithConfirmation } from "./passwordValidator";
 
-/**
- * Zod schema for validating profile details
- */
+// ===== Schema Definitions ===== //
+
+// ===== Profile Details Schema ===== //
 export const profileDetailsSchema = z.object({
   nickname: z
     .string()
@@ -20,9 +21,7 @@ export const profileDetailsSchema = z.object({
     .max(30, { message: "Nickname must be less than 30 characters" }),
 });
 
-/**
- * Zod schema for validating address details
- */
+// ===== Address Details Schema ===== //
 export const addressDetailsSchema = z.object({
   address: z.string().optional(),
   addressLine2: z.string().optional(),
@@ -31,11 +30,9 @@ export const addressDetailsSchema = z.object({
   zipCode: z.string().optional(),
 });
 
-/**
- * Validates personal details using specialized validators
- * @param {Object} data - The personal details data
- * @returns {Object} - { success: boolean, error: string | null }
- */
+// ===== Validation Functions ===== //
+
+// ===== validatePersonalDetails Function ===== //
 export const validatePersonalDetails = (data) => {
   // Validate first name
   const firstNameValidation = validateFirstName(data.firstName);
@@ -68,11 +65,7 @@ export const validatePersonalDetails = (data) => {
   return { success: true, error: null };
 };
 
-/**
- * Validates profile details using the schema
- * @param {Object} data - The profile details data
- * @returns {Object} - { success: boolean, error: string | null }
- */
+// ===== validateProfileDetails Function ===== //
 export const validateProfileDetails = (data) => {
   try {
     profileDetailsSchema.parse(data);

@@ -8,6 +8,8 @@
 // ====== Module imports ====== //
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import handleLogin from "../auth/functions/handleLogin";
+import handleLogout from "../auth/functions/handleLogout";
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= CREATE AUTH CONTEXT =================== //
@@ -84,29 +86,10 @@ const AuthProvider = ({ children }) => {
   // ========================= LOGIN FUNCTION ======================== //
   ///////////////////////////////////////////////////////////////////////
 
-  // Login function
   const login = async (email, password) => {
-    try {
-      const res = await axios.post(
-        "/api/login",
-        { email, password },
-        { withCredentials: true }
-      );
-      if (res.status === 200 && res.data && res.data.user) {
-        setUser(res.data.user);
-        return res.data.user;
-      }
-      throw new Error(
-        res.data?.message || "Login failed (unexpected response)"
-      );
-    } catch (err) {
-      const backendMsg = err.response?.data?.message;
-      const finalMsg = backendMsg
-        ? `Login request failed: ${backendMsg}`
-        : `Login request failed: ${err.message}`;
-      console.error(finalMsg);
-      throw new Error(finalMsg);
-    }
+    const user = await handleLogin(email, password);
+    setUser(user);
+    return user;
   };
 
   ///////////////////////////////////////////////////////////////////////
@@ -115,16 +98,8 @@ const AuthProvider = ({ children }) => {
 
   // Logout function
   const logout = async () => {
-    try {
-      // Use relative path - Vite proxy routes to backend
-      await axios
-        .post("/api/logout", {}, { withCredentials: true })
-        .catch(() => {});
-    } catch (err) {
-      // ignore errors from logout call, still clear client state
-    } finally {
-      setUser(null);
-    }
+    await handleLogout();
+    setUser(null);
   };
 
   ///////////////////////////////////////////////////////////////////////

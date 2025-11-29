@@ -1,13 +1,18 @@
+////////////////////////////////////////////////
+// ===== HANDLE PROFILE AVATAR CHANGE ======= //
+////////////////////////////////////////////////
+
+// This function handles the avatar file change event for profile updates
+// Validates file size and type before setting the avatar
+
 /**
- * Handles the avatar file change event for profile updates
- * Validates file size and type before setting the avatar
- * 
  * @param {Object} e - The event object from file input change
  * @param {Function} setAvatar - Function to set avatar state
  * @param {Function} setAvatarError - Function to set avatar error state
  * @param {Function} setAvatarPreview - Function to set avatar preview state
  * @returns {void}
  */
+
 const handleProfileAvatarChange = (e, setAvatar, setAvatarError, setAvatarPreview) => {
   const file = e.target.files[0];
   setAvatarError(""); // Clear previous avatar errors

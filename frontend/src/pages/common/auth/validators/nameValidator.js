@@ -5,11 +5,19 @@
 // This validator handles validation for name-related fields
 // ensuring proper formatting and length requirements
 
+/**
+ * Validates a first name using the name schema
+ * @param {string} firstName - The first name to validate
+ * @returns {Object} - { success: boolean, error: string | null }
+ */
+
+// ===== Module Imports ===== //
+
 import { z } from 'zod';
 
-/**
- * Zod schema for validating names (first name, last name)
- */
+// ===== Schema Definitions ===== //
+
+// ===== Name Schemas ===== //
 export const nameSchema = z.string()
   .min(1, { message: "Name is required" })
   .max(50, { message: "Name must be less than 50 characters" })
@@ -17,18 +25,13 @@ export const nameSchema = z.string()
     message: "Name should not contain numbers"
   });
 
-/**
- * Zod schema for validating nicknames
- */
+// ===== Nickname Schema ===== //
 export const nicknameSchema = z.string()
   .min(1, { message: "Nickname is required" })
   .max(30, { message: "Nickname must be less than 30 characters" });
 
-/**
- * Validates a first name using the name schema
- * @param {string} firstName - The first name to validate
- * @returns {Object} - { success: boolean, error: string | null }
- */
+// ===== Validation Functions ===== //
+
 export const validateFirstName = (firstName) => {
   try {
     nameSchema.parse(firstName);
@@ -44,6 +47,8 @@ export const validateFirstName = (firstName) => {
  * @param {string} lastName - The last name to validate
  * @returns {Object} - { success: boolean, error: string | null }
  */
+
+// ===== validateLastName Function ===== //
 export const validateLastName = (lastName) => {
   try {
     nameSchema.parse(lastName);
@@ -59,6 +64,8 @@ export const validateLastName = (lastName) => {
  * @param {string} nickname - The nickname to validate
  * @returns {Object} - { success: boolean, error: string | null }
  */
+
+// ===== validateNickname Function ===== //
 export const validateNickname = (nickname) => {
   try {
     nicknameSchema.parse(nickname);

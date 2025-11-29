@@ -1,20 +1,9 @@
-///////////////////////////////////
+////////////////////////////////////
 // ===== PASSWORD VALIDATOR ===== //
-///////////////////////////////////
+////////////////////////////////////
 
 // This validator handles validation for passwords
 // ensuring security requirements and password matching
-
-import { z } from 'zod';
-
-/**
- * Zod schema for validating passwords with configurable strength
- */
-export const passwordSchema = z.string()
-  .min(8, { message: "Password must be at least 8 characters" })
-  .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
-  .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
-  .regex(/[0-9]/, { message: "Password must contain at least one number" });
 
 /**
  * Validates password and confirm password match
@@ -22,22 +11,36 @@ export const passwordSchema = z.string()
  * @param {string} confirmPassword - The confirmation password
  * @returns {Object} - { success: boolean, error: string | null }
  */
+
+// ===== Module Imports ===== //
+import { z } from "zod";
+
+// ===== Password Schema ===== //
+export const passwordSchema = z
+  .string()
+  .min(8, { message: "Password must be at least 8 characters" })
+  .regex(/[A-Z]/, {
+    message: "Password must contain at least one uppercase letter",
+  })
+  .regex(/[a-z]/, {
+    message: "Password must contain at least one lowercase letter",
+  })
+  .regex(/[0-9]/, { message: "Password must contain at least one number" });
+
+// ===== validatePasswordMatch Function ===== //
+
 export const validatePasswordMatch = (password, confirmPassword) => {
   if (password !== confirmPassword) {
-    return { 
-      success: false, 
-      error: "Passwords don't match" 
+    return {
+      success: false,
+      error: "Passwords don't match",
     };
   }
   return { success: true, error: null };
 };
 
-/**
- * Validates a password using the password schema
- * @param {string} password - The password to validate
- * @param {boolean} useStrict - Whether to use strict validation (default: true)
- * @returns {Object} - { success: boolean, error: string | null }
- */
+// ===== validatePassword Function ===== //
+
 export const validatePassword = (password, useStrict = true) => {
   try {
     if (useStrict) {
@@ -50,32 +53,32 @@ export const validatePassword = (password, useStrict = true) => {
   } catch (error) {
     // Robust extraction of messages from Zod errors (supports .errors and .issues)
     const issues = error?.errors || error?.issues || [];
-    const messages = Array.isArray(issues) && issues.length
-      ? issues.map(i => i?.message || String(i)).filter(Boolean)
-      : [];
+    const messages =
+      Array.isArray(issues) && issues.length
+        ? issues.map((i) => i?.message || String(i)).filter(Boolean)
+        : [];
 
     const errorMessage = messages.length
-      ? messages.join('; ')
-      : (error?.message || "Invalid password");
+      ? messages.join("; ")
+      : error?.message || "Invalid password";
 
     return { success: false, error: errorMessage };
   }
 };
 
-/**
- * Comprehensive password validation including matching
- * @param {string} password - The password
- * @param {string} confirmPassword - The confirmation password
- * @param {boolean} useStrict - Whether to use strict validation
- * @returns {Object} - { success: boolean, error: string | null }
- */
-export const validatePasswordWithConfirmation = (password, confirmPassword, useStrict = true) => {
+// ===== validatePasswordWithConfirmation Function ===== //
+
+export const validatePasswordWithConfirmation = (
+  password,
+  confirmPassword,
+  useStrict = true
+) => {
   // First validate password strength
   const passwordValidation = validatePassword(password, useStrict);
   if (!passwordValidation.success) {
     return passwordValidation;
   }
-  
+
   // Then validate password match
   return validatePasswordMatch(password, confirmPassword);
 };

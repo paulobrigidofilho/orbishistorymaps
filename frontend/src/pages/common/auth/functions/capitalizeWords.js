@@ -1,11 +1,15 @@
+/////////////////////////////////////////////////
+// ===== CAPITALIZE WORDS FUNCTION ========== ///
+/////////////////////////////////////////////////
+
+// This function capitalizes the first letter of each word in a string
+// It handles accented characters and various word separators
+
 /**
- * Function to capitalize the first letter of each word in a string
- * This function handles both normal and accented characters
- * It also handles spaces, hyphens, and periods as word separators
- * 
  * @param {string} str - The input string to capitalize
  * @returns {string} - The capitalized string
  */
+
 const capitalizeWords = (str) => {
   if (!str) return "";
   let result = "";
@@ -23,7 +27,7 @@ const capitalizeWords = (str) => {
       capitalizeNext = false;
     } else {
       result += char;
-      if (char === ' ' || char === '-' || char === '.') {
+      if (char === " " || char === "-" || char === ".") {
         capitalizeNext = true;
       } else {
         capitalizeNext = false;
