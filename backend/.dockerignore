@@ -4,4 +4,6 @@ npm-debug.log
 dist
 uploads
 .env
+.env.dev
+.env.prod
 .env.dev.backup
