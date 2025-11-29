@@ -83,21 +83,21 @@ const userModel = {
       user_city, user_state, user_zipcode
     FROM users 
     WHERE user_id = ?`;
-    
-  db.query(query, [userId], (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      return callback(err, null);
-    }
 
-    if (!results || results.length === 0) {
-      return callback(null, null); // No user found
-    }
-    
-    console.log("Database returned user:", results[0]);
-    return callback(null, results[0]);
-  });
-},
+    db.query(query, [userId], (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return callback(err, null);
+      }
+
+      if (!results || results.length === 0) {
+        return callback(null, null); // No user found
+      }
+
+      console.log("Database returned user:", results[0]);
+      return callback(null, results[0]);
+    });
+  },
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= UPDATE USER =========================== //

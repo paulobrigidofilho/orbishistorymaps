@@ -1,4 +1,11 @@
-// ======= Module imports ======= //
+/////////////////////////////////////////////////
+// ================== AUTH SERVICE =========== //
+/////////////////////////////////////////////////
+
+// This service handles user authentication logic,
+// including registration, login, profile management, and avatar handling.
+
+// ======= Module Imports ======= //
 const bcrypt = require('bcrypt');
 const userModel = require('../model/userModel');
 const { v4: uuidv4 } = require('uuid');

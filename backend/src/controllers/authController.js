@@ -1,10 +1,18 @@
+/////////////////////////////////////
+// ======= AUTH CONTROLLER ======= //
+/////////////////////////////////////
+
+// This controller manages user authentication processes
+// including registration, login, logout, profile retrieval and updates,
+// as well as avatar uploads.
+
 // ======= Module imports ======= //
 const authService = require("../services/authService");
-const config = require("../config/config"); // <== ensure config imported (add if not present)
+const config = require("../config/config"); 
 
-///////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 // ======================= CONTROLLER FUNCTIONS ================== //
-///////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 
 // Centralized error handling function
 const handleServerError = (res, error, message) => {
@@ -141,15 +149,6 @@ const logout = (req, res) => {
   });
 };
 
-// ======================== HEALTH ENDPOINT ========================= //
-const health = (req, res) => {
-  res.status(200).json({
-    status: "ok",
-    uptime: process.uptime(),
-    timestamp: Date.now(),
-  });
-};
-
 // ======================== GET SESSION (current user) ========================= //
 const getSession = (req, res) => {
   try {
@@ -261,7 +260,6 @@ const authController = {
   getSession,
   getProfile,
   updateProfile,
-  health,
 };
 
 module.exports = authController;

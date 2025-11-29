@@ -11,6 +11,7 @@ const MySQLStoreFactory = require("express-mysql-session");
 const MemoryStore = session.MemoryStore;
 
 // ===== Session Middleware Setup ===== //
+
 function createSessionMiddleware(authConfig, dbConfig) {
   let sessionStore = new MemoryStore();
 

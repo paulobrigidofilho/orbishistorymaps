@@ -1,10 +1,11 @@
-/////////////////////////////////////////
-// ===== AUTH MIDDLEWARE ============ //
-/////////////////////////////////////////
+/////////////////////////////////
+// ===== AUTH MIDDLEWARE ===== //
+/////////////////////////////////
 
-/**
- * Middleware to require authentication
- */
+// This middleware ensures that certain routes are accessible
+// only to authenticated users and verifies resource ownership
+
+// ===== requireAuth Middleware ===== //
 const requireAuth = (req, res, next) => {
   if (!req.session || !req.session.user) {
     return res.status(401).json({ message: 'Authentication required' });
@@ -12,9 +13,7 @@ const requireAuth = (req, res, next) => {
   next();
 };
 
-/**
- * Middleware to verify user can only access/modify their own resources
- */
+// ===== requireOwnership Middleware ===== //
 const requireOwnership = (req, res, next) => {
   const sessionUserId = req.session?.user?.id;
   const targetUserId = req.params.userId;

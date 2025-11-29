@@ -1,11 +1,15 @@
+/////////////////////////////////
+// ======= AUTH ROUTES ======= //
+/////////////////////////////////
+
+// This file defines authentication-related routes
+// including registration, login, profile management, and avatar uploads.
+
 // ======= Module imports ======= //
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const config = require('../config/config');
-const upload = config.upload;  
-
-// Import validation middleware
+const { upload } = require('../middleware/multerMiddleware'); 
 const validate = require('../middleware/validationMiddleware'); 
 const auth = require('../middleware/authMiddleware'); 
 
@@ -63,8 +67,5 @@ router.get('/profile/:userId',
   auth.requireOwnership,
   authController.getProfile
 );
-
-// Healthcheck endpoint for Docker/infra
-router.get('/health', authController.health);
 
 module.exports = router;

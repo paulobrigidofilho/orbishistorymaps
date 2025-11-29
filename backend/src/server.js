@@ -1,7 +1,6 @@
 // ==== Module imports ======= //
 
 const express = require("express");
-const cors = require("cors");
 const config = require("./config/config");
 
 ///////////////////////////////////////////////////////////////////////
@@ -14,7 +13,7 @@ const port = config.port;
 console.log("Starting Orbis backend server...");
 
 // Configure CORS first to set headers before session processing
-app.use(cors(config.corsConfig));
+app.use(config.corsMiddleware);
 
 // Parse JSON and URL-encoded bodies
 app.use(express.json());
@@ -43,10 +42,12 @@ if (config.sessionMiddleware) {
 // ===================== Routes Imports ============================ //
 const authRoutes = require("./routes/authRoutes.js");
 const configRoutes = require("./routes/configRoutes.js");
+const healthRoutes = require("./routes/healthRoutes.js");
 
 // ====================== Routes Setup ============================= //
 app.use("/api", authRoutes);
 app.use("/config", configRoutes);
+app.use("/health", healthRoutes);
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= STATIC FILES ========================== //
