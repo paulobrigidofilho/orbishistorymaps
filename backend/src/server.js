@@ -1,6 +1,5 @@
 // ==== Module imports ======= //
 
-const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const config = require("./config/config");
@@ -14,7 +13,14 @@ const port = config.port;
 
 console.log("Starting Orbis backend server...");
 
-// Mount session middleware from config (session store and options are defined in config.js)
+// Configure CORS first to set headers before session processing
+app.use(cors(config.corsConfig));
+
+// Parse JSON and URL-encoded bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Mount session middleware after CORS
 if (config.sessionMiddleware) {
   app.use(config.sessionMiddleware);
   console.log("Session middleware mounted.");
@@ -26,13 +32,6 @@ if (config.sessionMiddleware) {
 } else {
   console.warn("Session middleware is not configured!");
 }
-
-// Configure CORS
-app.use(cors(config.corsConfig));
-
-// Parse JSON and URL-encoded bodies
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= ROUTES ================================ //

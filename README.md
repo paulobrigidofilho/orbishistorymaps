@@ -58,3 +58,18 @@ MIT License
 
 ---
 Orbis History Maps – Bringing history to life, one map at a time.
+
+# Orbis Application
+
+## Docker Networking
+
+### Internal Communication (Container-to-Container)
+- **Backend → Database**: Uses service name `db:3306` (internal Docker network)
+- **Frontend → Backend**: Uses service name `backend:4000` (proxied by Vite)
+
+### External Access (Host-to-Container)
+- **Host → Database**: `localhost:3307` (for DB inspection tools like MySQL Workbench)
+- **Host → Backend**: `localhost:4000` (API access from host)
+- **Host → Frontend**: `localhost:5173` (web browser access)
+
+**Note**: Port 3307 mapping is for host convenience only. Backend never uses it.

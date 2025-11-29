@@ -101,7 +101,6 @@ const handleSubmitRegistration = async (e, formData, setters) => {
 
       // Simplified avatar handling - no baseUrl needed
       const avatarPath = response.data.user.avatar || '';
-      const resolvedAvatar = avatarPath && avatarPath.startsWith('http') ? avatarPath : avatarPath;
 
       const newUser = {
         id: response.data.user.id,
@@ -109,7 +108,7 @@ const handleSubmitRegistration = async (e, formData, setters) => {
         lastName: response.data.user.lastName || formData.lastName,
         email: response.data.user.email || formData.email,
         nickname: response.data.user.nickname || formData.nickname,
-        avatar: resolvedAvatar,
+        avatar: avatarPath,
         address: response.data.user.address || "", 
         addressLine2: response.data.user.addressLine2 || "",
         city: response.data.user.city || "",

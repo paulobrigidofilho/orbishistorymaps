@@ -6,7 +6,8 @@ const config = require('../config/config');
 const upload = config.upload;  
 
 // Import validation middleware
-const validate = require('../middleware/validationMiddleware'); // <== new
+const validate = require('../middleware/validationMiddleware'); 
+const auth = require('../middleware/authMiddleware'); 
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= ROUTES DEFINITION ===================== //
@@ -30,8 +31,9 @@ router.post('/logout',
   authController.logout
 );
 
-// Protect profile update - require session
+// Protect profile update - require ownership
 router.put('/profile/:userId', 
+  auth.requireOwnership,
   upload.single('avatar'),
   validate.validateAvatarUpload,
   validate.validateProfileUpdate,
@@ -47,6 +49,7 @@ router.post('/upload-avatar',
 
 // Avatar upload route with userId param
 router.post('/upload-avatar/:userId', 
+  auth.requireOwnership,
   upload.single('avatar'), 
   validate.validateAvatarUpload,
   authController.uploadAvatar
@@ -56,7 +59,10 @@ router.post('/upload-avatar/:userId',
 router.get('/session', authController.getSession);
 
 // Get user profile by ID
-router.get('/profile/:userId', authController.getProfile);
+router.get('/profile/:userId', 
+  auth.requireOwnership,
+  authController.getProfile
+);
 
 // Healthcheck endpoint for Docker/infra
 router.get('/health', authController.health);

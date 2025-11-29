@@ -8,7 +8,8 @@ services:
     environment:
       - MYSQL_DATABASE=orbishm
     ports:
-      - "3307:3306" # map host 3307 to container 3306 to avoid conflicts with host MySQL
+      - "3307:3306" # Expose on host port 3307 for external DB tools (e.g., MySQL Workbench)
+                     # Backend uses internal service name 'db:3306' - no host port needed
     volumes:
       - db_data:/var/lib/mysql
       - ./backend/docker-init:/docker-entrypoint-initdb.d:ro
@@ -55,8 +56,6 @@ services:
       - /usr/src/app/node_modules
     depends_on:
       - backend
-    environment:
-      VITE_API_URL: "http://localhost:4000"
 
 volumes:
   db_data:
