@@ -6,12 +6,12 @@
 // they're safe to publish (no secrets, no DB credentials).
 
 // ======= Module Imports ======= //
-const config = require('../config/config');
+const config = require("../config/config");
 
 function getPublicConfig() {
-	return {
-		apiUrl: config.apiUrl || '',
-	};
+  return {
+    apiUrl: config.apiUrl || "",
+  };
 }
 
 module.exports = getPublicConfig;
