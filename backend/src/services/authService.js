@@ -82,11 +82,19 @@ const registerUser = async (userData) => {
                 };
 
                 // Create user in database
-                userModel.createUser(newUser, (createErr) => {
+                userModel.createUser(newUser, (createErr, createResult) => {
                     if (createErr) {
                         console.error('Error creating user:', createErr);
                         return reject(createErr);
                     }
+
+                    // Verify the insert actually happened
+                    if (!createResult || createResult.affectedRows === 0) {
+                        console.error('User creation returned success but no rows affected');
+                        return reject(new Error('Failed to create user in database'));
+                    }
+
+                    console.log(`User created successfully. Affected rows: ${createResult.affectedRows}`);
 
                     // Fetch the complete user profile from the database
                     userModel.getUserByEmail(email, (fetchErr, user) => {
@@ -96,10 +104,12 @@ const registerUser = async (userData) => {
                         }
 
                         if (!user) {
+                            console.error('User was inserted but could not be retrieved');
                             return reject(new Error('User registered but not found'));
                         }
 
                         const userProfile = createUserProfile(user);
+                        console.log('Registration complete. User profile:', { ...userProfile, id: userProfile.id });
                         resolve(userProfile);
                     });
                 });
