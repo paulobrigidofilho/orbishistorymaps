@@ -41,12 +41,10 @@ if (config.sessionMiddleware) {
 
 // ===================== Routes Imports ============================ //
 const authRoutes = require("./routes/authRoutes.js");
-const configRoutes = require("./routes/configRoutes.js");
 const healthRoutes = require("./routes/healthRoutes.js");
 
 // ====================== Routes Setup ============================= //
 app.use("/api", authRoutes);
-app.use("/config", configRoutes);
 app.use("/health", healthRoutes);
 
 ///////////////////////////////////////////////////////////////////////

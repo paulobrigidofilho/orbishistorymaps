@@ -7,12 +7,12 @@
 
 import axios from "axios";
 
-// Use Vite proxy by calling relative /api paths
-const API_BASE = "/api";
+// Base API URL from environment variable or default
+const API_BASE = import.meta.env.VITE_API_URL;
 
 const handleLogin = async (email, password) => {
   try {
-    const url = `${API_BASE}/login`;
+    const url = `${API_BASE}/api/login`;
     const res = await axios.post(
       url,
       { email, password },

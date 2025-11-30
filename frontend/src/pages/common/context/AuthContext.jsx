@@ -11,8 +11,8 @@ import axios from "axios";
 import handleLogin from "../auth/functions/handleLogin";
 import handleLogout from "../auth/functions/handleLogout";
 
-// Use Vite proxy by calling relative /api paths (no absolute URLs needed)
-const API_BASE = "/api";
+// Use Vite env variable for backend API URL
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 // Singleton to prevent duplicate session requests (StrictMode double render)
 let sessionRestorePromise = null;
@@ -67,7 +67,7 @@ const AuthProvider = ({ children }) => {
 
     if (!sessionRestorePromise) {
       sessionRestorePromise = axios
-        .get(`${API_BASE}/session`, { withCredentials: true, timeout: 4000 })
+        .get(`${API_BASE}/api/session`, { withCredentials: true, timeout: 4000 })
         .then((res) => res.data?.user || null)
         .catch(() => null);
     }

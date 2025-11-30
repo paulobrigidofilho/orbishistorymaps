@@ -7,9 +7,11 @@
 
 import axios from "axios";
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 const handleLogout = async () => {
   try {
-    await axios.post("/api/logout", {}, { withCredentials: true });
+    await axios.post(`${API_BASE}/api/logout`, {}, { withCredentials: true });
   } catch (err) {
     // Log in development for debugging, but don't block logout UX
     if (process.env.NODE_ENV === "development") {
