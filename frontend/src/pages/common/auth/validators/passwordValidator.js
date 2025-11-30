@@ -60,7 +60,7 @@ export const validatePassword = (password, useStrict = true) => {
 
     const errorMessage = messages.length
       ? messages.join("; ")
-      : error?.message || "Invalid password";
+      : error?.message || "Invalid password: must be at least 8 characters with uppercase, lowercase, and number";
 
     return { success: false, error: errorMessage };
   }
