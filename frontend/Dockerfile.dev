@@ -1,0 +1,15 @@
+FROM node:20
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+# Expose Vite dev server port
+EXPOSE 5173
+
+# Use the dev script
+CMD ["npm", "run", "dev"]

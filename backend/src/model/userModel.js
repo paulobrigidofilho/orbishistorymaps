@@ -34,7 +34,7 @@ const userModel = {
   ///////////////////////////////////////////////////////////////////////
 
   createUser: (userData, callback) => {
-    console.log("createUser called with:", userData);
+    console.log("createUser called with:", { ...userData, user_password: '[REDACTED]' });
 
     const query = `
     INSERT INTO users (
@@ -62,9 +62,11 @@ const userModel = {
       ],
       (err, result) => {
         if (err) {
-          console.error("Database error:", err);
+          console.error("Database INSERT error:", err);
           return callback(err, null);
         }
+        console.log("User inserted successfully. Result:", result);
+        console.log("Inserted rows:", result.affectedRows);
         return callback(null, result);
       }
     );
@@ -83,21 +85,21 @@ const userModel = {
       user_city, user_state, user_zipcode
     FROM users 
     WHERE user_id = ?`;
-    
-  db.query(query, [userId], (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      return callback(err, null);
-    }
 
-    if (!results || results.length === 0) {
-      return callback(null, null); // No user found
-    }
-    
-    console.log("Database returned user:", results[0]);
-    return callback(null, results[0]);
-  });
-},
+    db.query(query, [userId], (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return callback(err, null);
+      }
+
+      if (!results || results.length === 0) {
+        return callback(null, null); // No user found
+      }
+
+      console.log("Database returned user:", results[0]);
+      return callback(null, results[0]);
+    });
+  },
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= UPDATE USER =========================== //

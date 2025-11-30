@@ -1,4 +1,11 @@
-// ======= Module imports ======= //
+/////////////////////////////////////////////////
+// ================== AUTH SERVICE =========== //
+/////////////////////////////////////////////////
+
+// This service handles user authentication logic,
+// including registration, login, profile management, and avatar handling.
+
+// ======= Module Imports ======= //
 const bcrypt = require('bcrypt');
 const userModel = require('../model/userModel');
 const { v4: uuidv4 } = require('uuid');
@@ -13,9 +20,7 @@ const saltRounds = config.authConfig.bcrypt.saltRounds;
 
 // Function to create a user profile object (removes sensitive data)
 const createUserProfile = (user) => {
-    console.log("Creating user profile from DB data:", user);
-    
-    // Return properly structured user data with proper field names
+    // Removed raw user dump to avoid leaking hashed password
     return {
         id: user.user_id,
         firstName: user.user_firstname || '',
@@ -48,6 +53,7 @@ const registerUser = async (userData) => {
     return new Promise((resolve, reject) => {
         userModel.getUserByEmail(email, async (err, existingUser) => {
             if (err) {
+                console.error('Error in getUserByEmail (register):', err);
                 return reject(err);
             }
 
@@ -76,26 +82,39 @@ const registerUser = async (userData) => {
                 };
 
                 // Create user in database
-                userModel.createUser(newUser, (createErr) => {
+                userModel.createUser(newUser, (createErr, createResult) => {
                     if (createErr) {
+                        console.error('Error creating user:', createErr);
                         return reject(createErr);
                     }
+
+                    // Verify the insert actually happened
+                    if (!createResult || createResult.affectedRows === 0) {
+                        console.error('User creation returned success but no rows affected');
+                        return reject(new Error('Failed to create user in database'));
+                    }
+
+                    console.log(`User created successfully. Affected rows: ${createResult.affectedRows}`);
 
                     // Fetch the complete user profile from the database
                     userModel.getUserByEmail(email, (fetchErr, user) => {
                         if (fetchErr) {
+                            console.error('Error fetching user after create:', fetchErr);
                             return reject(fetchErr);
                         }
 
                         if (!user) {
+                            console.error('User was inserted but could not be retrieved');
                             return reject(new Error('User registered but not found'));
                         }
 
                         const userProfile = createUserProfile(user);
+                        console.log('Registration complete. User profile:', { ...userProfile, id: userProfile.id });
                         resolve(userProfile);
                     });
                 });
             } catch (error) {
+                console.error('Unexpected error in registerUser:', error);
                 reject(error);
             }
         });
@@ -109,6 +128,7 @@ const loginUser = async (credentials) => {
     return new Promise((resolve, reject) => {
         userModel.getUserByEmail(email, async (err, user) => {
             if (err) {
+                console.error('Error in getUserByEmail (login):', err);
                 return reject(err);
             }
 
@@ -126,6 +146,7 @@ const loginUser = async (credentials) => {
                 const userProfile = createUserProfile(user);
                 resolve(userProfile);
             } catch (compareError) {
+                console.error('Error comparing passwords:', compareError);
                 reject(compareError);
             }
         });
@@ -137,6 +158,7 @@ const getUserProfile = async (userId) => {
     return new Promise((resolve, reject) => {
         userModel.getUserById(userId, (err, user) => {
             if (err) {
+                console.error('Error in getUserById:', err);
                 return reject(err);
             }
 
@@ -144,10 +166,7 @@ const getUserProfile = async (userId) => {
                 return reject(new Error('Profile not found'));
             }
 
-            console.log("Raw user data from DB:", user);
             const userProfile = createUserProfile(user);
-            console.log("Transformed user profile:", userProfile);
-            
             resolve(userProfile);
         });
     });
@@ -158,12 +177,14 @@ const updateUserProfile = async (userId, profileData) => {
     return new Promise((resolve, reject) => {
         userModel.updateUser(userId, profileData, (err, result) => {
             if (err) {
+                console.error('Error updating user:', err);
                 return reject(err);
             }
 
             // After updating, fetch the updated user profile
             userModel.getUserById(userId, (fetchErr, user) => {
                 if (fetchErr) {
+                    console.error('Error fetching user after update:', fetchErr);
                     return reject(fetchErr);
                 }
 

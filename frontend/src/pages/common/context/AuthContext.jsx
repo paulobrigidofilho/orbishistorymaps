@@ -8,6 +8,14 @@
 // ====== Module imports ====== //
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import handleLogin from "../auth/functions/handleLogin";
+import handleLogout from "../auth/functions/handleLogout";
+
+// Use Vite env variable for backend API URL
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
+
+// Singleton to prevent duplicate session requests (StrictMode double render)
+let sessionRestorePromise = null;
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= CREATE AUTH CONTEXT =================== //
@@ -19,21 +27,14 @@ export const AuthContext = createContext(null);
 // Define the formatUserData helper function before using it
 const formatUserData = (userData) => {
   if (!userData) return null;
-
-  // Ensure avatar URL is properly formatted using environment variable
-  let avatarUrl = userData.avatar;
-  if (avatarUrl && !avatarUrl.startsWith("http")) {
-    avatarUrl = `${process.env.REACT_APP_API_URL}${avatarUrl}`;
-  }
-
   return {
     ...userData,
-    avatar: avatarUrl,
+    avatar: userData.avatar || null,
   };
 };
 
 // AuthProvider component
-export const AuthProvider = ({ children }) => {
+const AuthProvider = ({ children }) => {
   ///////////////////////////////////////////////////////////////////////
   // ========================= STATE VARIABLES ======================= //
   ///////////////////////////////////////////////////////////////////////
@@ -51,7 +52,6 @@ export const AuthProvider = ({ children }) => {
   ///////////////////////////////////////////////////////////////////////
 
   // useEffect hook to check for existing user data on initial load
-
   useEffect(() => {
     // Update localStorage whenever user changes
     if (user) {
@@ -61,47 +61,39 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
+  // Single useEffect for session restore (deduped, no retry spam)
   useEffect(() => {
-    // New useEffect to handle initial loading
-    // Set loading to false after initial check, regardless of whether a user is found
-    setLoading(false);
+    let active = true;
+
+    if (!sessionRestorePromise) {
+      sessionRestorePromise = axios
+        .get(`${API_BASE}/api/session`, { withCredentials: true, timeout: 4000 })
+        .then((res) => res.data?.user || null)
+        .catch(() => null);
+    }
+
+    sessionRestorePromise
+      .then((userData) => {
+        if (!active) return;
+        setUser(userData ? formatUserData(userData) : null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= LOGIN FUNCTION ======================== //
   ///////////////////////////////////////////////////////////////////////
 
-  // Login function
   const login = async (email, password) => {
-    try {
-      // Make API call to your backend to authenticate user using environment variable
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/login`,
-        {
-          email,
-          password,
-        }
-      );
-
-      if (response.status === 200) {
-        // Format the user data
-        const userProfile = formatUserData(response.data.user);
-
-        // Set the user in the context
-        setUser(userProfile);
-
-        // Store the user data in local storage
-        localStorage.setItem("user", JSON.stringify(userProfile));
-      } else {
-        // Handle unsuccessful login
-        console.error("Login failed:", response.data.message);
-        throw new Error(response.data.message || "Login failed");
-      }
-    } catch (error) {
-      // Handle network errors or other exceptions
-      console.error("Login error:", error);
-      throw new Error(error.response?.data?.message || "Login failed");
-    }
+    const user = await handleLogin(email, password);
+    setUser(user);
+    return user;
   };
 
   ///////////////////////////////////////////////////////////////////////
@@ -109,10 +101,9 @@ export const AuthProvider = ({ children }) => {
   ///////////////////////////////////////////////////////////////////////
 
   // Logout function
-  const logout = () => {
-    // Clear user data from state and storage
+  const logout = async () => {
+    await handleLogout();
     setUser(null);
-    localStorage.removeItem("user");
   };
 
   ///////////////////////////////////////////////////////////////////////
@@ -122,10 +113,9 @@ export const AuthProvider = ({ children }) => {
   // Value object to be provided by the context
   const value = {
     user,
-    loading,
+    setUser,
     login,
     logout,
-    setUser, // Make setUser available in the context
   };
 
   ///////////////////////////////////////////////////////////////////////
@@ -142,3 +132,5 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+export { AuthProvider };

@@ -1,11 +1,7 @@
 // ==== Module imports ======= //
 
-const express = require('express');
-const path = require('path');
-const cors = require('cors');
-const config = require('./config/config');
-require('dotenv').config();
-
+const express = require("express");
+const config = require("./config/config");
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= APP INITIALIZATION ==================== //
@@ -14,39 +10,80 @@ require('dotenv').config();
 const app = express();
 const port = config.port;
 
-///////////////////////////////////////////////////////////////////////
-// ========================= MIDDLEWARE ============================ //
-///////////////////////////////////////////////////////////////////////
+console.log("Starting Orbis backend server...");
 
-// Configure CORS
-app.use(cors(config.corsConfig));
+// Configure CORS first to set headers before session processing
+app.use(config.corsMiddleware);
 
 // Parse JSON and URL-encoded bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Mount session middleware after CORS
+if (config.sessionMiddleware) {
+  app.use(config.sessionMiddleware);
+  console.log("Session middleware mounted.");
+  if (config.getSessionStore) {
+    const store = config.getSessionStore();
+    if (store) {
+      store.on("error", function (error) {
+        console.error("Session store error:", error);
+      });
+    }
+  }
+} else {
+  console.warn("Session middleware is not configured!");
+}
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= ROUTES ================================ //
 ///////////////////////////////////////////////////////////////////////
 
 // ===================== Routes Imports ============================ //
-
-const authRoutes = require('./routes/authRoutes.js'); 
+const authRoutes = require("./routes/authRoutes.js");
+const healthRoutes = require("./routes/healthRoutes.js");
 
 // ====================== Routes Setup ============================= //
-
-app.use('/api', authRoutes); 
+app.use("/api", authRoutes);
+app.use("/health", healthRoutes);
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= STATIC FILES ========================== //
 ///////////////////////////////////////////////////////////////////////
 
-app.use('/uploads/avatars', express.static(config.staticPaths.avatars)); // Serve static files from the avatars directory
+app.use("/uploads/avatars", express.static(config.staticPaths.avatars));
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= SERVER START ========================== //
 ///////////////////////////////////////////////////////////////////////
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+(async () => {
+  // Wait for session store initialization (MySQL store or fallback)
+  if (config.waitForStore) {
+    console.log("Waiting for session store to initialize...");
+    await config.waitForStore();
+    console.log("Session store initialization complete.");
+  }
+
+  // Ensure DB is reachable before accepting requests
+  await new Promise((resolve) => {
+    const checkDb = () => {
+      config.db.query("SELECT 1", (err) => {
+        if (err) {
+          console.log("Database not ready yet, retrying in 1000ms...");
+          setTimeout(checkDb, 1000);
+        } else {
+          console.log("Database is ready.");
+          resolve();
+        }
+      });
+    };
+    checkDb();
+  });
+
+  app.listen(port, () => {
+    const env =
+      process.env.NODE_ENV === "production" ? "production" : "development";
+    console.log(`Server is running on port ${port} (${env} mode)`);
+  });
+})();

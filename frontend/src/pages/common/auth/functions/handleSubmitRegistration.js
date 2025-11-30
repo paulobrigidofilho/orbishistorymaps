@@ -1,6 +1,6 @@
-/////////////////////////////////////////////////
+////////////////////////////////////////////////
 // ===== HANDLE REGISTRATION SUBMISSION ===== //
-/////////////////////////////////////////////////
+////////////////////////////////////////////////
 
 // This function handles the form submission for user registration
 // validating data and making the API call
@@ -14,11 +14,23 @@
  * @param {Object} setters - Object containing state setter functions
  * @returns {Promise<void>}
  */
+
+// ====== Module Imports ===== //
+import axios from "axios";
+import { 
+  validatePersonalDetails, 
+  validateProfileDetails 
+} from "../validators/registrationValidator";
+
+////////////////////////////////////////////////////////////////////////////////
+// ===== Handle Registration Submission (uses getPublicConfig) ============== //
+////////////////////////////////////////////////////////////////////////////////
+
 const handleSubmitRegistration = async (e, formData, setters) => {
   e.preventDefault();
   setters.setError("");
   setters.setSuccessMessage("");
-  
+
   // ========================= FORM VALIDATION ========================= //
   // Validate personal details
   const personalValidation = validatePersonalDetails({
@@ -45,6 +57,8 @@ const handleSubmitRegistration = async (e, formData, setters) => {
   }
 
   // ========================= FORM DATA PREPARATION ========================= //
+  // Prepare form data for submission
+
   const submitData = new FormData();
   // Personal details
   submitData.append("firstName", formData.firstName);
@@ -54,25 +68,24 @@ const handleSubmitRegistration = async (e, formData, setters) => {
   submitData.append("confirmPassword", formData.confirmPassword);
   // Profile details
   submitData.append("nickname", formData.nickname);
-  submitData.append("address", formData.address);          
-  submitData.append("addressLine2", formData.addressLine2);
-  submitData.append("city", formData.city);
-  submitData.append("state", formData.stateName); 
-  submitData.append("zipCode", formData.zipCode);
+  submitData.append("address", formData.address || "");
+  submitData.append("addressLine2", formData.addressLine2 || "");
+  submitData.append("city", formData.city || "");
+  submitData.append("state", formData.stateName || "");
+  submitData.append("zipCode", formData.zipCode || "");
 
-  // Append avatar only if selected
   if (formData.avatar) {
     submitData.append("avatar", formData.avatar);
   }
 
   // ========================= API CALL ========================= //
   try {
-    // Use environment variable for API URL
-    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/register`, submitData, {
+    // Use relative path - Vite proxy handles routing to backend
+    const response = await axios.post('/api/register', submitData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-      withCredentials: true, // Include cookies in the request
+      withCredentials: true,
     });
 
     // ========================= SUCCESS HANDLING ========================= //
@@ -86,17 +99,16 @@ const handleSubmitRegistration = async (e, formData, setters) => {
         return;
       }
 
-      // ========================= SET USER CONTEXT ========================= //
-      // Construct user object for context using data from response
+      // Simplified avatar handling - no baseUrl needed
+      const avatarPath = response.data.user.avatar || '';
+
       const newUser = {
         id: response.data.user.id,
         firstName: response.data.user.firstName || formData.firstName,
         lastName: response.data.user.lastName || formData.lastName,
         email: response.data.user.email || formData.email,
         nickname: response.data.user.nickname || formData.nickname,
-        avatar: response.data.user.avatar.startsWith('http')
-                ? response.data.user.avatar
-                : `${process.env.REACT_APP_API_URL}${response.data.user.avatar}`,
+        avatar: avatarPath,
         address: response.data.user.address || "", 
         addressLine2: response.data.user.addressLine2 || "",
         city: response.data.user.city || "",
