@@ -5,6 +5,9 @@
 // This configuration file sets up database connection parameters
 // such as host, port, user, password, and database name.
 
+// ===== Module Imports ===== //
+const mysql = require("mysql2");
+
 // ===== Database Configuration ===== //
 
 const dbConfig = {

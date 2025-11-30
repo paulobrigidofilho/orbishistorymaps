@@ -9,7 +9,7 @@ services:
       - MYSQL_DATABASE=orbishm
     ports:
       - "3307:3306" # Expose on host port 3307 for external DB tools (e.g., MySQL Workbench)
-                     # Backend uses internal service name 'db:3306' - no host port needed
+        # Backend uses internal service name 'db:3306' - no host port needed
     volumes:
       - db_data:/var/lib/mysql
       - ./backend/docker-init:/docker-entrypoint-initdb.d:ro
@@ -38,7 +38,11 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:4000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))\""]
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "require(''http'').get(''http://localhost:4000/health'', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on(''error'', () => process.exit(1))"',
+        ]
       interval: 10s
       timeout: 5s
       retries: 5

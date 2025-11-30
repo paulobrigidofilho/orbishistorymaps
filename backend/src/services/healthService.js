@@ -5,11 +5,9 @@
 // This service provides health check functionalities
 // for the application, including database connectivity checks
 
-// ======= Module Imports ======= //
-const db = require('../config/db'); // Adjust the path as necessary
+// ======= getHealthStatus Function ======= //
 
-// New health service
-const getHealthStatus = async () => {
+const getHealthStatus = async ({ db }) => {
   // basic checks; expand as needed
   const uptime = process.uptime();
   const timestamp = Date.now();
@@ -17,21 +15,19 @@ const getHealthStatus = async () => {
   // Try a simple DB ping using the pool
   let dbHealthy = true;
   try {
-    await db.promise().query('SELECT 1');
+    await db.promise().query("SELECT 1");
   } catch (e) {
     dbHealthy = false;
   }
 
   return {
-    status: dbHealthy ? 'ok' : 'degraded',
+    status: dbHealthy ? "ok" : "degraded",
     uptime,
     timestamp,
     checks: {
-      db: dbHealthy ? 'ok' : 'error'
-    }
+      db: dbHealthy ? "ok" : "error",
+    },
   };
 };
 
-module.exports = {
-  getHealthStatus
-};
+module.exports = { getHealthStatus };

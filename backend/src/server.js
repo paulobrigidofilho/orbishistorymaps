@@ -23,8 +23,8 @@ app.use(express.urlencoded({ extended: true }));
 if (config.sessionMiddleware) {
   app.use(config.sessionMiddleware);
   console.log("Session middleware mounted.");
-  if (config.sessionStore) {
-    const store = typeof config.sessionStore === 'function' ? config.sessionStore() : config.sessionStore;
+  if (config.getSessionStore) {
+    const store = config.getSessionStore();
     if (store) {
       store.on("error", function (error) {
         console.error("Session store error:", error);
@@ -53,7 +53,7 @@ app.use("/health", healthRoutes);
 // ========================= STATIC FILES ========================== //
 ///////////////////////////////////////////////////////////////////////
 
-app.use("/uploads/avatars", express.static(config.staticPaths.avatars)); // Serve static files from the avatars directory
+app.use("/uploads/avatars", express.static(config.staticPaths.avatars));
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= SERVER START ========================== //
