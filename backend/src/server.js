@@ -59,7 +59,33 @@ app.use("/uploads/avatars", express.static(config.staticPaths.avatars));
 // ========================= SERVER START ========================== //
 ///////////////////////////////////////////////////////////////////////
 
-app.listen(port, () => {
-  const env = process.env.NODE_ENV === "production" ? "production" : "development";
-  console.log(`Server is running on port ${port} (${env} mode)`);
-});
+(async () => {
+  // Wait for session store initialization (MySQL store or fallback)
+  if (config.waitForStore) {
+    console.log("Waiting for session store to initialize...");
+    await config.waitForStore();
+    console.log("Session store initialization complete.");
+  }
+
+  // Ensure DB is reachable before accepting requests
+  await new Promise((resolve) => {
+    const checkDb = () => {
+      config.db.query("SELECT 1", (err) => {
+        if (err) {
+          console.log("Database not ready yet, retrying in 1000ms...");
+          setTimeout(checkDb, 1000);
+        } else {
+          console.log("Database is ready.");
+          resolve();
+        }
+      });
+    };
+    checkDb();
+  });
+
+  app.listen(port, () => {
+    const env =
+      process.env.NODE_ENV === "production" ? "production" : "development";
+    console.log(`Server is running on port ${port} (${env} mode)`);
+  });
+})();

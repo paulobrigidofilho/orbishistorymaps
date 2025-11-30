@@ -11,5 +11,5 @@ COPY . .
 # Expose Vite dev server port
 EXPOSE 5173
 
-# Use the dev script (ensure package.json has "dev": "vite")
+# Use the dev script
 CMD ["npm", "run", "dev"]

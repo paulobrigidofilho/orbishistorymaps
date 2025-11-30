@@ -11,6 +11,12 @@ import axios from "axios";
 import handleLogin from "../auth/functions/handleLogin";
 import handleLogout from "../auth/functions/handleLogout";
 
+// Use Vite proxy by calling relative /api paths (no absolute URLs needed)
+const API_BASE = "/api";
+
+// Singleton to prevent duplicate session requests (StrictMode double render)
+let sessionRestorePromise = null;
+
 ///////////////////////////////////////////////////////////////////////
 // ========================= CREATE AUTH CONTEXT =================== //
 ///////////////////////////////////////////////////////////////////////
@@ -55,31 +61,29 @@ const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  // Single useEffect for session restore - remove the duplicate ones
+  // Single useEffect for session restore (deduped, no retry spam)
   useEffect(() => {
-    const restoreSession = async () => {
-      const maxAttempts = 4;
-      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-          const res = await axios.get("/api/session", {
-            withCredentials: true,
-            timeout: 3000,
-          });
-          setUser(formatUserData(res.data?.user));
-          break;
-        } catch (err) {
-          if (attempt === maxAttempts) {
-            console.warn("Session restore failed:", err.message || err);
-            setUser(null);
-            break;
-          }
-          const backoff = Math.min(200 * 2 ** (attempt - 1), 1200);
-          await new Promise((r) => setTimeout(r, backoff));
-        }
-      }
-      setLoading(false);
+    let active = true;
+
+    if (!sessionRestorePromise) {
+      sessionRestorePromise = axios
+        .get(`${API_BASE}/session`, { withCredentials: true, timeout: 4000 })
+        .then((res) => res.data?.user || null)
+        .catch(() => null);
+    }
+
+    sessionRestorePromise
+      .then((userData) => {
+        if (!active) return;
+        setUser(userData ? formatUserData(userData) : null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
     };
-    restoreSession();
   }, []);
 
   ///////////////////////////////////////////////////////////////////////

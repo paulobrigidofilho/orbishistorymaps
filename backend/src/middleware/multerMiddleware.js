@@ -9,6 +9,7 @@
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
+const { v4: uuidv4 } = require("uuid");
 
 // ===== Create upload directories if they don't exist ===== //
 const createUploadDirs = () => {
@@ -33,11 +34,12 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
-    );
+    const userId = req.session?.user?.id || "anonymous";
+    const uniqueId = uuidv4();
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    const filename = `avatar-${userId}-${timestamp}-${uniqueId}${ext}`;
+    cb(null, filename);
   },
 });
 

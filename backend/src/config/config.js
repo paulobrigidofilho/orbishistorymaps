@@ -29,10 +29,8 @@ const { authConfig } = require("./authConfig");
 
 // ======= SESSION MANAGEMENT ======= //
 const { createSessionMiddleware } = require("../middleware/sessionMiddleware");
-const { sessionMiddleware, getSessionStore } = createSessionMiddleware(
-  authConfig,
-  dbConfig
-);
+const { sessionMiddleware, getSessionStore, waitForStore, isStoreReady } =
+  createSessionMiddleware(authConfig, dbConfig);
 
 // ======= STATIC PATHS ======= //
 const staticPaths = {
@@ -53,6 +51,8 @@ const config = {
 
   getSessionStore,
   sessionStore: getSessionStore,
+  waitForStore,
+  isStoreReady,
 
   staticPaths,
 };

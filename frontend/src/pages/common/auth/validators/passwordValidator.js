@@ -5,13 +5,6 @@
 // This validator handles validation for passwords
 // ensuring security requirements and password matching
 
-/**
- * Validates password and confirm password match
- * @param {string} password - The password
- * @param {string} confirmPassword - The confirmation password
- * @returns {Object} - { success: boolean, error: string | null }
- */
-
 // ===== Module Imports ===== //
 import { z } from "zod";
 
@@ -60,7 +53,8 @@ export const validatePassword = (password, useStrict = true) => {
 
     const errorMessage = messages.length
       ? messages.join("; ")
-      : error?.message || "Invalid password: must be at least 8 characters with uppercase, lowercase, and number";
+      : error?.message ||
+        "Invalid password: must be at least 8 characters with uppercase, lowercase, and number";
 
     return { success: false, error: errorMessage };
   }

@@ -7,22 +7,38 @@
 
 import axios from "axios";
 
+// Use Vite proxy by calling relative /api paths
+const API_BASE = "/api";
+
 const handleLogin = async (email, password) => {
   try {
+    const url = `${API_BASE}/login`;
     const res = await axios.post(
-      "/api/login",
+      url,
       { email, password },
-      { withCredentials: true }
+      {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+        timeout: 15000,
+      }
     );
     if (res.status === 200 && res.data && res.data.user) {
       return res.data.user;
     }
     throw new Error(res.data?.message || "Login failed (unexpected response)");
   } catch (err) {
-    const backendMsg = err.response?.data?.message;
+    const status = err.response?.status;
+    const backendMsg =
+      err.response?.data?.message ||
+      err.response?.data?.error ||
+      err.response?.data?.detail;
+
     const finalMsg = backendMsg
-      ? `Login request failed: ${backendMsg}`
+      ? `Login request failed${status ? ` (${status})` : ""}: ${backendMsg}`
+      : status
+      ? `Login request failed (${status})`
       : `Login request failed: ${err.message}`;
+
     console.error(finalMsg);
     throw new Error(finalMsg);
   }

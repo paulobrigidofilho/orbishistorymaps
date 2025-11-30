@@ -5,12 +5,6 @@
 // This validator handles validation for name-related fields
 // ensuring proper formatting and length requirements
 
-/**
- * Validates a first name using the name schema
- * @param {string} firstName - The first name to validate
- * @returns {Object} - { success: boolean, error: string | null }
- */
-
 // ===== Module Imports ===== //
 
 import { z } from 'zod';

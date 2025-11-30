@@ -14,10 +14,15 @@ services:
       - db_data:/var/lib/mysql
       - ./backend/docker-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          'mysqladmin ping -h 127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD" || exit 1',
+        ]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 20
+      start_period: 30s
 
   backend:
     build:
@@ -29,6 +34,7 @@ services:
     environment:
       - MYSQL_HOST=db
       - MYSQL_USER=root
+      - NODE_ENV=development
     ports:
       - "4000:4000"
     volumes:
@@ -55,6 +61,8 @@ services:
     command: npm run dev
     ports:
       - "5173:5173"
+    environment:
+      - VITE_BACKEND_URL=http://localhost:4000
     volumes:
       - ./frontend:/usr/src/app
       - /usr/src/app/node_modules

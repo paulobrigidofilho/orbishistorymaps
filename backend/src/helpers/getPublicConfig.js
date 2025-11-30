@@ -8,9 +8,16 @@
 // ======= Module Imports ======= //
 const config = require("../config/config");
 
+const normalize = (v) => (v || "").replace(/\/+$/, "");
+
 function getPublicConfig() {
+  const root = normalize(config.apiUrl || process.env.VITE_BACKEND_URL || "");
+  const apiBase = root
+    ? `${root}${root.endsWith("/api") ? "" : "/api"}`
+    : "/api";
   return {
-    apiUrl: config.apiUrl || "",
+    apiRoot: root, // e.g., http://localhost:4000
+    apiBase, // e.g., http://localhost:4000/api
   };
 }
 

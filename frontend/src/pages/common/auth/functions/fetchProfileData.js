@@ -5,14 +5,6 @@
 // This function fetches profile data for a given user ID
 // and handles validation and data parsing
 
-/**
- * Fetches profile data for a given user ID
- *
- * @param {string} profileId - The ID of the profile to fetch
- * @param {Object} setters - Object containing state setter functions
- * @returns {Promise<void>}
- */
-
 // ===== Module Imports ===== //
 
 import axios from "axios";

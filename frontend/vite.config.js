@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 const enableProxyDebug = process.env.VITE_DEBUG_PROXY === "true";
+const backendTarget = process.env.VITE_BACKEND_URL || "http://localhost:4000";
 
 export default defineConfig({
   plugins: [react()],
@@ -10,7 +11,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "http://backend:4000",
+        target: backendTarget,
         changeOrigin: true,
         secure: false,
         configure: enableProxyDebug
@@ -39,12 +40,17 @@ export default defineConfig({
           : undefined,
       },
       "/config": {
-        target: "http://backend:4000",
+        target: backendTarget,
+        changeOrigin: true,
+        secure: false,
+      },
+      "/health": {
+        target: backendTarget,
         changeOrigin: true,
         secure: false,
       },
       "/uploads": {
-        target: "http://backend:4000",
+        target: backendTarget,
         changeOrigin: true,
         secure: false,
       },
