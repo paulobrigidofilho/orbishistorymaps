@@ -161,7 +161,6 @@ function Profile() {
         setLastName={setLastName}
         email={email}
         setEmail={setEmail}
-        // No password fields for profile editing
         password=""
         setPassword={() => {}}
         confirmPassword=""
