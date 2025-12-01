@@ -36,6 +36,8 @@ const profileResponseSchema = z.object({
 
 // ======= fetchProfileData Function ======= //
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 const fetchProfileData = async (profileId, setters) => {
   setters.setError(""); // Clear previous errors
 
@@ -48,8 +50,11 @@ const fetchProfileData = async (profileId, setters) => {
   }
 
   try {
-    // Use relative path - Vite proxy handles routing to backend
-    const response = await axios.get(`/api/profile/${profileId}`);
+    // Fetch profile data from API
+    const response = await axios.get(
+      `${API_BASE}/api/profile/${profileId}`,
+      { withCredentials: true }
+    );
 
     if (response.status === 200 && response.data) {
       // Validate response data
