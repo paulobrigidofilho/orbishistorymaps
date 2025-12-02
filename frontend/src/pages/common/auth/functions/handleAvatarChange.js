@@ -6,7 +6,7 @@
 // Validates file size and type before setting the avatar (avatarValidator.js)
 
 // ======= Module Imports ======= //
-import { validateAvatar } from "../validators/avatarValidator"; // Add missing import
+import { validateAvatar } from "../validators/avatarValidator"; 
 
 // ======= handleAvatarChange Function ======= //
 const handleAvatarChange = async (e, setAvatar, setAvatarError, setAvatarPreview) => {

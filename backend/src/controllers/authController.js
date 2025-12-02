@@ -8,7 +8,7 @@
 
 // ======= Module imports ======= //
 const authService = require("../services/authService");
-const config = require("../config/config"); 
+const config = require("../config/config");
 
 /////////////////////////////////////////////////////////////////////
 // ======================= CONTROLLER FUNCTIONS ================== //
@@ -54,9 +54,9 @@ const register = async (req, res) => {
       zipCode,
     } = req.body;
 
-    // Get avatar path if a file was uploaded
+    // Get avatar path if a file was uploaded (store absolute URL like profile upload)
     const avatarPath = req.file
-      ? `/uploads/avatars/${req.file.filename}`
+      ? await authService.saveAvatarUrl(req.file.filename)
       : null;
 
     const userProfile = await authService.registerUser({
@@ -65,13 +65,18 @@ const register = async (req, res) => {
       email,
       password,
       nickname,
-      avatar: avatarPath, // Pass the avatar path
+      avatar: avatarPath, // now absolute URL
       address,
       addressLine2,
       city,
       state,
       zipCode,
     });
+
+    // Establish session so owner-protected routes work immediately
+    if (req.session) {
+      req.session.user = userProfile;
+    }
 
     console.log("User profile after registration:", userProfile); // Debugging log
 
@@ -97,12 +102,27 @@ const uploadAvatar = async (req, res) => {
       return res.status(400).json({ message: "No avatar file provided" });
     }
 
-    const avatarUrl = await authService.saveAvatarUrl(req.file.filename);
+    // Always use userId from params for profile avatar upload
+    const userId = req.params.userId;
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ message: "No user ID provided for avatar upload" });
+    }
 
-    console.log("Avatar uploaded successfully");
-    return res
-      .status(200)
-      .json({ message: "Avatar uploaded successfully", avatarUrl });
+    const avatarUrl = await authService.saveAvatarUrl(req.file.filename);
+    console.log("[uploadAvatar] Persisting avatar URL:", avatarUrl);
+    await authService.updateUserProfile(userId, { avatar: avatarUrl });
+
+    // Fetch updated user profile
+    const updatedUser = await authService.getUserProfile(userId);
+
+    console.log("Avatar uploaded and user profile updated successfully");
+    return res.status(200).json({
+      message: "Avatar uploaded successfully",
+      avatar: avatarUrl,
+      user: updatedUser,
+    });
   } catch (error) {
     return handleServerError(res, error, "Avatar upload error");
   }
@@ -248,6 +268,23 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// ======================== DELETE AVATAR ======================== //
+const deleteAvatar = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    if (!userId)
+      return res.status(400).json({ message: "No user ID provided" });
+
+    const updatedUser = await authService.deleteUserAvatar(userId);
+    return res.status(200).json({
+      message: "Avatar deleted successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    return handleServerError(res, error, "Avatar delete error");
+  }
+};
+
 ///////////////////////////////////////////////////////////////////////
 // ========================= EXPORT CONTROLLER ===================== //
 ///////////////////////////////////////////////////////////////////////
@@ -260,6 +297,7 @@ const authController = {
   getSession,
   getProfile,
   updateProfile,
+  deleteAvatar, // added
 };
 
 module.exports = authController;

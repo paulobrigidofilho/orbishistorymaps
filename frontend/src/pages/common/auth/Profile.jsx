@@ -22,6 +22,8 @@ import handleDeleteAvatar from "./functions/handleDeleteAvatar";
 import handleProfileAvatarChange from "./functions/handleProfileAvatarChange";
 import handleProfileSubmit from "./functions/handleProfileSubmit";
 import fetchProfileData from "./functions/fetchProfileData";
+import handleCancelAvatarSelection from "./functions/handleCancelAvatarSelection";
+import handleSubmitAvatar from "./functions/handleSubmitAvatar";
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= PROFILE COMPONENT ===================== //
@@ -38,6 +40,10 @@ function Profile() {
   const [nickname, setNickname] = useState("");
   const [avatar, setAvatar] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [storedAvatarPath, setStoredAvatarPath] = useState(null);
+  const [pendingUpload, setPendingUpload] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarUploadSuccess, setAvatarUploadSuccess] = useState(false);
   const [address, setAddress] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
   const [city, setCity] = useState("");
@@ -49,6 +55,7 @@ function Profile() {
   const [avatarError, setAvatarError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [currentUserId, setCurrentUserId] = useState("");
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
 
   // --- Context and Routing ---
   const { user, setUser } = useContext(AuthContext);
@@ -57,30 +64,47 @@ function Profile() {
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
-  // Fetch profile data when the component mounts or profileId changes //
   ///////////////////////////////////////////////////////////////////////
   useEffect(() => {
-    if (profileId && profileId !== "undefined") {
-      const setters = {
-        setFirstName,
-        setLastName,
-        setEmail,
-        setNickname,
-        setAvatar,
-        setAvatarPreview,
-        setAddress,
-        setAddressLine2,
-        setCity,
-        setStateName,
-        setZipCode,
-        setCurrentUserId,
-        setError,
-      };
+    let isMounted = true; // Prevent state updates on unmounted component
 
-      fetchProfileData(profileId, setters);
-    } else {
-      setError("Invalid or missing profile ID");
-    }
+    const loadProfile = async () => {
+      if (profileId && profileId !== "undefined") {
+        setIsLoading(true);
+
+        const setters = {
+          setFirstName,
+          setLastName,
+          setEmail,
+          setNickname,
+          setAvatar,
+          setAvatarPreview,
+          setStoredAvatarPath,
+          setAddress,
+          setAddressLine2,
+          setCity,
+          setStateName,
+          setZipCode,
+          setCurrentUserId,
+          setError,
+        };
+
+        await fetchProfileData(profileId, setters);
+
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      } else {
+        setError("Invalid or missing profile ID");
+        setIsLoading(false);
+      }
+    };
+
+    loadProfile();
+
+    return () => {
+      isMounted = false; // Cleanup
+    };
   }, [profileId]);
 
   ///////////////////////////////////////////////////////////////////////
@@ -89,11 +113,48 @@ function Profile() {
 
   // --- Handler functions with proper context ---
   const handleAvatarChangeWithContext = (e) => {
-    handleProfileAvatarChange(e, setAvatar, setAvatarError, setAvatarPreview);
+    handleProfileAvatarChange(
+      e,
+      setAvatar,
+      setAvatarError,
+      setAvatarPreview,
+      setPendingUpload
+    );
+    if (e.target.files[0]) {
+      setAvatarUploadSuccess(false);
+    }
   };
 
-  const handleDeleteAvatarWithContext = () => {
-    handleDeleteAvatar(setAvatar, setAvatarPreview);
+  const handleCancelAvatarWithContext = () => {
+    handleCancelAvatarSelection(
+      setAvatar,
+      setAvatarPreview,
+      setPendingUpload,
+      storedAvatarPath
+    );
+  };
+
+  const handleUploadAvatarWithContext = async () => {
+    const setters = {
+      setPendingUpload,
+      setAvatarUploading,
+      setAvatarUploadSuccess,
+      setAvatarError,
+      setAvatar,
+      setAvatarPreview,
+      setStoredAvatarPath,
+    };
+    await handleSubmitAvatar(avatar, currentUserId, setters);
+  };
+
+  const handleDeleteAvatarWithContext = async () => {
+    await handleDeleteAvatar(
+      currentUserId,
+      setAvatar,
+      setAvatarPreview,
+      setAvatarError
+    );
+    setStoredAvatarPath(null);
   };
 
   const handleSubmitWithContext = (e) => {
@@ -123,11 +184,15 @@ function Profile() {
   };
 
   // Check if the logged-in user is viewing their own profile
+  const effectiveProfileId = currentUserId || profileId; // fallback to route id
   const isOwnProfile =
-    user && user.id && currentUserId && user.id === currentUserId;
+    user &&
+    user.id &&
+    effectiveProfileId &&
+    String(user.id) === String(effectiveProfileId);
 
   // Display loading or error state before rendering the form
-  if (!currentUserId && !error) {
+  if (isLoading) {
     return <div className={styles.loading}>Loading profile...</div>;
   }
 
@@ -161,10 +226,7 @@ function Profile() {
         setLastName={setLastName}
         email={email}
         setEmail={setEmail}
-        password=""
-        setPassword={() => {}}
-        confirmPassword=""
-        setConfirmPassword={() => {}}
+        showPasswordFields={false} // Hide password fields
         capitalizeWords={capitalizeWords}
         readOnly={!isOwnProfile}
       />
@@ -174,9 +236,15 @@ function Profile() {
         nickname={nickname}
         setNickname={setNickname}
         avatarPreview={avatarPreview}
+        storedAvatarPath={storedAvatarPath}
         avatarError={avatarError}
         handleAvatarChange={handleAvatarChangeWithContext}
         handleDeleteAvatar={handleDeleteAvatarWithContext}
+        handleCancelAvatarSelection={handleCancelAvatarWithContext}
+        handleUploadAvatar={handleUploadAvatarWithContext}
+        avatarUploadSuccess={avatarUploadSuccess}
+        avatarUploading={avatarUploading}
+        pendingUpload={pendingUpload}
         readOnly={!isOwnProfile}
       />
 
