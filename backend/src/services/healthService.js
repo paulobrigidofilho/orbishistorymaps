@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////
-// ================== HEALTH SERVICE =========== //
-///////////////////////////////////////////////////
+////////////////////////////////////////////////
+// ============= HEALTH SERVICE ============= //
+////////////////////////////////////////////////
 
 // This service provides health check functionalities
 // for the application, including database connectivity checks
 
+///////////////////////////////////
+// ===== SERVICE FUNCTIONS ===== //
+///////////////////////////////////
+
 // ======= getHealthStatus Function ======= //
+// Returns the health status of the application
 
 const getHealthStatus = async ({ db }) => {
   // basic checks; expand as needed

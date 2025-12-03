@@ -8,11 +8,13 @@
 // ======= Module imports ======= //
 const express = require('express');
 const router = express.Router();
+
+// ======= Controller imports ======= //
 const healthController = require('../controllers/healthController');
 
-///////////////////////////////////////////////////////////////////////
-// ========================= ROUTES DEFINITION ===================== //
-///////////////////////////////////////////////////////////////////////
+/////////////////////
+////// ROUTES ///////
+/////////////////////
 
 router.get('/', healthController.health);
 

@@ -21,6 +21,8 @@ import {
   validateProfileAccess,
 } from "../validators/profileValidator";
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 // ======= handleProfileSubmit Function ======= //
 
 const handleProfileSubmit = async (
@@ -84,13 +86,17 @@ const handleProfileSubmit = async (
       formData.append("avatarUrl", profileData.avatar);
     }
 
-    // Use relative path - Vite proxy handles routing to backend
-    const response = await axios.put(`/api/profile/${profileId}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      withCredentials: true,
-    });
+    // Make the API request to update the profile
+    const response = await axios.put(
+      `${API_BASE}/api/profile/${profileId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      }
+    );
 
     // Handle success response
     if (response.status === 200) {

@@ -34,7 +34,10 @@ const userModel = {
   ///////////////////////////////////////////////////////////////////////
 
   createUser: (userData, callback) => {
-    console.log("createUser called with:", { ...userData, user_password: '[REDACTED]' });
+    console.log("createUser called with:", {
+      ...userData,
+      user_password: "[REDACTED]",
+    });
 
     const query = `
     INSERT INTO users (
@@ -106,18 +109,18 @@ const userModel = {
   ///////////////////////////////////////////////////////////////////////
 
   updateUser: (userId, userData, callback) => {
-    const {
-      firstName: user_firstname,
-      lastName: user_lastname,
-      email: user_email,
-      nickname: user_nickname,
-      avatar: user_avatar,
-      address: user_address,
-      addressLine2: user_address_line_2,
-      city: user_city,
-      state: user_state,
-      zipCode: user_zipcode,
-    } = userData;
+    // Accept both payload shapes: snake_case (service) and camelCase (legacy)
+    const user_firstname = userData.user_firstname ?? userData.firstName;
+    const user_lastname = userData.user_lastname ?? userData.lastName;
+    const user_email = userData.user_email ?? userData.email;
+    const user_nickname = userData.user_nickname ?? userData.nickname;
+    const user_avatar = userData.user_avatar ?? userData.avatar;
+    const user_address = userData.user_address ?? userData.address;
+    const user_address_line_2 =
+      userData.user_address_line_2 ?? userData.addressLine2;
+    const user_city = userData.user_city ?? userData.city;
+    const user_state = userData.user_state ?? userData.state;
+    const user_zipcode = userData.user_zipcode ?? userData.zipCode;
 
     const query = `
       UPDATE users SET
@@ -126,6 +129,7 @@ const userModel = {
         user_address = ?, user_address_line_2 = ?, 
         user_city = ?, user_state = ?, user_zipcode = ?
       WHERE user_id = ?`;
+
     db.query(
       query,
       [

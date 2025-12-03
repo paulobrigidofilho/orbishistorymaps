@@ -7,7 +7,6 @@
 
 //  ========== Component imports  ========== //
 
-import React from "react";
 import styles from "../Auth.module.css";
 
 // ========== PersonalDetailsDiv Component ========== //
@@ -24,6 +23,7 @@ function PersonalDetailsDiv({
   confirmPassword,
   setConfirmPassword,
   capitalizeWords,
+  showPasswordFields = true, // NEW: control visibility of password fields
   readOnly = false,
 }) {
   ///////////////////////////////////////////////////////////////////////
@@ -72,8 +72,8 @@ function PersonalDetailsDiv({
         className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
 
-      {/* Only show password fields if not in readOnly mode */}
-      {!readOnly && (
+      {/* Password fields only when requested (registration) */}
+      {showPasswordFields && (
         <>
           <p className={styles.inputLabel}>Password: *</p>
           <input

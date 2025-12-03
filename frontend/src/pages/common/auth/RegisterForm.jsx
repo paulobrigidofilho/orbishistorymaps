@@ -38,6 +38,7 @@ function RegisterForm() {
   const [nickname, setNickname] = useState("");
   const [avatar, setAvatar] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [pendingUpload, setPendingUpload] = useState(false); // Add this
   const [address, setAddress] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
   const [city, setCity] = useState("");
@@ -64,10 +65,21 @@ function RegisterForm() {
   // --- Handler functions with proper context ---
   const handleAvatarChangeWithContext = (e) => {
     handleAvatarChange(e, setAvatar, setAvatarError, setAvatarPreview);
+    if (e.target.files[0]) {
+      setPendingUpload(true);
+    } else {
+      setPendingUpload(false);
+    }
   };
 
   const handleDeleteAvatarWithContext = () => {
-    handleDeleteAvatar(setAvatar, setAvatarPreview);
+    setAvatar(null);
+    setAvatarPreview(null);
+    setPendingUpload(false);
+    const avatarInput = document.getElementById("avatar-upload");
+    if (avatarInput) {
+      avatarInput.value = "";
+    }
   };
 
   const handleSubmitWithContext = (e) => {
@@ -122,6 +134,7 @@ function RegisterForm() {
         confirmPassword={confirmPassword}
         setConfirmPassword={setConfirmPassword}
         capitalizeWords={capitalizeWords}
+        showPasswordFields={true}
       />
 
       {/* ============ PROFILE & AVATAR SECTION ============  */}
@@ -132,6 +145,7 @@ function RegisterForm() {
         avatarError={avatarError}
         handleAvatarChange={handleAvatarChangeWithContext}
         handleDeleteAvatar={handleDeleteAvatarWithContext}
+        pendingUpload={pendingUpload}
       />
 
       {/* ============ FULL ADDRESS SECTION ============  */}
