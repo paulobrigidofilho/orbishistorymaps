@@ -2,6 +2,13 @@
 // ================== AUTH SERVICE =========== //
 /////////////////////////////////////////////////
 
+// DEPRECATED: This legacy router is kept only for reference.
+// It is NOT mounted in server.js. Modular routers are used instead:
+// - routes/registerUserRoutes.js
+// - routes/loginUserRoutes.js
+// - routes/profileRoutes.js
+// - routes/avatarRoutes.js
+
 // This service handles user authentication logic,
 // including registration, login, profile management, and avatar handling.
 
@@ -12,6 +19,7 @@ const { v4: uuidv4 } = require("uuid");
 const config = require("../config/config");
 const path = require("path");
 const fs = require("fs");
+const { createUserProfile } = require("../helpers/createUserProfile");
 
 // ======= BCRYPT CONFIGURATION ======= //
 const saltRounds = config.authConfig.bcrypt.saltRounds;
@@ -19,24 +27,6 @@ const saltRounds = config.authConfig.bcrypt.saltRounds;
 ///////////////////////////////////////////////////////////////////////
 // ========================= HELPER FUNCTIONS ====================== //
 ///////////////////////////////////////////////////////////////////////
-
-// Function to create a user profile object (removes sensitive data)
-const createUserProfile = (user) => {
-  // Removed raw user dump to avoid leaking hashed password
-  return {
-    id: user.user_id,
-    firstName: user.user_firstname || "",
-    lastName: user.user_lastname || "",
-    email: user.user_email || "",
-    nickname: user.user_nickname || "",
-    avatar: user.user_avatar || "",
-    address: user.user_address || "",
-    addressLine2: user.user_address_line_2 || "",
-    city: user.user_city || "",
-    state: user.user_state || "",
-    zipCode: user.user_zipcode || "",
-  };
-};
 
 // Normalize an avatar value (absolute URL or relative path) to a relative uploads path
 const toRelativeAvatarPath = (avatarValue) => {
@@ -270,11 +260,18 @@ const saveAvatarUrl = async (filename) => {
     process.env.BACKEND_PUBLIC_URL?.replace(/\/+$/, "") ||
     "http://localhost:4000";
   const relativePath = `/uploads/avatars/${filename}`;
-  const absolutePath = path.resolve(__dirname, "../../uploads/avatars", filename);
+  const absolutePath = path.resolve(
+    __dirname,
+    "../../uploads/avatars",
+    filename
+  );
 
   // Verify file physically exists
   if (!fs.existsSync(absolutePath)) {
-    console.warn("[avatar] File was expected but not found on disk:", absolutePath);
+    console.warn(
+      "[avatar] File was expected but not found on disk:",
+      absolutePath
+    );
   } else {
     console.log("[avatar] File stored:", absolutePath);
   }
@@ -305,7 +302,10 @@ const deleteUserAvatar = async (userId) => {
             console.warn("[avatar] File not found for deletion:", absolute);
           }
         } catch (e) {
-          console.warn("[avatar] Failed to delete file (continuing):", e.message);
+          console.warn(
+            "[avatar] Failed to delete file (continuing):",
+            e.message
+          );
         }
       }
 
@@ -327,6 +327,6 @@ module.exports = {
   getUserProfile,
   updateUserProfile,
   saveAvatarUrl,
-  createUserProfile,
+  createUserProfile, // re-export from helper
   deleteUserAvatar, // added export
 };

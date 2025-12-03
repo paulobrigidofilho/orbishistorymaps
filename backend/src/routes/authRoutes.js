@@ -2,6 +2,13 @@
 // ======= AUTH ROUTES ======= //
 /////////////////////////////////
 
+// DEPRECATED: This legacy router is kept only for reference.
+// It is NOT mounted in server.js. Modular routers are used instead:
+// - routes/registerUserRoutes.js
+// - routes/loginUserRoutes.js
+// - routes/profileRoutes.js
+// - routes/avatarRoutes.js
+
 // This file defines authentication-related routes
 // including registration, login, profile management, and avatar uploads.
 

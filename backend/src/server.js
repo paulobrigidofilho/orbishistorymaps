@@ -40,11 +40,19 @@ if (config.sessionMiddleware) {
 ///////////////////////////////////////////////////////////////////////
 
 // ===================== Routes Imports ============================ //
-const authRoutes = require("./routes/authRoutes.js");
+// const authRoutes = require("./routes/authRoutes.js"); // deprecated after modularization
+const registerUserRoutes = require("./routes/registerUserRoutes.js");
+const loginUserRoutes = require("./routes/loginUserRoutes.js");
+const profileRoutes = require("./routes/profileRoutes.js");
+const avatarRoutes = require("./routes/avatarRoutes.js");
 const healthRoutes = require("./routes/healthRoutes.js");
 
 // ====================== Routes Setup ============================= //
-app.use("/api", authRoutes);
+// app.use("/api", authRoutes); // remove single auth router
+app.use("/api", registerUserRoutes);
+app.use("/api", loginUserRoutes);
+app.use("/api", profileRoutes);
+app.use("/api", avatarRoutes);
 app.use("/health", healthRoutes);
 
 ///////////////////////////////////////////////////////////////////////

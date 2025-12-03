@@ -9,7 +9,7 @@
 const { getHealthStatus } = require("../services/healthService");
 const config = require("../config/config");
 
-// ======= CONTROLLER FUNCTIONS ======= //
+// ======= Health Check Function ======= //
 const health = async (req, res) => {
   try {
     const status = await getHealthStatus({ db: config.db });
@@ -23,5 +23,4 @@ const health = async (req, res) => {
   }
 };
 
-// ======= EXPORT CONTROLLER ======= //
 module.exports = { health };

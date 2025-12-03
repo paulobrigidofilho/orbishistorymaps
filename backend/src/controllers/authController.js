@@ -2,35 +2,28 @@
 // ======= AUTH CONTROLLER ======= //
 /////////////////////////////////////
 
+// DEPRECATED: This controller is kept only for reference.
+// The application now uses modular controllers:
+// - registerUserService.js + register controller in routes/registerUserRoutes.js
+// - loginUserService.js + login controller in routes/loginUserRoutes.js
+// - profileService.js + profile controller in routes/profileRoutes.js
+// - avatarService.js + avatar controller in routes/avatarRoutes.js
+
 // This controller manages user authentication processes
 // including registration, login, logout, profile retrieval and updates,
 // as well as avatar uploads.
 
 // ======= Module imports ======= //
-const authService = require("../services/authService");
 const config = require("../config/config");
+const { handleServerError } = require("../helpers/handleServerError");
+const { registerUser } = require("../services/registerUserService");
+const { loginUser } = require("../services/loginUserService");
+const { getUserProfile, updateUserProfile } = require("../services/profileService");
+const { saveAvatarUrl, deleteUserAvatar } = require("../services/avatarService");
 
 /////////////////////////////////////////////////////////////////////
 // ======================= CONTROLLER FUNCTIONS ================== //
 /////////////////////////////////////////////////////////////////////
-
-// Centralized error handling function
-const handleServerError = (res, error, message) => {
-  // Log full stack for debugging
-  console.error(message + ":", error);
-  if (error && error.stack) {
-    console.error(error.stack);
-  }
-
-  const payload = {
-    message: error.message || message,
-  };
-  if (process.env.NODE_ENV === "development") {
-    payload.stack = error.stack;
-  }
-
-  return res.status(500).json(payload);
-};
 
 // ======================== REGISTER USER ======================== //
 const register = async (req, res) => {
@@ -56,10 +49,10 @@ const register = async (req, res) => {
 
     // Get avatar path if a file was uploaded (store absolute URL like profile upload)
     const avatarPath = req.file
-      ? await authService.saveAvatarUrl(req.file.filename)
+      ? await saveAvatarUrl(req.file.filename)
       : null;
 
-    const userProfile = await authService.registerUser({
+    const userProfile = await registerUser({
       firstName,
       lastName,
       email,
@@ -110,12 +103,11 @@ const uploadAvatar = async (req, res) => {
         .json({ message: "No user ID provided for avatar upload" });
     }
 
-    const avatarUrl = await authService.saveAvatarUrl(req.file.filename);
-    console.log("[uploadAvatar] Persisting avatar URL:", avatarUrl);
-    await authService.updateUserProfile(userId, { avatar: avatarUrl });
+    const avatarUrl = await saveAvatarUrl(req.file.filename);
+    await updateUserProfile(userId, { avatar: avatarUrl });
 
     // Fetch updated user profile
-    const updatedUser = await authService.getUserProfile(userId);
+    const updatedUser = await getUserProfile(userId);
 
     console.log("Avatar uploaded and user profile updated successfully");
     return res.status(200).json({
@@ -134,7 +126,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     console.log("Login attempt for email:", email);
 
-    const userProfile = await authService.loginUser({ email, password });
+    const userProfile = await loginUser({ email, password });
 
     // Persist user in session
     if (req.session) {
@@ -203,7 +195,7 @@ const getProfile = async (req, res) => {
       req.session && req.session.user ? req.session.user.id : null
     );
 
-    const userProfile = await authService.getUserProfile(userId);
+    const userProfile = await getUserProfile(userId);
 
     console.log(
       "Profile retrieved successfully for userId:",
@@ -245,7 +237,7 @@ const updateProfile = async (req, res) => {
       ? `/uploads/avatars/${req.file.filename}`
       : avatar;
 
-    const result = await authService.updateUserProfile(userId, {
+    const result = await updateUserProfile(userId, {
       firstName,
       lastName,
       email,
@@ -275,7 +267,7 @@ const deleteAvatar = async (req, res) => {
     if (!userId)
       return res.status(400).json({ message: "No user ID provided" });
 
-    const updatedUser = await authService.deleteUserAvatar(userId);
+    const updatedUser = await deleteUserAvatar(userId);
     return res.status(200).json({
       message: "Avatar deleted successfully",
       user: updatedUser,
