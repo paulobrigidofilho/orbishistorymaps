@@ -7,7 +7,10 @@
 // ======= Module imports ======= //
 
 const { getUserProfile, updateUserProfile } = require("../services/profileService");
+const { saveAvatarUrl } = require("../services/avatarService");
 const { handleServerError } = require("../helpers/handleServerError");
+const { PROFILE_ERRORS } = require("../constants/errorMessages");
+const { PROFILE_SUCCESS } = require("../constants/successMessages");
 
 // ====== Get Profile Function ====== //
 
@@ -23,11 +26,11 @@ const getProfile = async (req, res) => {
     console.log("Profile retrieved successfully:", userProfile);
     return res
       .status(200)
-      .json({ message: "Profile retrieved successfully", user: userProfile });
+      .json({ message: PROFILE_SUCCESS.PROFILE_RETRIEVED, user: userProfile });
   } catch (error) {
     console.error("Error in getProfile:", error);
-    if (error.message === "Profile not found") {
-      return res.status(404).json({ message: "Profile not found" });
+    if (error.message === PROFILE_ERRORS.PROFILE_NOT_FOUND) {
+      return res.status(404).json({ message: PROFILE_ERRORS.PROFILE_NOT_FOUND });
     }
     return handleServerError(res, error, "Get profile error");
   }
@@ -51,8 +54,9 @@ const updateProfile = async (req, res) => {
       zipCode,
     } = req.body;
 
+    // Get avatar path: use saveAvatarUrl for consistency with other controllers
     const avatarPath = req.file
-      ? `/uploads/avatars/${req.file.filename}`
+      ? await saveAvatarUrl(req.file.filename)
       : avatar;
 
     const result = await updateUserProfile(userId, {
@@ -71,7 +75,7 @@ const updateProfile = async (req, res) => {
     console.log("Profile updated successfully:", result);
     return res
       .status(200)
-      .json({ message: "Profile updated successfully", user: result.user });
+      .json({ message: PROFILE_SUCCESS.PROFILE_UPDATED, user: result.user });
   } catch (error) {
     return handleServerError(res, error, "Profile update error");
   }

@@ -7,8 +7,6 @@
 // ======= Module imports ======= //
 const express = require("express");
 const router = express.Router();
-const path = require("path");
-const fs = require("fs");
 
 // ======= Middleware imports ======= //
 const { upload } = require("../middleware/multerMiddleware");
@@ -39,13 +37,6 @@ router.delete(
 );
 
 // Serve Avatar Route
-router.get("/avatars/:filename", (req, res) => {
-  const file = req.params.filename;
-  const full = path.resolve(__dirname, "../../uploads/avatars", file);
-  fs.access(full, fs.constants.R_OK, (err) => {
-    if (err) return res.status(404).json({ message: "Avatar not found" });
-    res.sendFile(full);
-  });
-});
+router.get("/avatars/:filename", avatarController.serveAvatar);
 
 module.exports = router;

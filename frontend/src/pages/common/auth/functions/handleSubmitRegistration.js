@@ -21,6 +21,8 @@ import {
   validatePersonalDetails,
   validateProfileDetails,
 } from "../validators/registrationValidator";
+import { REGISTRATION_ERRORS } from "../constants/authErrorMessages";
+import { API_BASE } from "../constants/authConstants";
 
 ////////////////////////////////////////////////////////////////////////////////
 // ===== Handle Registration Submission (uses getPublicConfig) ============== //
@@ -80,8 +82,6 @@ const handleSubmitRegistration = async (e, formData, setters) => {
 
   // ========================= API CALL ========================= //
   try {
-    // Use absolute backend URL instead of Vite proxy
-    const API_BASE = import.meta.env.VITE_API_URL;
     const response = await axios.post(`${API_BASE}/api/register`, submitData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -95,9 +95,7 @@ const handleSubmitRegistration = async (e, formData, setters) => {
 
       // Basic validation of response structure
       if (!response.data || !response.data.user || !response.data.user.id) {
-        setters.setError(
-          "Registration successful, but invalid user data received. Check backend response."
-        );
+        setters.setError(REGISTRATION_ERRORS.INVALID_RESPONSE);
         console.error("Invalid response format:", response.data);
         return;
       }
@@ -140,7 +138,7 @@ const handleSubmitRegistration = async (e, formData, setters) => {
     setters.setError(
       registerError.response?.data?.message ||
         registerError.message ||
-        "Registration failed due to a network or server issue."
+        REGISTRATION_ERRORS.REGISTRATION_FAILED
     );
   }
 };

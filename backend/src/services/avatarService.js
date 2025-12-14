@@ -7,10 +7,12 @@
 
 // ======= Module Imports ======= //
 const path = require("path");
-const fs = require("fs");
+const fs = require("fs").promises; // Use promises API for async operations
+const fsSync = require("fs"); // Keep sync API only for existsSync check
 
-// ======= Model Imports ======= //
-const userModel = require("../model/userModel");
+// ======= Helper Imports ======= //
+const { getUserByIdAsync } = require("../helpers/getUserByIdAsync");
+const { sanitizeFilename } = require("../helpers/sanitizePath");
 
 // ======= Service Imports ======= //
 const { getUserProfile, updateUserProfile } = require("./profileService");
@@ -40,12 +42,20 @@ const toRelativeAvatarPath = (avatarValue) => {
 
 const saveAvatarUrl = async (filename) => {
   const base =
-    process.env.BACKEND_PUBLIC_URL?.replace(/\/+$/, "") || "http://localhost:4000";
+    process.env.BACKEND_PUBLIC_URL?.replace(/\/+$/, "") ||
+    "http://localhost:4000";
   const relativePath = `/uploads/avatars/${filename}`;
-  const absolutePath = path.resolve(__dirname, "../../uploads/avatars", filename);
+  const absolutePath = path.resolve(
+    __dirname,
+    "../../uploads/avatars",
+    filename
+  );
 
   if (!fs.existsSync(absolutePath)) {
-    console.warn("[avatar] File was expected but not found on disk:", absolutePath);
+    console.warn(
+      "[avatar] File was expected but not found on disk:",
+      absolutePath
+    );
   } else {
     console.log("[avatar] File stored:", absolutePath);
   }
@@ -57,35 +67,35 @@ const saveAvatarUrl = async (filename) => {
 // Deletes avatar file from disk and clears avatar URL in user profile
 
 const deleteUserAvatar = async (userId) => {
-  return new Promise((resolve, reject) => {
-    userModel.getUserById(userId, async (err, user) => {
-      if (err) return reject(err);
-      if (!user) return reject(new Error("User not found"));
+  const user = await getUserByIdAsync(userId);
+  if (!user) throw new Error("User not found");
 
-      const rel = toRelativeAvatarPath(user.user_avatar);
-      if (rel && rel.includes("/uploads/avatars/")) {
-        const absolute = path.resolve(__dirname, "../../", rel.replace(/^\/+/, ""));
-        try {
-          if (fs.existsSync(absolute)) {
-            fs.unlinkSync(absolute);
-            console.log("[avatar] Deleted file:", absolute);
-          } else {
-            console.warn("[avatar] File not found for deletion:", absolute);
-          }
-        } catch (e) {
-          console.warn("[avatar] Failed to delete file (continuing):", e.message);
-        }
+  const rel = toRelativeAvatarPath(user.user_avatar);
+  if (rel && rel.includes("/uploads/avatars/")) {
+    // Sanitize path using helper
+    const filename = sanitizeFilename(rel);
+    const absolute = path.resolve(
+      __dirname,
+      "../../uploads/avatars/",
+      filename
+    );
+    try {
+      // Use async unlink instead of sync
+      if (fsSync.existsSync(absolute)) {
+        await fs.unlink(absolute);
+        console.log("[avatar] Deleted file:", absolute);
+      } else {
+        console.warn("[avatar] File not found for deletion:", absolute);
       }
+    } catch (e) {
+      console.warn("[avatar] Failed to delete file (continuing):", e.message);
+    }
+  }
 
-      try {
-        await updateUserProfile(userId, { avatar: "" });
-        const updated = await getUserProfile(userId);
-        resolve(updated);
-      } catch (e) {
-        reject(e);
-      }
-    });
-  });
+  // Clear avatar in DB and return updated profile
+  await updateUserProfile(userId, { avatar: "" });
+  const updated = await getUserProfile(userId);
+  return updated;
 };
 
 module.exports = { saveAvatarUrl, deleteUserAvatar };

@@ -10,11 +10,10 @@ const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 const config = require("../config/config");
 
-// ======= Model Imports ======= //
-const userModel = require("../model/userModel");
-
 // ======= Helper Imports ======= //
 const { createUserProfile } = require("../helpers/createUserProfile");
+const { getUserByEmailAsync } = require("../helpers/getUserByEmailAsync");
+const { createUserAsync } = require("../helpers/createUserAsync");
 
 // ======= Bcrypt Configuration ======= //
 const saltRounds = config.authConfig.bcrypt.saltRounds;
@@ -46,82 +45,55 @@ const registerUser = async (userData) => {
     throw new Error("Missing required fields");
   }
 
-  return new Promise((resolve, reject) => {
-    userModel.getUserByEmail(email, async (err, existingUser) => {
-      if (err) {
-        console.error("Error in getUserByEmail (register):", err);
-        return reject(err);
-      }
+  // Check if email already exists
+  const existingUser = await getUserByEmailAsync(email);
+  if (existingUser) {
+    throw new Error("This email is already in use.");
+  }
 
-      if (existingUser) {
-        return reject(new Error("This email is already in use."));
-      }
+  // Hash password
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  const userId = uuidv4();
 
-      try {
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        const userId = uuidv4();
+  const newUser = {
+    user_id: userId,
+    user_firstname: firstName,
+    user_lastname: lastName,
+    user_email: email,
+    user_password: hashedPassword,
+    user_nickname: nickname || "",
+    user_avatar: avatar || "",
+    user_address: address || "",
+    user_address_line_2: addressLine2 || "",
+    user_city: city || "",
+    user_state: state || "",
+    user_zipcode: zipCode || "",
+  };
 
-        const newUser = {
-          user_id: userId,
-          user_firstname: firstName,
-          user_lastname: lastName,
-          user_email: email,
-          user_password: hashedPassword,
-          user_nickname: nickname || "",
-          user_avatar: avatar || "",
-          user_address: address || "",
-          user_address_line_2: addressLine2 || "",
-          user_city: city || "",
-          user_state: state || "",
-          user_zipcode: zipCode || "",
-        };
+  // Create user in database
+  const createResult = await createUserAsync(newUser);
 
-        // Create user in database
-        userModel.createUser(newUser, (createErr, createResult) => {
-          if (createErr) {
-            console.error("Error creating user:", createErr);
-            return reject(createErr);
-          }
+  // Verify the insert actually happened
+  if (!createResult || createResult.affectedRows === 0) {
+    throw new Error("Failed to create user in database");
+  }
 
-          // Verify the insert actually happened
-          if (!createResult || createResult.affectedRows === 0) {
-            console.error(
-              "User creation returned success but no rows affected"
-            );
-            return reject(new Error("Failed to create user in database"));
-          }
+  console.log(
+    `User created successfully. Affected rows: ${createResult.affectedRows}`
+  );
 
-          console.log(
-            `User created successfully. Affected rows: ${createResult.affectedRows}`
-          );
+  // Fetch the complete user profile from the database
+  const user = await getUserByEmailAsync(email);
+  if (!user) {
+    throw new Error("User registered but not found");
+  }
 
-          // Fetch the complete user profile from the database
-          userModel.getUserByEmail(email, (fetchErr, user) => {
-            if (fetchErr) {
-              console.error("Error fetching user after create:", fetchErr);
-              return reject(fetchErr);
-            }
-
-            if (!user) {
-              console.error("User was inserted but could not be retrieved");
-              return reject(new Error("User registered but not found"));
-            }
-
-            const userProfile = createUserProfile(user);
-            console.log("Registration complete. User profile:", {
-              ...userProfile,
-              id: userProfile.id,
-            });
-            resolve(userProfile);
-          });
-        });
-      } catch (error) {
-        console.error("Unexpected error in registerUser:", error);
-        reject(error);
-      }
-    });
+  const userProfile = createUserProfile(user);
+  console.log("Registration complete. User profile:", {
+    ...userProfile,
+    id: userProfile.id,
   });
+  return userProfile;
 };
 
 module.exports = { registerUser };

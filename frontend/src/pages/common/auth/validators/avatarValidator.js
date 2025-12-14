@@ -13,6 +13,7 @@
 
 // ===== Module Imports ===== //
 import { z } from 'zod';
+import { AVATAR_ERRORS } from "../constants/authErrorMessages";
 
 // ===== Avatar Schema ===== //
 export const avatarSchema = z.object({
@@ -36,18 +37,19 @@ export const avatarSchema = z.object({
  * @returns {Object} - { success: boolean, error: string | null }
  */
 export const validateAvatar = (file) => {
-  if (!file) return { success: true, error: null };
-
-  try {
-    avatarSchema.parse({
-      size: file.size,
-      type: file.type,
-      name: file.name
-    });
-    return { success: true, error: null };
-  } catch (error) {
-    // Extract the first error message from Zod validation
-    const errorMessage = error.errors?.[0]?.message || "Invalid file";
-    return { success: false, error: errorMessage };
+  if (!file) {
+    return { success: false, error: AVATAR_ERRORS.NO_FILE_SELECTED };
   }
+  
+  // Check file size (5MB limit)
+  if (file.size > 5 * 1024 * 1024) {
+    return { success: false, error: AVATAR_ERRORS.FILE_TOO_LARGE };
+  }
+
+  // Check file type
+  if (!file.type.startsWith("image/")) {
+    return { success: false, error: AVATAR_ERRORS.INVALID_FILE_TYPE };
+  }
+
+  return { success: true };
 };

@@ -66,8 +66,6 @@ function Profile() {
   // ========================= USE EFFECT HOOK ======================= //
   ///////////////////////////////////////////////////////////////////////
   useEffect(() => {
-    let isMounted = true; // Prevent state updates on unmounted component
-
     const loadProfile = async () => {
       if (profileId && profileId !== "undefined") {
         setIsLoading(true);
@@ -90,10 +88,7 @@ function Profile() {
         };
 
         await fetchProfileData(profileId, setters);
-
-        if (isMounted) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       } else {
         setError("Invalid or missing profile ID");
         setIsLoading(false);
@@ -101,10 +96,6 @@ function Profile() {
     };
 
     loadProfile();
-
-    return () => {
-      isMounted = false; // Cleanup
-    };
   }, [profileId]);
 
   ///////////////////////////////////////////////////////////////////////
@@ -186,10 +177,7 @@ function Profile() {
   // Check if the logged-in user is viewing their own profile
   const effectiveProfileId = currentUserId || profileId; // fallback to route id
   const isOwnProfile =
-    user &&
-    user.id &&
-    effectiveProfileId &&
-    String(user.id) === String(effectiveProfileId);
+    user && user.id && effectiveProfileId && user.id === effectiveProfileId;
 
   // Display loading or error state before rendering the form
   if (isLoading) {
@@ -246,6 +234,7 @@ function Profile() {
         avatarUploading={avatarUploading}
         pendingUpload={pendingUpload}
         readOnly={!isOwnProfile}
+        isRegistrationMode={false}
       />
 
       {/* ============ FULL ADDRESS SECTION ============  */}

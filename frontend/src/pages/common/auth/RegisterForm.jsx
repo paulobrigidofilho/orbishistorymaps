@@ -146,6 +146,7 @@ function RegisterForm() {
         handleAvatarChange={handleAvatarChangeWithContext}
         handleDeleteAvatar={handleDeleteAvatarWithContext}
         pendingUpload={pendingUpload}
+        isRegistrationMode={true}
       />
 
       {/* ============ FULL ADDRESS SECTION ============  */}

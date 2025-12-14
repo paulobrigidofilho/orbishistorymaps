@@ -16,6 +16,8 @@
 
 // ===== Module Imports ===== //
 import { useEffect } from "react";
+import { SUCCESS_MESSAGE_DURATION } from "../constants/authConstants";
+import { REGISTRATION_SUCCESS } from "../constants/authSuccessMessages";
 
 // ===== useRedirectAfterRegistration Hook ===== //
 
@@ -26,10 +28,10 @@ const useRedirectAfterRegistration = (
 ) => {
   useEffect(() => {
     if (registrationSuccess) {
-      setSuccessMessage("Registration successful! Directing back to home...");
+      setSuccessMessage(REGISTRATION_SUCCESS.USER_CREATED);
       const timeoutId = setTimeout(() => {
         navigate("/");
-      }, 3000);
+      }, SUCCESS_MESSAGE_DURATION);
       return () => clearTimeout(timeoutId);
     }
   }, [registrationSuccess, navigate, setSuccessMessage]);

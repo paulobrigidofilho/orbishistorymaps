@@ -7,6 +7,8 @@
 // ======= Module imports ======= //
 
 const { handleServerError } = require("../helpers/handleServerError");
+const { REGISTRATION_ERRORS } = require("../constants/errorMessages");
+const { REGISTRATION_SUCCESS } = require("../constants/successMessages");
 const { registerUser } = require("../services/registerUserService");
 const { saveAvatarUrl } = require("../services/avatarService");
 
@@ -57,11 +59,11 @@ const register = async (req, res) => {
     console.log("User profile after registration:", userProfile);
     return res
       .status(201)
-      .json({ message: "User registered successfully", user: userProfile });
+      .json({ message: REGISTRATION_SUCCESS.USER_CREATED, user: userProfile });
   } catch (error) {
     if (
-      error.message === "This email is already in use." ||
-      error.message === "Missing required fields"
+      error.message === REGISTRATION_ERRORS.EMAIL_IN_USE ||
+      error.message === REGISTRATION_ERRORS.MISSING_FIELDS
     ) {
       return res.status(400).json({ message: error.message });
     }

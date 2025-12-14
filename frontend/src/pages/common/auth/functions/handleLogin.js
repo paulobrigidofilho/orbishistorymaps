@@ -5,39 +5,34 @@
 // This function handles the user login process
 // by making an API call to the backend with provided credentials
 
-import axios from "axios";
+// ====== Module Imports ===== //
 
-// Base API URL from environment variable or default
-const API_BASE = import.meta.env.VITE_API_URL;
+import axios from "axios";
+import { API_BASE } from "../constants/authConstants";
 
 const handleLogin = async (email, password) => {
   try {
-    const url = `${API_BASE}/api/login`;
-    const res = await axios.post(
-      url,
+    const response = await axios.post(
+      `${API_BASE}/api/login`,
       { email, password },
-      {
-        withCredentials: true,
-        headers: { "Content-Type": "application/json" },
-        timeout: 15000,
-      }
+      { withCredentials: true }
     );
-    if (res.status === 200 && res.data && res.data.user) {
-      return res.data.user;
+    if (response.status === 200 && response.data && response.data.user) {
+      return response.data.user;
     }
-    throw new Error(res.data?.message || "Login failed (unexpected response)");
-  } catch (err) {
-    const status = err.response?.status;
+    throw new Error(response.data?.message || "Login failed (unexpected response)");
+  } catch (error) {
+    const status = error.response?.status;
     const backendMsg =
-      err.response?.data?.message ||
-      err.response?.data?.error ||
-      err.response?.data?.detail;
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.response?.data?.detail;
 
     const finalMsg = backendMsg
       ? `Login request failed${status ? ` (${status})` : ""}: ${backendMsg}`
       : status
       ? `Login request failed (${status})`
-      : `Login request failed: ${err.message}`;
+      : `Login request failed: ${error.message}`;
 
     console.error(finalMsg);
     throw new Error(finalMsg);

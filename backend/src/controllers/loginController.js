@@ -8,6 +8,8 @@
 
 const config = require("../config/config");
 const { handleServerError } = require("../helpers/handleServerError");
+const { AUTH_ERRORS } = require("../constants/errorMessages");
+const { AUTH_SUCCESS } = require("../constants/successMessages");
 const { loginUser } = require("../services/loginUserService");
 
 // ====== Login Function ====== //
@@ -26,10 +28,10 @@ const login = async (req, res) => {
     console.log("Login successful. Sending user profile:", userProfile);
     return res
       .status(200)
-      .json({ message: "Login successful", user: userProfile });
+      .json({ message: AUTH_SUCCESS.LOGIN_SUCCESS, user: userProfile });
   } catch (error) {
-    if (error.message === "Invalid credentials") {
-      return res.status(401).json({ message: "Invalid credentials" });
+    if (error.message === AUTH_ERRORS.INVALID_CREDENTIALS) {
+      return res.status(401).json({ message: AUTH_ERRORS.INVALID_CREDENTIALS });
     }
     return handleServerError(res, error, "Login error");
   }
@@ -39,16 +41,16 @@ const login = async (req, res) => {
 
 const logout = (req, res) => {
   if (!req.session) {
-    return res.status(200).json({ message: "No active session" });
+    return res.status(200).json({ message: AUTH_ERRORS.NO_ACTIVE_SESSION });
   }
   req.session.destroy((err) => {
     if (err) {
       console.error("Session destroy error:", err);
-      return res.status(500).json({ message: "Failed to log out" });
+      return res.status(500).json({ message: AUTH_ERRORS.LOGOUT_FAILED });
     }
     const cookieName = config.authConfig.session.cookieName;
     res.clearCookie(cookieName);
-    return res.status(200).json({ message: "Logged out successfully" });
+    return res.status(200).json({ message: AUTH_SUCCESS.LOGOUT_SUCCESS });
   });
 };
 
@@ -61,7 +63,7 @@ const getSession = (req, res) => {
 
     if (!req.session) {
       console.error("Session object is undefined!");
-      return res.status(500).json({ message: "Session initialization error." });
+      return res.status(500).json({ message: AUTH_ERRORS.SESSION_INIT_ERROR });
     }
 
     if (req.session.user) {

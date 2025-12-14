@@ -16,12 +16,12 @@
 // ====== Module Imports ===== //
 
 import axios from "axios";
+import { API_BASE } from "../constants/authConstants";
+import { PROFILE_ERRORS } from "../constants/authErrorMessages";
 import {
   validateProfileUpdate,
   validateProfileAccess,
 } from "../validators/profileValidator";
-
-const API_BASE = import.meta.env.VITE_API_URL;
 
 // ======= handleProfileSubmit Function ======= //
 
@@ -152,9 +152,10 @@ const handleProfileSubmit = async (
     }
   } catch (error) {
     // Handle network errors or errors thrown by the backend
+    const errorMessage =
+      error.response?.data?.message || error.message || PROFILE_ERRORS.UPDATE_FAILED;
     setters.setError(
-      "Profile update failed: " +
-        (error.response?.data?.message || error.message)
+      "Profile update failed: " + errorMessage
     );
     console.error("Profile update error:", error.message);
   }

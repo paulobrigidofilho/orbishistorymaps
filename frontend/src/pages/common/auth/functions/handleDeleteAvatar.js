@@ -19,11 +19,10 @@
 // ======= Module Imports ======= //
 
 import axios from "axios";
+import { DEFAULT_AVATAR } from "../constants/authConstants";
+import { AVATAR_ERRORS } from "../constants/authErrorMessages";
+
 const API_BASE = import.meta.env.VITE_API_URL;
-
-// ======= Asset Imports ======= //
-
-const DEFAULT_AVATAR = "/assets/common/default-avatar.png";
 
 // ======= handleDeleteAvatar Function ======= //
 
@@ -45,8 +44,7 @@ const handleDeleteAvatar = async (
     }
   } catch (error) {
     setAvatarError(
-      "Failed to delete avatar: " +
-        (error.response?.data?.message || error.message)
+      `${AVATAR_ERRORS.DELETE_FAILED}: ${error.response?.data?.message || error.message}`
     );
   }
 };

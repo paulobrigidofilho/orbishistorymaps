@@ -8,7 +8,7 @@
 
 const createUserProfile = (user) => {
   return {
-    id: user.user_id,
+    id: String(user.user_id), 
     firstName: user.user_firstname || "",
     lastName: user.user_lastname || "",
     email: user.user_email || "",

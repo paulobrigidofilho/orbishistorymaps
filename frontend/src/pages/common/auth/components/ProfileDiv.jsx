@@ -8,6 +8,7 @@
 //  ========== Component imports  ========== //
 
 import styles from "../Auth.module.css";
+import { DEFAULT_AVATAR } from "../constants/authConstants";
 
 // ========== ProfileDiv Component ========== //
 
@@ -25,11 +26,9 @@ function ProfileDiv({
   avatarUploading,
   pendingUpload,
   readOnly = false,
+  isRegistrationMode = false,
 }) {
-  const isRegistrationMode = !handleUploadAvatar && !handleCancelAvatarSelection;
-
-  const DEFAULT_AVATAR = "/assets/common/default-avatar.png";
-  const hasStoredAvatar = storedAvatarPath && storedAvatarPath.trim() !== '';
+  const hasStoredAvatar = storedAvatarPath && storedAvatarPath.trim() !== "";
   const currentAvatarSrc = hasStoredAvatar ? storedAvatarPath : DEFAULT_AVATAR;
 
   ///////////////////////////////////////////////////////////////////////

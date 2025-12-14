@@ -18,19 +18,19 @@
 // ======= Module Imports ======= //
 
 import axios from "axios";
-
-const API_BASE = import.meta.env.VITE_API_URL;
+import { SUCCESS_MESSAGE_DURATION, API_BASE } from "../constants/authConstants";
+import { AVATAR_ERRORS } from "../constants/authErrorMessages";
 
 // ======= handleSubmitAvatar Function ======= //
 
 const handleSubmitAvatar = async (avatarFile, userId, setters) => {
   if (!avatarFile) {
-    setters.setAvatarError("No file selected");
+    setters.setAvatarError(AVATAR_ERRORS.NO_FILE_SELECTED);
     return;
   }
 
   if (!userId) {
-    setters.setAvatarError("No user ID provided for avatar upload");
+    setters.setAvatarError(AVATAR_ERRORS.NO_USER_ID);
     console.error("handleSubmitAvatar: Missing userId");
     return;
   }
@@ -65,13 +65,12 @@ const handleSubmitAvatar = async (avatarFile, userId, setters) => {
       // Fade out success message after 3 seconds
       setTimeout(() => {
         setters.setAvatarUploadSuccess(false);
-      }, 3000);
+      }, SUCCESS_MESSAGE_DURATION);
     }
   } catch (error) {
     setters.setAvatarUploading(false);
     setters.setAvatarError(
-      "Upload failed: " +
-        (error.response?.data?.message || error.message)
+      `${AVATAR_ERRORS.UPLOAD_FAILED}: ${error.response?.data?.message || error.message}`
     );
     console.error("Avatar upload error:", error);
   }

@@ -14,9 +14,8 @@
 
 // ======= Module Imports ======= //
 import axios from "axios";
-
-const API_BASE = import.meta.env.VITE_API_URL;
-const DEFAULT_AVATAR = "/assets/common/default-avatar.png"; // Use actual file that exists
+import { API_BASE, DEFAULT_AVATAR } from "../constants/authConstants";
+import { PROFILE_ERRORS } from "../constants/authErrorMessages";
 
 // ======= fetchProfileData Function ======= //
 const fetchProfileData = async (profileId, setters) => {
@@ -33,9 +32,9 @@ const fetchProfileData = async (profileId, setters) => {
       const avatarRaw = payload.avatar;
       const avatarPath =
         typeof avatarRaw === "string" && avatarRaw.trim() !== ""
-          ? (avatarRaw.startsWith("http")
-              ? avatarRaw
-              : `${API_BASE.replace(/\/+$/,"")}${avatarRaw}`)
+          ? avatarRaw.startsWith("http")
+            ? avatarRaw
+            : `${API_BASE.replace(/\/+$/, "")}${avatarRaw}`
           : null;
 
       // Set all state values
@@ -63,7 +62,7 @@ const fetchProfileData = async (profileId, setters) => {
     const errorMessage =
       error.response?.data?.message ||
       error.message ||
-      "Failed to fetch profile data";
+      PROFILE_ERRORS.FETCH_FAILED;
     setters.setError(errorMessage);
     console.error("Error fetching profile:", error);
   }

@@ -5,6 +5,9 @@
 // This service manages user profile retrieval and updates,
 // interacting with the user model and handling data transformations.
 
+// ======= Module Imports ======= //
+const db = require("../config/config").db;
+
 // ======= Model Imports ======= //
 const userModel = require("../model/userModel");
 
@@ -30,37 +33,55 @@ const getUserProfile = async (userId) => {
 };
 
 // ===== updateUserProfile Function ===== //
-// Updates user profile with provided data
+// Updates user profile with provided data using dynamic SQL to ensure atomic updates
 
 const updateUserProfile = async (userId, profileData) => {
   return new Promise((resolve, reject) => {
-    userModel.getUserById(userId, (fetchErr, existingUser) => {
-      if (fetchErr) return reject(fetchErr);
-      if (!existingUser) return reject(new Error("User not found for update"));
+    // Map camelCase input fields to snake_case database columns
+    const fieldMap = {
+      firstName: "user_firstname",
+      lastName: "user_lastname",
+      email: "user_email",
+      nickname: "user_nickname",
+      avatar: "user_avatar",
+      address: "user_address",
+      addressLine2: "user_address_line_2",
+      city: "user_city",
+      state: "user_state",
+      zipCode: "user_zipcode",
+    };
 
-      const mergedProfile = {
-        user_firstname: profileData.firstName ?? existingUser.user_firstname,
-        user_lastname: profileData.lastName ?? existingUser.user_lastname,
-        user_email: profileData.email ?? existingUser.user_email,
-        user_nickname: profileData.nickname ?? existingUser.user_nickname,
-        user_avatar: profileData.avatar ?? existingUser.user_avatar,
-        user_address: profileData.address ?? existingUser.user_address,
-        user_address_line_2:
-          profileData.addressLine2 ?? existingUser.user_address_line_2,
-        user_city: profileData.city ?? existingUser.user_city,
-        user_state: profileData.state ?? existingUser.user_state,
-        user_zipcode: profileData.zipCode ?? existingUser.user_zipcode,
-      };
+    const updateFields = [];
+    const updateValues = [];
 
-      userModel.updateUser(userId, mergedProfile, (err, result) => {
-        if (err) return reject(err);
+    // Build dynamic UPDATE clause for only provided fields
+    Object.entries(profileData).forEach(([key, value]) => {
+      if (value !== undefined && fieldMap[key]) {
+        updateFields.push(`${fieldMap[key]} = ?`);
+        updateValues.push(value);
+      }
+    });
 
-        userModel.getUserById(userId, (fetchErr2, user) => {
-          if (fetchErr2) return reject(fetchErr2);
-          if (!user) return reject(new Error("User not found after update"));
-          const userProfile = createUserProfile(user);
-          resolve({ result, user: userProfile });
-        });
+    // If no fields to update, return early
+    if (updateFields.length === 0) {
+      return reject(new Error("No fields to update"));
+    }
+
+    // Build and execute atomic UPDATE query
+    const query = `UPDATE users SET ${updateFields.join(
+      ", "
+    )} WHERE user_id = ?`;
+    updateValues.push(userId);
+
+    db.query(query, updateValues, (err, result) => {
+      if (err) return reject(err);
+
+      // Fetch updated profile
+      userModel.getUserById(userId, (fetchErr, user) => {
+        if (fetchErr) return reject(fetchErr);
+        if (!user) return reject(new Error("User not found after update"));
+        const userProfile = createUserProfile(user);
+        resolve({ result, user: userProfile });
       });
     });
   });

@@ -7,12 +7,12 @@
 
 // ======= Asset Imports ======= //
 
-const DEFAULT_AVATAR = "/assets/common/default-avatar.png";
+import { DEFAULT_AVATAR } from "../constants/authConstants";
 
 /**
  * Handles the cancellation of avatar file selection
  * Resets the pending upload states without affecting stored avatar
- * 
+ *
  * @param {Function} setAvatar - Function to set avatar state
  * @param {Function} setAvatarPreview - Function to set avatar preview state
  * @param {Function} setPendingUpload - Function to set pending upload state
