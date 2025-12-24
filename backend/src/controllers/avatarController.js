@@ -14,6 +14,7 @@ const {
   saveAvatarUrl,
   deleteUserAvatar,
 } = require("../services/avatarService");
+const { updateUserProfile } = require("../services/profileService");
 const path = require("path");
 const fs = require("fs");
 
@@ -26,7 +27,9 @@ const uploadAvatar = async (req, res) => {
     }
     const userId = req.params.userId;
     if (!userId) {
-      return res.status(400).json({ message: AVATAR_ERRORS.NO_USER_ID_PROVIDED });
+      return res
+        .status(400)
+        .json({ message: AVATAR_ERRORS.NO_USER_ID_PROVIDED });
     }
 
     const avatarUrl = await saveAvatarUrl(req.file.filename);
@@ -35,13 +38,11 @@ const uploadAvatar = async (req, res) => {
       avatar: avatarUrl,
     });
 
-    return res
-      .status(200)
-      .json({
-        message: AVATAR_SUCCESS.AVATAR_UPLOADED,
-        avatar: avatarUrl,
-        user: updatedUser,
-      });
+    return res.status(200).json({
+      message: AVATAR_SUCCESS.AVATAR_UPLOADED,
+      avatar: avatarUrl,
+      user: updatedUser,
+    });
   } catch (error) {
     return handleServerError(res, error, "Avatar upload error");
   }
@@ -53,7 +54,9 @@ const deleteAvatar = async (req, res) => {
   try {
     const userId = req.params.userId;
     if (!userId) {
-      return res.status(400).json({ message: AVATAR_ERRORS.NO_USER_ID_PROVIDED });
+      return res
+        .status(400)
+        .json({ message: AVATAR_ERRORS.NO_USER_ID_PROVIDED });
     }
     const updatedUser = await deleteUserAvatar(userId);
     return res
@@ -76,7 +79,10 @@ const serveAvatar = (req, res) => {
 
     const full = path.resolve(__dirname, "../../uploads/avatars", file);
     fs.access(full, fs.constants.R_OK, (err) => {
-      if (err) return res.status(404).json({ message: AVATAR_ERRORS.AVATAR_NOT_FOUND });
+      if (err)
+        return res
+          .status(404)
+          .json({ message: AVATAR_ERRORS.AVATAR_NOT_FOUND });
       res.sendFile(full);
     });
   } catch (error) {

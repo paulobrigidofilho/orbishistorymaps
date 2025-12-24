@@ -55,6 +55,7 @@ const updateUserProfile = async (userId, profileData) => {
     const updateValues = [];
 
     // Build dynamic UPDATE clause for only provided fields
+    // Note: Empty strings are allowed to enable clearing optional fields
     Object.entries(profileData).forEach(([key, value]) => {
       if (value !== undefined && fieldMap[key]) {
         updateFields.push(`${fieldMap[key]} = ?`);

@@ -175,13 +175,22 @@ function Profile() {
   };
 
   // Check if the logged-in user is viewing their own profile
-  const effectiveProfileId = currentUserId || profileId; // fallback to route id
+  // Validate that we have at least one valid profile ID before comparing
+  const effectiveProfileId = currentUserId || profileId;
   const isOwnProfile =
-    user && user.id && effectiveProfileId && user.id === effectiveProfileId;
+    user &&
+    user.id &&
+    effectiveProfileId &&
+    user.id === effectiveProfileId;
 
   // Display loading or error state before rendering the form
   if (isLoading) {
     return <div className={styles.loading}>Loading profile...</div>;
+  }
+
+  // Show error if no valid profile ID could be determined
+  if (!effectiveProfileId) {
+    return <div className={styles.error}>Invalid or missing profile ID</div>;
   }
 
   // Optionally show a more prominent error display if fetching failed completely

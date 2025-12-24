@@ -41,7 +41,7 @@ const login = async (req, res) => {
 
 const logout = (req, res) => {
   if (!req.session) {
-    return res.status(200).json({ message: AUTH_ERRORS.NO_ACTIVE_SESSION });
+    return res.status(200).json({ message: AUTH_SUCCESS.LOGOUT_SUCCESS });
   }
   req.session.destroy((err) => {
     if (err) {

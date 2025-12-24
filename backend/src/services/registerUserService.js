@@ -10,6 +10,9 @@ const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 const config = require("../config/config");
 
+// ======= Constants Imports ======= //
+const { REGISTRATION_ERRORS } = require("../constants/errorMessages");
+
 // ======= Helper Imports ======= //
 const { createUserProfile } = require("../helpers/createUserProfile");
 const { getUserByEmailAsync } = require("../helpers/getUserByEmailAsync");
@@ -42,13 +45,13 @@ const registerUser = async (userData) => {
 
   // Validate required fields
   if (!email || !password || !firstName || !lastName) {
-    throw new Error("Missing required fields");
+    throw new Error(REGISTRATION_ERRORS.MISSING_FIELDS);
   }
 
   // Check if email already exists
   const existingUser = await getUserByEmailAsync(email);
   if (existingUser) {
-    throw new Error("This email is already in use.");
+    throw new Error(REGISTRATION_ERRORS.EMAIL_IN_USE);
   }
 
   // Hash password

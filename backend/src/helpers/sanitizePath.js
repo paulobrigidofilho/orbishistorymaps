@@ -25,7 +25,8 @@ const sanitizeFilename = (filename) => {
   
   // Additional check: ensure no path separators remain
   if (sanitized !== filename) {
-    console.warn("[sanitizePath] Potential path traversal attempt blocked:", filename);
+    console.error("[sanitizePath] Path traversal attempt detected and blocked:", filename);
+    throw new Error("Invalid filename: path traversal attempt detected");
   }
   
   return sanitized;

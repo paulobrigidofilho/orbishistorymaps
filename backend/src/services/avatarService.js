@@ -51,15 +51,16 @@ const saveAvatarUrl = async (filename) => {
     filename
   );
 
-  if (!fs.existsSync(absolutePath)) {
-    console.warn(
-      "[avatar] File was expected but not found on disk:",
+  // Verify file exists on disk before returning URL
+  if (!fsSync.existsSync(absolutePath)) {
+    console.error(
+      "[avatar] File not found on disk after upload:",
       absolutePath
     );
-  } else {
-    console.log("[avatar] File stored:", absolutePath);
+    throw new Error("Avatar file not found after upload");
   }
 
+  console.log("[avatar] File verified on disk:", absolutePath);
   return `${base}${relativePath}`;
 };
 

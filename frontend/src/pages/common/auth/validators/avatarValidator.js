@@ -35,10 +35,12 @@ export const avatarSchema = z.object({
  * Validates an avatar file using the avatar schema
  * @param {File} file - The file object to validate
  * @returns {Object} - { success: boolean, error: string | null }
+ * Note: Returns success if no file is provided (avatar uploads are optional)
  */
 export const validateAvatar = (file) => {
+  // No file provided is valid - avatars are optional
   if (!file) {
-    return { success: false, error: AVATAR_ERRORS.NO_FILE_SELECTED };
+    return { success: true };
   }
   
   // Check file size (5MB limit)

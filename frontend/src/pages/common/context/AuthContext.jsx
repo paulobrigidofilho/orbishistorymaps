@@ -23,6 +23,9 @@ let sessionRestorePromise = null;
 export const AuthContext = createContext(null);
 
 // Define the formatUserData helper function before using it
+// Note: Converts id to String to match backend createUserProfile helper format.
+// This ensures consistent strict equality (===) comparisons across the app
+// (e.g., Profile.jsx ownership checks, profileValidator.js, handleProfileSubmit.js)
 const formatUserData = (userData) => {
   if (!userData) return null;
   return {

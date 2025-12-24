@@ -1,10 +1,6 @@
-const {
-  VALIDATION_ERRORS,
-  AVATAR_ERRORS,
-} = require("../constants/errorMessages");
-/////////////////////////////////////////
+///////////////////////////////////////
 // ===== VALIDATION MIDDLEWARE ===== //
-/////////////////////////////////////////
+///////////////////////////////////////
 
 // This middleware applies validation logic to requests
 // before they reach the controller functions
@@ -20,50 +16,13 @@ const avatarValidator = require("../validators/avatarValidator");
 
 // ===== validate Registration Data ===== //
 const validateRegistration = (req, res, next) => {
-  const { firstName, lastName, email, password, nickname } = req.body;
+  const validationResult = userValidator.validateRegistration(req.body);
 
-  if (!firstName || !firstName.trim()) {
-    return res.status(400).json({ message: "First name is required" });
-  }
-
-  if (!lastName || !lastName.trim()) {
-    return res.status(400).json({ message: "Last name is required" });
-  }
-
-  if (!email || !email.trim()) {
-    return res.status(400).json({ message: "Email is required" });
-  }
-
-  // Email format validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ message: "Invalid email format" });
-  }
-
-  if (!password || !password.trim()) {
-    return res
-      .status(400)
-      .json({ message: VALIDATION_ERRORS.PASSWORD_REQUIRED });
-  }
-
-  // Password minimum length (8 characters to match frontend)
-  if (password.length < 8) {
-    return res
-      .status(400)
-      .json({ message: "Password must be at least 8 characters long" });
-  }
-
-  // Strong password validation
-  const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
-  if (!passwordRegex.test(password)) {
-    return res
-      .status(400)
-      .json({ message: VALIDATION_ERRORS.PASSWORD_TOO_WEAK });
-  }
-
-  if (!nickname || !nickname.trim()) {
-    return res.status(400).json({ message: "Nickname is required" });
+  if (!validationResult.success) {
+    return res.status(400).json({
+      message: validationResult.error,
+      errors: validationResult.errors,
+    });
   }
 
   next();
@@ -71,14 +30,13 @@ const validateRegistration = (req, res, next) => {
 
 // ===== validate Login Data ===== //
 const validateLogin = (req, res, next) => {
-  const { email, password } = req.body;
+  const validationResult = userValidator.validateLogin(req.body);
 
-  if (!email || !email.trim()) {
-    return res.status(400).json({ message: "Email is required" });
-  }
-
-  if (!password || !password.trim()) {
-    return res.status(400).json({ message: "Password is required" });
+  if (!validationResult.success) {
+    return res.status(400).json({
+      message: validationResult.error,
+      errors: validationResult.errors,
+    });
   }
 
   next();
@@ -86,19 +44,10 @@ const validateLogin = (req, res, next) => {
 
 // ===== validate Avatar Upload ===== //
 const validateAvatarUpload = (req, res, next) => {
-  // Avatar is optional, skip if no file
-  if (!req.file) {
-    return next();
-  }
+  const validationResult = avatarValidator.validateAvatar(req.file);
 
-  // File size limit: 5MB (matches multer config and frontend)
-  if (req.file.size > 5 * 1024 * 1024) {
-    return res.status(400).json({ message: "File size exceeds 5MB limit" });
-  }
-
-  // File type check: must be image
-  if (!req.file.mimetype.startsWith("image/")) {
-    return res.status(400).json({ message: "Only image files are allowed" });
+  if (!validationResult.success) {
+    return res.status(400).json({ message: validationResult.error });
   }
 
   next();
@@ -106,14 +55,13 @@ const validateAvatarUpload = (req, res, next) => {
 
 // ===== validate Profile Update Data ===== //
 const validateProfileUpdate = (req, res, next) => {
-  const { email } = req.body;
+  const validationResult = userValidator.validateProfileUpdate(req.body);
 
-  // If email is provided, validate format
-  if (email && email.trim()) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ message: "Invalid email format" });
-    }
+  if (!validationResult.success) {
+    return res.status(400).json({
+      message: validationResult.error,
+      errors: validationResult.errors,
+    });
   }
 
   next();
