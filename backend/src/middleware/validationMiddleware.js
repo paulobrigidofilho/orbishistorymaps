@@ -1,6 +1,6 @@
-/////////////////////////////////////////
+///////////////////////////////////////
 // ===== VALIDATION MIDDLEWARE ===== //
-/////////////////////////////////////////
+///////////////////////////////////////
 
 // This middleware applies validation logic to requests
 // before they reach the controller functions
@@ -16,13 +16,12 @@ const avatarValidator = require("../validators/avatarValidator");
 
 // ===== validate Registration Data ===== //
 const validateRegistration = (req, res, next) => {
-  const validation = userValidator.validateRegistration(req.body);
+  const validationResult = userValidator.validateRegistration(req.body);
 
-  if (!validation.success) {
+  if (!validationResult.success) {
     return res.status(400).json({
-      message: "Validation failed",
-      error: validation.error,
-      errors: validation.errors,
+      message: validationResult.error,
+      errors: validationResult.errors,
     });
   }
 
@@ -31,28 +30,12 @@ const validateRegistration = (req, res, next) => {
 
 // ===== validate Login Data ===== //
 const validateLogin = (req, res, next) => {
-  const validation = userValidator.validateLogin(req.body);
+  const validationResult = userValidator.validateLogin(req.body);
 
-  if (!validation.success) {
+  if (!validationResult.success) {
     return res.status(400).json({
-      message: "Validation failed",
-      error: validation.error,
-      errors: validation.errors,
-    });
-  }
-
-  next();
-};
-
-// ===== validate Profile Update Data ===== //
-const validateProfileUpdate = (req, res, next) => {
-  const validation = userValidator.validateProfileUpdate(req.body);
-
-  if (!validation.success) {
-    return res.status(400).json({
-      message: "Validation failed",
-      error: validation.error,
-      errors: validation.errors,
+      message: validationResult.error,
+      errors: validationResult.errors,
     });
   }
 
@@ -61,16 +44,23 @@ const validateProfileUpdate = (req, res, next) => {
 
 // ===== validate Avatar Upload ===== //
 const validateAvatarUpload = (req, res, next) => {
-  if (!req.file) {
-    return next();
+  const validationResult = avatarValidator.validateAvatar(req.file);
+
+  if (!validationResult.success) {
+    return res.status(400).json({ message: validationResult.error });
   }
 
-  const validation = avatarValidator.validateAvatar(req.file);
+  next();
+};
 
-  if (!validation.success) {
+// ===== validate Profile Update Data ===== //
+const validateProfileUpdate = (req, res, next) => {
+  const validationResult = userValidator.validateProfileUpdate(req.body);
+
+  if (!validationResult.success) {
     return res.status(400).json({
-      message: "Avatar validation failed",
-      error: validation.error,
+      message: validationResult.error,
+      errors: validationResult.errors,
     });
   }
 

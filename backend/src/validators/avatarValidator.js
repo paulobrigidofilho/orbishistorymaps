@@ -5,6 +5,8 @@
 // This validator handles validation for avatar uploads
 // ensuring correct file size and type requirements
 
+const { VALIDATION_ERRORS } = require("../constants/errorMessages");
+
 ///////////////////////////////////////////////////////////////////////
 // ========================= VALIDATION FUNCTIONS ================== //
 ///////////////////////////////////////////////////////////////////////
@@ -15,37 +17,24 @@
  * @returns {Object} - { success: boolean, error: string | null }
  */
 const validateAvatar = (file) => {
-  // Skip validation if no file is provided
+  // Skip validation if no file is provided (avatar is optional)
   if (!file) {
     return { success: true, error: null };
   }
   
-  // Check file size (max 1MB)
-  const maxSize = 1024 * 1024; // 1MB
+  // Check file size (max 5MB to match frontend and multer config)
+  const maxSize = 5 * 1024 * 1024; // 5MB
   if (file.size > maxSize) {
-    return { success: false, error: "File must be less than 1MB" };
+    return { success: false, error: VALIDATION_ERRORS.FILE_TOO_LARGE };
   }
   
-  // Check file type
-  const allowedTypes = /jpeg|jpg|png|gif/;
-  const mimeType = file.mimetype.split('/')[1];
-  
-  if (!allowedTypes.test(mimeType)) {
-    return { success: false, error: "Invalid file type. Only .jpeg, .jpg, .png and .gif files are allowed!" };
+  // Check file type - must be an image
+  if (!file.mimetype.startsWith("image/")) {
+    return { success: false, error: VALIDATION_ERRORS.INVALID_FILE_TYPE };
   }
   
   return { success: true, error: null };
 };
-
-///////////////////////////////////////////////////////////////////////
-// ========================= EXPORT VALIDATORS ===================== //
-///////////////////////////////////////////////////////////////////////
-
-module.exports = {
-  validateAvatar
-};
-// ========================= EXPORT VALIDATORS ===================== //
-///////////////////////////////////////////////////////////////////////
 
 module.exports = {
   validateAvatar

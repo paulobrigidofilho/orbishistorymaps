@@ -15,7 +15,11 @@ import { AuthContext } from "../context/AuthContext.jsx";
 import LoginModal from "../auth/LoginModal.jsx";
 
 // =========== Asset imports  ========== //
-import OrbisLogo from "../../../assets/common/orbislogo.png"; // Adjust path as needed
+import OrbisLogo from "../../../assets/common/orbislogo.png";
+
+// ======= Constants ======= //
+// Using OrbisLogo as default; alternatively import DEFAULT_AVATAR from authConstants
+const DEFAULT_AVATAR = OrbisLogo;
 
 const ProfileBtn = () => {
   // ========================= STATE VARIABLES ========================= //
@@ -69,7 +73,7 @@ const ProfileBtn = () => {
   // Get the correct avatar URL or fallback to default logo
   const getAvatarUrl = (userObj) => {
     if (!userObj || !userObj.avatar) {
-      return OrbisLogo;
+      return DEFAULT_AVATAR;
     }
 
     // If it's already an absolute URL, return it
@@ -79,7 +83,7 @@ const ProfileBtn = () => {
 
     // If it's an empty or whitespace-only string, return fallback
     if (!userObj.avatar || (typeof userObj.avatar === 'string' && !userObj.avatar.trim())) {
-      return OrbisLogo;
+      return DEFAULT_AVATAR;
     }
 
     // Otherwise assume it's a relative path served by the backend (e.g., /uploads/avatars/...)

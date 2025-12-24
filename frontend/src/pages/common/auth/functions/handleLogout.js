@@ -6,8 +6,7 @@
 // by making an API call to the backend to terminate the session
 
 import axios from "axios";
-
-const API_BASE = import.meta.env.VITE_API_URL;
+import { API_BASE } from "../constants/authConstants";
 
 const handleLogout = async () => {
   try {

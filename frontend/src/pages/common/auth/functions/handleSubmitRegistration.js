@@ -8,7 +8,7 @@
 /**
  * Handles the form submission for user registration
  * Prepares form data and makes API call to register the user
- * 
+ *
  * @param {Object} e - The event object from form submission
  * @param {Object} formData - Object containing all form state values
  * @param {Object} setters - Object containing state setter functions
@@ -17,10 +17,12 @@
 
 // ====== Module Imports ===== //
 import axios from "axios";
-import { 
-  validatePersonalDetails, 
-  validateProfileDetails 
+import {
+  validatePersonalDetails,
+  validateProfileDetails,
 } from "../validators/registrationValidator";
+import { REGISTRATION_ERRORS } from "../constants/authErrorMessages";
+import { API_BASE } from "../constants/authConstants";
 
 ////////////////////////////////////////////////////////////////////////////////
 // ===== Handle Registration Submission (uses getPublicConfig) ============== //
@@ -38,19 +40,19 @@ const handleSubmitRegistration = async (e, formData, setters) => {
     lastName: formData.lastName,
     email: formData.email,
     password: formData.password,
-    confirmPassword: formData.confirmPassword
+    confirmPassword: formData.confirmPassword,
   });
-  
+
   if (!personalValidation.success) {
     setters.setError(personalValidation.error);
     return;
   }
-  
+
   // Validate profile details
   const profileValidation = validateProfileDetails({
-    nickname: formData.nickname
+    nickname: formData.nickname,
   });
-  
+
   if (!profileValidation.success) {
     setters.setError(profileValidation.error);
     return;
@@ -80,8 +82,7 @@ const handleSubmitRegistration = async (e, formData, setters) => {
 
   // ========================= API CALL ========================= //
   try {
-    // Use relative path - Vite proxy handles routing to backend
-    const response = await axios.post('/api/register', submitData, {
+    const response = await axios.post(`${API_BASE}/api/register`, submitData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -94,13 +95,17 @@ const handleSubmitRegistration = async (e, formData, setters) => {
 
       // Basic validation of response structure
       if (!response.data || !response.data.user || !response.data.user.id) {
-        setters.setError("Registration successful, but invalid user data received. Check backend response.");
+        setters.setError(REGISTRATION_ERRORS.INVALID_RESPONSE);
         console.error("Invalid response format:", response.data);
         return;
       }
 
-      // Simplified avatar handling - no baseUrl needed
-      const avatarPath = response.data.user.avatar || '';
+      // Simplified avatar handling - normalize to absolute URL
+      const avatarPathRaw = response.data.user.avatar || "";
+      const avatarPath =
+        avatarPathRaw && !avatarPathRaw.startsWith("http")
+          ? `${API_BASE.replace(/\/+$/,"")}${avatarPathRaw}`
+          : avatarPathRaw;
 
       const newUser = {
         id: response.data.user.id,
@@ -109,7 +114,7 @@ const handleSubmitRegistration = async (e, formData, setters) => {
         email: response.data.user.email || formData.email,
         nickname: response.data.user.nickname || formData.nickname,
         avatar: avatarPath,
-        address: response.data.user.address || "", 
+        address: response.data.user.address || "",
         addressLine2: response.data.user.addressLine2 || "",
         city: response.data.user.city || "",
         state: response.data.user.state || "",
@@ -121,7 +126,10 @@ const handleSubmitRegistration = async (e, formData, setters) => {
 
       // ========================= ERROR HANDLING (API Level) ========================= //
     } else {
-      setters.setError(response.data?.message || `Registration attempt returned status ${response.status}`);
+      setters.setError(
+        response.data?.message ||
+          `Registration attempt returned status ${response.status}`
+      );
     }
     // ========================= ERROR HANDLING (Catch Block) ========================= //
   } catch (registerError) {
@@ -130,7 +138,7 @@ const handleSubmitRegistration = async (e, formData, setters) => {
     setters.setError(
       registerError.response?.data?.message ||
         registerError.message ||
-        "Registration failed due to a network or server issue."
+        REGISTRATION_ERRORS.REGISTRATION_FAILED
     );
   }
 };

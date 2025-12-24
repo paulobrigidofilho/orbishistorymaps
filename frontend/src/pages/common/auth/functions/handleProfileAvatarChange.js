@@ -1,46 +1,50 @@
-////////////////////////////////////////////////
-// ===== HANDLE PROFILE AVATAR CHANGE ======= //
-////////////////////////////////////////////////
+//////////////////////////////////////////////
+// ===== HANDLE PROFILE AVATAR CHANGE ===== //
+//////////////////////////////////////////////
 
-// This function handles the avatar file change event for profile updates
+// This function handles the avatar file change event for profile page
 // Validates file size and type before setting the avatar
 
 /**
- * @param {Object} e - The event object from file input change
- * @param {Function} setAvatar - Function to set avatar state
- * @param {Function} setAvatarError - Function to set avatar error state
- * @param {Function} setAvatarPreview - Function to set avatar preview state
+ * Handles avatar file selection in profile page
+ * Validates and sets preview for pending upload
+ *
+ * @param {Event} e - File input change event
+ * @param {Function} setAvatar - Function to set avatar file
+ * @param {Function} setAvatarError - Function to set error message
+ * @param {Function} setAvatarPreview - Function to set preview URL
+ * @param {Function} setPendingUpload - Function to set pending upload state
  * @returns {void}
  */
 
-const handleProfileAvatarChange = (e, setAvatar, setAvatarError, setAvatarPreview) => {
+// ======= Module Imports ======= //
+import { validateAvatar } from "../validators/avatarValidator";
+
+// ======= handleProfileAvatarChange Function ======= //
+const handleProfileAvatarChange = (
+  e,
+  setAvatar,
+  setAvatarError,
+  setAvatarPreview,
+  setPendingUpload
+) => {
   const file = e.target.files[0];
-  setAvatarError(""); // Clear previous avatar errors
+  setAvatarError("");
 
   if (file) {
-    // Validation logic (Size, Type)
-    if (file.size > 1024 * 1024) { // 1MB Limit
-      setAvatarError("Avatar must be less than 1MB.");
-      setAvatar(null);
-      setAvatarPreview(null); // Clear preview on error
+    // Use the validator to check the file
+    const validation = validateAvatar(file);
+
+    if (!validation.success) {
+      setAvatarError(validation.error);
       e.target.value = "";
       return;
     }
-    
-    const allowedTypes = /jpeg|jpg|png|gif/;
-    // Ensure consistent check for extension
-    const fileExtension = file.name.split('.').pop().toLowerCase();
-    if (!allowedTypes.test(fileExtension) || !allowedTypes.test(file.type)) {
-      setAvatarError("Invalid file type. Only .jpeg, .jpg, .png and .gif files are allowed!");
-      setAvatar(null);
-      setAvatarPreview(null); // Clear preview on error
-      e.target.value = "";
-      return;
-    }
-    
-    // If validation passes:
-    setAvatar(file); // Store the File object for upload
-    setAvatarPreview(URL.createObjectURL(file)); // Set preview URL
+
+    // If validation passes
+    setAvatar(file);
+    setAvatarPreview(URL.createObjectURL(file));
+    setPendingUpload(true);
   }
 };
 

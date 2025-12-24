@@ -16,6 +16,8 @@
 // ====== Module Imports ===== //
 
 import axios from "axios";
+import { API_BASE } from "../constants/authConstants";
+import { PROFILE_ERRORS } from "../constants/authErrorMessages";
 import {
   validateProfileUpdate,
   validateProfileAccess,
@@ -84,13 +86,17 @@ const handleProfileSubmit = async (
       formData.append("avatarUrl", profileData.avatar);
     }
 
-    // Use relative path - Vite proxy handles routing to backend
-    const response = await axios.put(`/api/profile/${profileId}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      withCredentials: true,
-    });
+    // Make the API request to update the profile
+    const response = await axios.put(
+      `${API_BASE}/api/profile/${profileId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      }
+    );
 
     // Handle success response
     if (response.status === 200) {
@@ -146,9 +152,10 @@ const handleProfileSubmit = async (
     }
   } catch (error) {
     // Handle network errors or errors thrown by the backend
+    const errorMessage =
+      error.response?.data?.message || error.message || PROFILE_ERRORS.UPDATE_FAILED;
     setters.setError(
-      "Profile update failed: " +
-        (error.response?.data?.message || error.message)
+      "Profile update failed: " + errorMessage
     );
     console.error("Profile update error:", error.message);
   }

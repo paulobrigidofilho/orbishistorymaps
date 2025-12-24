@@ -34,11 +34,23 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const userId = req.session?.user?.id || "anonymous";
+    // Prefer userId from params, fallback to session, then anonymous
+    const userId = req.params?.userId || req.session?.user?.id || "anonymous";
     const uniqueId = uuidv4();
     const timestamp = Date.now();
     const ext = path.extname(file.originalname);
     const filename = `avatar-${userId}-${timestamp}-${uniqueId}${ext}`;
+    // Debug: show final disk path
+    const finalPath = path.resolve(
+      __dirname,
+      "../../uploads/avatars",
+      filename
+    );
+    console.log("[multer] Saving avatar:", {
+      original: file.originalname,
+      savedAs: filename,
+      path: finalPath,
+    });
     cb(null, filename);
   },
 });

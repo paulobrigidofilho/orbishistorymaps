@@ -2,116 +2,69 @@
 // ===== FETCH PROFILE DATA ===== //
 ////////////////////////////////////
 
-// This function fetches profile data for a given user ID
-// and handles validation and data parsing
+// This function fetches profile data from the backend API
 
-// ===== Module Imports ===== //
+/**
+ * Fetches user profile data from the backend
+ *
+ * @param {string} profileId - The user profile ID
+ * @param {Object} setters - Object containing state setter functions
+ * @returns {Promise<void>}
+ */
 
+// ======= Module Imports ======= //
 import axios from "axios";
-import { z } from "zod";
-
-// ======= Zod Schemas ======= //
-
-// Schema for validating profileId
-const profileIdSchema = z
-  .string()
-  .min(1, { message: "No profile ID provided." });
-
-// Schema for validating profile response data
-const profileResponseSchema = z.object({
-  user: z.object({
-    id: z.string(),
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
-    email: z.string().optional(),
-    nickname: z.string().optional(),
-    avatar: z.string().nullable().optional(),
-    address: z.string().optional(),
-    addressLine2: z.string().optional(),
-    city: z.string().optional(),
-    state: z.string().optional(),
-    zipCode: z.string().optional(),
-  }),
-});
+import { API_BASE, DEFAULT_AVATAR } from "../constants/authConstants";
+import { PROFILE_ERRORS } from "../constants/authErrorMessages";
 
 // ======= fetchProfileData Function ======= //
-
 const fetchProfileData = async (profileId, setters) => {
-  setters.setError(""); // Clear previous errors
-
-  // Validate profileId
   try {
-    profileIdSchema.parse(profileId);
-  } catch (error) {
-    setters.setError("Invalid or missing profile ID");
-    return;
-  }
+    const response = await axios.get(`${API_BASE}/api/profile/${profileId}`, {
+      withCredentials: true,
+    });
 
-  try {
-    // Use relative path - Vite proxy handles routing to backend
-    const response = await axios.get(`/api/profile/${profileId}`);
+    if (response.status === 200) {
+      const data = response.data;
+      // Support multiple response shapes: { user: {...} } or flat object
+      const payload = data?.user ?? data?.profile ?? data ?? {};
 
-    if (response.status === 200 && response.data) {
-      // Validate response data
-      try {
-        const validatedData = profileResponseSchema.parse(response.data);
-        const userData = validatedData.user;
+      const avatarRaw = payload.avatar;
+      const avatarPath =
+        typeof avatarRaw === "string" && avatarRaw.trim() !== ""
+          ? avatarRaw.startsWith("http")
+            ? avatarRaw
+            : `${API_BASE.replace(/\/+$/, "")}${avatarRaw}`
+          : null;
 
-        // Check if all required fields are empty
-        if (
-          !userData.firstName &&
-          !userData.lastName &&
-          !userData.email &&
-          !userData.nickname
-        ) {
-          setters.setError(
-            "Profile data appears to be empty. Please try refreshing or contact support."
-          );
-          return;
-        }
+      // Set all state values
+      setters.setFirstName(payload.firstName || "");
+      setters.setLastName(payload.lastName || "");
+      setters.setEmail(payload.email || "");
+      setters.setNickname(payload.nickname || "");
+      setters.setAddress(payload.address || "");
+      setters.setAddressLine2(payload.addressLine2 || "");
+      setters.setCity(payload.city || "");
+      setters.setStateName(payload.state || ""); // backend uses `state`
+      setters.setZipCode(payload.zipCode || "");
+      setters.setCurrentUserId(payload.id || payload._id || profileId || "");
+      setters.setError("");
 
-        // Populate form with data, with fallbacks to prevent empty fields
-        setters.setFirstName(userData.firstName || "");
-        setters.setLastName(userData.lastName || "");
-        setters.setEmail(userData.email || "");
-        setters.setNickname(userData.nickname || "");
-        setters.setAddress(userData.address || "");
-        setters.setAddressLine2(userData.addressLine2 || "");
-        setters.setCity(userData.city || "");
-        setters.setStateName(userData.state || "");
-        setters.setZipCode(userData.zipCode || "");
-        setters.setCurrentUserId(userData.id || "");
+      // Avatar states
+      setters.setAvatar(null);
+      setters.setAvatarPreview(avatarPath || DEFAULT_AVATAR);
 
-        // Handle avatar display logic
-        const currentAvatarPath = userData.avatar || null;
-        setters.setAvatar(currentAvatarPath);
-
-        // Update avatar URL construction using resolved baseUrl or keep relative
-        if (currentAvatarPath) {
-          const preview = currentAvatarPath.startsWith("http")
-            ? currentAvatarPath
-            : currentAvatarPath; // Keep as relative path
-          setters.setAvatarPreview(preview);
-        } else {
-          setters.setAvatarPreview(null);
-        }
-      } catch (validationError) {
-        setters.setError(
-          "Invalid profile data format. Please contact support."
-        );
-        console.error("Profile data validation error:", validationError);
+      if (setters.setStoredAvatarPath) {
+        setters.setStoredAvatarPath(avatarPath || null);
       }
-    } else {
-      setters.setError(response.data?.message || "Failed to load profile data");
-      console.error("Fetch profile failed:", response);
     }
-  } catch (err) {
-    console.error("Profile fetch error:", err.message);
-    if (err.response && err.response.status === 404) {
-      setters.setError("Profile not found.");
-    } else {
-      setters.setError(`Failed to fetch profile data: ${err.message}`);
-    }
+  } catch (error) {
+    const errorMessage =
+      error.response?.data?.message ||
+      error.message ||
+      PROFILE_ERRORS.FETCH_FAILED;
+    setters.setError(errorMessage);
+    console.error("Error fetching profile:", error);
   }
 };
 

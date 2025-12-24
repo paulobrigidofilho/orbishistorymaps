@@ -10,9 +10,7 @@ import { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import handleLogin from "../auth/functions/handleLogin";
 import handleLogout from "../auth/functions/handleLogout";
-
-// Use Vite env variable for backend API URL
-const API_BASE = import.meta.env.VITE_API_URL || "/api";
+import { API_BASE } from "../auth/constants/authConstants";
 
 // Singleton to prevent duplicate session requests (StrictMode double render)
 let sessionRestorePromise = null;
@@ -25,10 +23,14 @@ let sessionRestorePromise = null;
 export const AuthContext = createContext(null);
 
 // Define the formatUserData helper function before using it
+// Note: Converts id to String to match backend createUserProfile helper format.
+// This ensures consistent strict equality (===) comparisons across the app
+// (e.g., Profile.jsx ownership checks, profileValidator.js, handleProfileSubmit.js)
 const formatUserData = (userData) => {
   if (!userData) return null;
   return {
     ...userData,
+    id: String(userData.id),
     avatar: userData.avatar || null,
   };
 };

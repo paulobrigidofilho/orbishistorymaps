@@ -10,6 +10,7 @@ import { z } from "zod";
 import { validateFirstName, validateLastName } from "./nameValidator";
 import { validateEmail } from "./emailValidator";
 import { validatePasswordWithConfirmation } from "./passwordValidator";
+import { VALIDATION_ERRORS } from "../constants/authErrorMessages";
 
 // ===== Schema Definitions ===== //
 
@@ -30,49 +31,57 @@ export const addressDetailsSchema = z.object({
   zipCode: z.string().optional(),
 });
 
-// ===== Validation Functions ===== //
+///////////////////////////////////
+// ===== VALIDATION FUNCTIONS ==== //
+///////////////////////////////////
 
 // ===== validatePersonalDetails Function ===== //
 export const validatePersonalDetails = (data) => {
-  // Validate first name
-  const firstNameValidation = validateFirstName(data.firstName);
-  if (!firstNameValidation.success) {
-    return firstNameValidation;
+  const { firstName, lastName, email, password, confirmPassword } = data;
+
+  if (!firstName || !firstName.trim()) {
+    return { success: false, error: VALIDATION_ERRORS.FIRST_NAME_REQUIRED };
   }
 
-  // Validate last name
-  const lastNameValidation = validateLastName(data.lastName);
-  if (!lastNameValidation.success) {
-    return lastNameValidation;
+  if (!lastName || !lastName.trim()) {
+    return { success: false, error: VALIDATION_ERRORS.LAST_NAME_REQUIRED };
   }
 
-  // Validate email
-  const emailValidation = validateEmail(data.email);
-  if (!emailValidation.success) {
-    return emailValidation;
+  if (!email || !email.trim()) {
+    return { success: false, error: VALIDATION_ERRORS.EMAIL_REQUIRED };
   }
 
-  // Validate password and confirmation
-  const passwordValidation = validatePasswordWithConfirmation(
-    data.password,
-    data.confirmPassword,
-    true // Use strict validation
-  );
-  if (!passwordValidation.success) {
-    return passwordValidation;
+  // Basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { success: false, error: VALIDATION_ERRORS.EMAIL_INVALID };
   }
 
-  return { success: true, error: null };
+  if (!password || !password.trim()) {
+    return { success: false, error: VALIDATION_ERRORS.PASSWORD_REQUIRED };
+  }
+
+  // Strong password validation
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+  if (!passwordRegex.test(password)) {
+    return { success: false, error: VALIDATION_ERRORS.PASSWORD_TOO_WEAK };
+  }
+
+  if (password !== confirmPassword) {
+    return { success: false, error: VALIDATION_ERRORS.PASSWORD_MISMATCH };
+  }
+
+  return { success: true };
 };
 
 // ===== validateProfileDetails Function ===== //
 export const validateProfileDetails = (data) => {
-  try {
-    profileDetailsSchema.parse(data);
-    return { success: true, error: null };
-  } catch (error) {
-    const errorMessage =
-      error.errors?.[0]?.message || "Invalid profile details";
-    return { success: false, error: errorMessage };
+  const { nickname } = data;
+
+  if (!nickname || !nickname.trim()) {
+    return { success: false, error: VALIDATION_ERRORS.NICKNAME_REQUIRED };
   }
+
+  return { success: true };
 };
