@@ -80,6 +80,7 @@ export default function Cart() {
       setUpdating(true);
       await updateCartItem(cartItemId, newQuantity);
       await fetchCart(); // Refresh cart
+      window.dispatchEvent(new Event("cartUpdated"));
       showMessage("Cart updated", "success");
     } catch (err) {
       console.error("Error updating cart:", err);
@@ -97,6 +98,7 @@ export default function Cart() {
       setUpdating(true);
       await removeCartItem(cartItemId);
       await fetchCart(); // Refresh cart
+      window.dispatchEvent(new Event("cartUpdated"));
       showMessage("Item removed from cart", "success");
     } catch (err) {
       console.error("Error removing item:", err);
@@ -114,6 +116,7 @@ export default function Cart() {
       setUpdating(true);
       await clearCart(cartData.cart_id);
       await fetchCart(); // Refresh cart
+      window.dispatchEvent(new Event("cartUpdated"));
       showMessage("Cart cleared", "success");
     } catch (err) {
       console.error("Error clearing cart:", err);

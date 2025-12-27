@@ -74,6 +74,9 @@ export default function ProductDetail() {
 
       await addToCart(product.product_id, quantity);
 
+      // Dispatch custom event to update cart badge
+      window.dispatchEvent(new Event("cartUpdated"));
+
       setCartMessage({ type: "success", text: "Added to cart successfully!" });
       setTimeout(() => setCartMessage(null), 3000);
     } catch (err) {
