@@ -1,23 +1,23 @@
 ///////////////////////////////////////
-// ===== KART BUTTON COMPONENT ===== //
+// ===== CART BUTTON COMPONENT ===== //
 ///////////////////////////////////////
 
 // This component renders the shopping cart button in the navigation bar
 
-import React from "react";
+//  ========== Module imports  ========== //
 import { NavLink } from "react-router-dom";
 import styles from "../MainNavBar.module.css";
 
-const KartBtn = () => {
+const CartBtn = () => {
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
   ///////////////////////////////////////////////////////////////////////
 
   return (
-    <NavLink to="/shop" className={styles.cartButton}>
+    <NavLink to="/cart" className={styles.cartButton}>
       <i className="material-icons">shopping_cart</i>
     </NavLink>
   );
 };
 
-export default KartBtn;
+export default CartBtn;

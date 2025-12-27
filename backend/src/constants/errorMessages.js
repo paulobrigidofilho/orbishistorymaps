@@ -76,9 +76,9 @@ const VALIDATION_ERRORS = {
   INVALID_FILE_TYPE: "Only image files are allowed",
 };
 
-////////////////////////////////////////
+///////////////////////////////////////
 // ===== Password Reset Errors ===== //
-////////////////////////////////////////
+///////////////////////////////////////
 
 const PASSWORD_RESET_ERRORS = {
   EMAIL_NOT_FOUND: "No account found with this email address",
@@ -90,6 +90,52 @@ const PASSWORD_RESET_ERRORS = {
   MISSING_FIELDS: "Token and password are required",
 };
 
+////////////////////////////////
+// ===== Product Errors ===== //
+////////////////////////////////
+
+const PRODUCT_ERRORS = {
+  NOT_FOUND: "Product not found",
+  FETCH_FAILED: "Failed to fetch products",
+  CREATE_FAILED: "Failed to create product",
+  UPDATE_FAILED: "Failed to update product",
+  DELETE_FAILED: "Failed to delete product",
+  OUT_OF_STOCK: "Product is out of stock",
+  INSUFFICIENT_STOCK: "Insufficient stock available",
+};
+
+/////////////////////////////
+// ===== Cart Errors ===== //
+/////////////////////////////
+
+const CART_ERRORS = {
+  FETCH_FAILED: "Failed to fetch cart",
+  ADD_FAILED: "Failed to add item to cart",
+  UPDATE_FAILED: "Failed to update cart item",
+  REMOVE_FAILED: "Failed to remove item from cart",
+  CLEAR_FAILED: "Failed to clear cart",
+  MERGE_FAILED: "Failed to merge cart",
+  ITEM_NOT_FOUND: "Cart item not found",
+  PRODUCT_NOT_FOUND: "Product not found",
+  PRODUCT_UNAVAILABLE: "Product is not available",
+  INVALID_QUANTITY: "Quantity must be at least 1",
+};
+
+//////////////////////////////
+// ===== Order Errors ===== //
+//////////////////////////////
+
+const ORDER_ERRORS = {
+  CREATE_FAILED: "Failed to create order",
+  FETCH_FAILED: "Failed to fetch order",
+  UPDATE_FAILED: "Failed to update order",
+  NOT_FOUND: "Order not found",
+  EMPTY_CART: "Cannot create order from empty cart",
+  LOGIN_REQUIRED: "You must be logged in to place an order",
+  INVALID_ADDRESS: "Invalid shipping or billing address",
+  PAYMENT_FAILED: "Payment processing failed",
+};
+
 module.exports = {
   AUTH_ERRORS,
   REGISTRATION_ERRORS,
@@ -98,4 +144,7 @@ module.exports = {
   GENERIC_ERRORS,
   VALIDATION_ERRORS,
   PASSWORD_RESET_ERRORS,
+  PRODUCT_ERRORS,
+  CART_ERRORS,
+  ORDER_ERRORS,
 };

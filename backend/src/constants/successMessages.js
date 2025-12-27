@@ -42,13 +42,14 @@ const AVATAR_SUCCESS = {
   AVATAR_UPDATED: "Avatar updated successfully",
 };
 
-///////////////////////////////////////////
+////////////////////////////////////////
 // ===== Password Reset Success ===== //
-///////////////////////////////////////////
+////////////////////////////////////////
 
 const PASSWORD_RESET_SUCCESS = {
   RESET_EMAIL_SENT: "Password reset email sent. Please check your inbox.",
-  PASSWORD_UPDATED: "Password updated successfully. You can now login with your new password.",
+  PASSWORD_UPDATED:
+    "Password updated successfully. You can now login with your new password.",
 };
 
 module.exports = {

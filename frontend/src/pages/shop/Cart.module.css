@@ -1,0 +1,244 @@
+/* ============================== */
+/* ===== CART PAGE STYLES ===== */
+/* ============================== */
+
+.cartPage {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.cartContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* ============================== */
+/* ===== CART HEADER ===== */
+/* ============================== */
+
+.cartHeader {
+  margin-bottom: 2rem;
+}
+
+.cartHeader h1 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+}
+
+.cartHeader p {
+  color: #7f8c8d;
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* ============================== */
+/* ===== MESSAGE DISPLAY ===== */
+/* ============================== */
+
+.message {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* ============================== */
+/* ===== CART CONTENT ===== */
+/* ============================== */
+
+.cartContent {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.cartItems {
+  display: flex;
+  flex-direction: column;
+}
+
+.clearCartButton {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.clearCartButton:hover:not(:disabled) {
+  background: #c0392b;
+}
+
+.clearCartButton:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* ============================== */
+/* ===== CART SUMMARY ===== */
+/* ============================== */
+
+.cartSummary {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 2rem;
+}
+
+.cartSummary h2 {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  color: #5d6d7e;
+}
+
+.summaryRow.total {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #2c3e50;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 2px solid #ecf0f1;
+}
+
+.checkoutButton {
+  width: 100%;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.checkoutButton:hover:not(:disabled) {
+  background: #229954;
+}
+
+.checkoutButton:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+.continueShoppingButton {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  background: white;
+  color: #3498db;
+  border: 2px solid #3498db;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.continueShoppingButton:hover {
+  background: #3498db;
+  color: white;
+}
+
+/* ============================== */
+/* ===== STATE CONTAINERS ===== */
+/* ============================== */
+
+.loadingContainer,
+.errorContainer,
+.emptyCartContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.errorContainer h2,
+.emptyCartContainer h2 {
+  margin: 1rem 0;
+  color: #2c3e50;
+}
+
+.errorContainer p,
+.emptyCartContainer p {
+  color: #7f8c8d;
+  margin-bottom: 1.5rem;
+}
+
+.retryButton,
+.shopButton {
+  padding: 0.75rem 2rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retryButton:hover,
+.shopButton:hover {
+  background: #2980b9;
+}
+
+/* ============================== */
+/* ===== RESPONSIVE DESIGN ===== */
+/* ============================== */
+
+@media (max-width: 1024px) {
+  .cartContent {
+    grid-template-columns: 1fr;
+  }
+
+  .cartSummary {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .cartContainer {
+    padding: 1rem;
+  }
+
+  .cartHeader h1 {
+    font-size: 1.5rem;
+  }
+}

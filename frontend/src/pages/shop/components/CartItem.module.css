@@ -1,0 +1,221 @@
+/* ============================== */
+/* ===== CART ITEM STYLES ===== */
+/* ============================== */
+
+.cartItem {
+  display: grid;
+  grid-template-columns: 100px 1fr auto auto auto;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+/* ============================== */
+/* ===== IMAGE SECTION ===== */
+/* ============================== */
+
+.imageLink {
+  display: block;
+  width: 100px;
+  height: 100px;
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.noImage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border-radius: 6px;
+  color: #999;
+  font-size: 0.75rem;
+}
+
+/* ============================== */
+/* ===== PRODUCT INFO ===== */
+/* ============================== */
+
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.productLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.productName {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  transition: color 0.2s;
+}
+
+.productLink:hover .productName {
+  color: #3498db;
+}
+
+.sku {
+  font-size: 0.875rem;
+  color: #7f8c8d;
+  margin: 0;
+}
+
+.price {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #27ae60;
+  margin: 0;
+}
+
+.lowStock {
+  font-size: 0.875rem;
+  color: #f39c12;
+  margin: 0;
+  font-weight: 600;
+}
+
+.outOfStock {
+  font-size: 0.875rem;
+  color: #e74c3c;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* ============================== */
+/* ===== QUANTITY SECTION ===== */
+/* ============================== */
+
+.quantitySection {
+  display: flex;
+  align-items: center;
+}
+
+.quantityControls {
+  display: flex;
+  align-items: center;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.quantityButton {
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: #2c3e50;
+  transition: background 0.2s;
+}
+
+.quantityButton:hover:not(:disabled) {
+  background: #ecf0f1;
+}
+
+.quantityButton:disabled {
+  color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.quantity {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  min-width: 50px;
+  text-align: center;
+}
+
+/* ============================== */
+/* ===== SUBTOTAL SECTION ===== */
+/* ============================== */
+
+.subtotalSection {
+  min-width: 100px;
+  text-align: right;
+}
+
+.subtotal {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #2c3e50;
+  margin: 0;
+}
+
+/* ============================== */
+/* ===== REMOVE BUTTON ===== */
+/* ============================== */
+
+.removeButton {
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #e74c3c;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.removeButton:hover:not(:disabled) {
+  color: #c0392b;
+}
+
+.removeButton:disabled {
+  color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* ============================== */
+/* ===== RESPONSIVE DESIGN ===== */
+/* ============================== */
+
+@media (max-width: 768px) {
+  .cartItem {
+    grid-template-columns: 80px 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .imageLink {
+    width: 80px;
+    height: 80px;
+  }
+
+  .quantitySection {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+
+  .subtotalSection {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+
+  .removeButton {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .cartItem {
+    position: relative;
+  }
+}

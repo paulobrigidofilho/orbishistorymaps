@@ -1,0 +1,85 @@
+/* ============================== */
+/* ===== SHOP PAGE STYLES ===== */
+/* ============================== */
+
+.shopPage {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.shopContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* ============================== */
+/* ===== SHOP HEADER ===== */
+/* ============================== */
+
+.shopHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.shopHeader h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.shopHeader p {
+  font-size: 1.125rem;
+  color: #666;
+}
+
+/* ============================== */
+/* ===== SEARCH CONTAINER ===== */
+/* ============================== */
+
+.searchContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.searchInput {
+  width: 100%;
+  max-width: 600px;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 50px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  border-color: #3498db;
+}
+
+.searchInput::placeholder {
+  color: #999;
+}
+
+/* ============================== */
+/* ===== RESPONSIVE DESIGN ===== */
+/* ============================== */
+
+@media (max-width: 768px) {
+  .shopContainer {
+    padding: 1rem;
+  }
+
+  .shopHeader h1 {
+    font-size: 2rem;
+  }
+
+  .shopHeader p {
+    font-size: 1rem;
+  }
+
+  .searchInput {
+    padding: 0.75rem 1rem;
+  }
+}
