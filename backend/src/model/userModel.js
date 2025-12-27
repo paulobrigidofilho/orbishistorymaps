@@ -154,6 +154,31 @@ const userModel = {
       }
     );
   },
+
+  ///////////////////////////////////////////////////////////////////////
+  // ===================== UPDATE PASSWORD =========================== //
+  ///////////////////////////////////////////////////////////////////////
+
+  updatePassword: (userId, hashedPassword, callback) => {
+    const query = `
+      UPDATE users 
+      SET user_password = ?
+      WHERE user_id = ?`;
+
+    db.query(query, [hashedPassword, userId], (err, result) => {
+      if (err) {
+        console.error("Database error updating password:", err);
+        return callback(err, null);
+      }
+      
+      if (result.affectedRows === 0) {
+        return callback(new Error("User not found"), null);
+      }
+      
+      console.log("Password updated successfully for user:", userId);
+      return callback(null, result);
+    });
+  },
 };
 
 module.exports = userModel;

@@ -76,6 +76,20 @@ const VALIDATION_ERRORS = {
   INVALID_FILE_TYPE: "Only image files are allowed",
 };
 
+////////////////////////////////////////
+// ===== Password Reset Errors ===== //
+////////////////////////////////////////
+
+const PASSWORD_RESET_ERRORS = {
+  EMAIL_NOT_FOUND: "No account found with this email address",
+  EMAIL_REQUIRED: "Email is required",
+  TOKEN_GENERATION_FAILED: "Failed to generate reset token",
+  INVALID_TOKEN: "Invalid reset token",
+  INVALID_OR_EXPIRED_TOKEN: "Reset token is invalid or has expired",
+  PASSWORD_UPDATE_FAILED: "Failed to update password",
+  MISSING_FIELDS: "Token and password are required",
+};
+
 module.exports = {
   AUTH_ERRORS,
   REGISTRATION_ERRORS,
@@ -83,4 +97,5 @@ module.exports = {
   AVATAR_ERRORS,
   GENERIC_ERRORS,
   VALIDATION_ERRORS,
+  PASSWORD_RESET_ERRORS,
 };

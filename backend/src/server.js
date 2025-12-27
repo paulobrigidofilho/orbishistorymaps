@@ -45,12 +45,14 @@ const loginUserRoutes = require("./routes/loginUserRoutes.js");
 const profileRoutes = require("./routes/profileRoutes.js");
 const avatarRoutes = require("./routes/avatarRoutes.js");
 const healthRoutes = require("./routes/healthRoutes.js");
+const passwordResetRoutes = require("./routes/passwordResetRoutes.js");
 
 // ====================== Routes Setup ============================= //
 app.use("/api", registerUserRoutes);
 app.use("/api", loginUserRoutes);
 app.use("/api", profileRoutes);
 app.use("/api", avatarRoutes);
+app.use("/api", passwordResetRoutes);
 app.use("/health", healthRoutes);
 
 ///////////////////////////////////////////////////////////////////////

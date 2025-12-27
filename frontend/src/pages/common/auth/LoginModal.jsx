@@ -59,6 +59,12 @@ function LoginModal({ onClose }) {
               onChange={(e) => setPassword(e.target.value)}
               className={styles.inputField}
             />
+
+            <div className={styles.forgotPasswordLink}>
+              <NavLink to="/forgot-password" onClick={onClose}>
+                Forgot Password?
+              </NavLink>
+            </div>
             
             <button type="submit" className={styles.loginButton}>
               Log In

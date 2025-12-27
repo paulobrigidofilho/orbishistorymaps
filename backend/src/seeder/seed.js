@@ -3,6 +3,9 @@
 // =================== VERSION 1.0 ======================== //
 //////////////////////////////////////////////////////////////
 
+// This script sets up the initial database schema and seeds an admin user.
+// Tables: users, sessions, password_resets
+
 // ======= Package Imports ======== //
 const mysql = require("mysql2/promise");
 require("dotenv").config({
@@ -11,9 +14,14 @@ require("dotenv").config({
 
 (async () => {
   console.log("Starting seeding...");
-  
+
   // Validate required env vars
-  const required = ["MYSQL_HOST", "MYSQL_USER", "MYSQL_PASSWORD", "MYSQL_DATABASE"];
+  const required = [
+    "MYSQL_HOST",
+    "MYSQL_USER",
+    "MYSQL_PASSWORD",
+    "MYSQL_DATABASE",
+  ];
   for (const key of required) {
     if (!process.env[key]) {
       console.error(`Missing required env var ${key}. Aborting.`);
@@ -31,6 +39,7 @@ require("dotenv").config({
   let hadError = false;
 
   try {
+    // ===== Create Users Table ===== //
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS users (
         user_id VARCHAR(64) PRIMARY KEY,
@@ -47,7 +56,24 @@ require("dotenv").config({
         user_zipcode VARCHAR(20)
       )
     `);
-    console.log("Users table ensured.");
+    console.log("✓ Users table ensured.");
+
+    // ===== Create Password Resets Table ===== //
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS password_resets (
+        reset_id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id VARCHAR(36) NOT NULL,
+        reset_token VARCHAR(64) NOT NULL,
+        expires_at DATETIME NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        used_at DATETIME DEFAULT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+        INDEX idx_reset_token (reset_token),
+        INDEX idx_user_id (user_id),
+        INDEX idx_expires_at (expires_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("✓ Password resets table ensured.");
 
     const [rows] = await connection.execute(
       "SELECT user_id FROM users WHERE user_email = ?",
@@ -56,7 +82,9 @@ require("dotenv").config({
     if (rows.length === 0) {
       const adminPassword = process.env.ADMIN_DEV_PASSWORD;
       if (!adminPassword) {
-        console.warn("ADMIN_DEV_PASSWORD not set. Skipping admin user creation.");
+        console.warn(
+          "ADMIN_DEV_PASSWORD not set. Skipping admin user creation."
+        );
       } else {
         const bcrypt = require("bcrypt");
         const { v4: uuidv4 } = require("uuid");
@@ -72,9 +100,9 @@ require("dotenv").config({
       console.log("Admin user already exists.");
     }
 
-    console.log("Seeding completed.");
+    console.log("\n✓ Seeding completed successfully!");
   } catch (err) {
-    console.error("Seeding error:", err);
+    console.error("\n❌ Seeding error:", err);
     hadError = true;
   } finally {
     await connection.end();
