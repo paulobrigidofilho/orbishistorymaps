@@ -32,6 +32,8 @@ const formatUserData = (userData) => {
     ...userData,
     id: String(userData.id),
     avatar: userData.avatar || null,
+    role: userData.role || "user",
+    status: userData.status || "active",
   };
 };
 

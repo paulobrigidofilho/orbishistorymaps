@@ -16,7 +16,8 @@ const userModel = {
         user_id, user_firstname, user_lastname, user_email, user_password,
         user_nickname, user_avatar,
         user_address, user_address_line_2,
-        user_city, user_state, user_zipcode
+        user_city, user_state, user_zipcode,
+        user_role, user_status
       FROM users
       WHERE user_email = ?`;
     db.query(query, [email], (err, results) => {
@@ -44,8 +45,9 @@ const userModel = {
       user_id, user_firstname, user_lastname, user_email, user_password,
       user_nickname, user_avatar,
       user_address, user_address_line_2,
-      user_city, user_state, user_zipcode
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      user_city, user_state, user_zipcode,
+      user_role
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     db.query(
       query,
@@ -62,6 +64,7 @@ const userModel = {
         userData.user_city,
         userData.user_state,
         userData.user_zipcode,
+        userData.user_role || 'user',
       ],
       (err, result) => {
         if (err) {
@@ -85,7 +88,8 @@ const userModel = {
       user_id, user_firstname, user_lastname, user_email, user_password,
       user_nickname, user_avatar,
       user_address, user_address_line_2,
-      user_city, user_state, user_zipcode
+      user_city, user_state, user_zipcode,
+      user_role, user_status
     FROM users 
     WHERE user_id = ?`;
 
@@ -153,6 +157,31 @@ const userModel = {
         return callback(null, result);
       }
     );
+  },
+
+  ///////////////////////////////////////////////////////////////////////
+  // ===================== UPDATE PASSWORD =========================== //
+  ///////////////////////////////////////////////////////////////////////
+
+  updatePassword: (userId, hashedPassword, callback) => {
+    const query = `
+      UPDATE users 
+      SET user_password = ?
+      WHERE user_id = ?`;
+
+    db.query(query, [hashedPassword, userId], (err, result) => {
+      if (err) {
+        console.error("Database error updating password:", err);
+        return callback(err, null);
+      }
+      
+      if (result.affectedRows === 0) {
+        return callback(new Error("User not found"), null);
+      }
+      
+      console.log("Password updated successfully for user:", userId);
+      return callback(null, result);
+    });
   },
 };
 

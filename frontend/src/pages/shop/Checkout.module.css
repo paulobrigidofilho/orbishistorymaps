@@ -1,0 +1,374 @@
+/* ============================== */
+/* ===== CHECKOUT PAGE STYLES ===== */
+/* ============================== */
+
+.checkoutPage {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.checkoutContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.checkoutContainer h1 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 2rem;
+}
+
+/* ============================== */
+/* ===== MESSAGE DISPLAY ===== */
+/* ============================== */
+
+.message {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* ============================== */
+/* ===== CHECKOUT CONTENT ===== */
+/* ============================== */
+
+.checkoutContent {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* ============================== */
+/* ===== SHIPPING SECTION ===== */
+/* ============================== */
+
+.shippingSection {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.shippingSection h2 {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.savedAddressDisplay {
+  margin-bottom: 1.5rem;
+}
+
+.savedAddressGrayedOut {
+  margin-bottom: 1.5rem;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.savedAddressGrayedOut .addressBox {
+  background: #f5f5f5;
+  border-color: #ddd;
+}
+
+.savedAddressGrayedOut .useSavedButton {
+  pointer-events: all;
+  opacity: 1;
+}
+
+.addressBox {
+  padding: 1.5rem;
+  background: #e8f5e9;
+  border: 2px solid #27ae60;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.addressContent {
+  flex: 1;
+}
+
+.addressContent p {
+  margin: 0.25rem 0;
+  color: #2c3e50;
+  line-height: 1.6;
+}
+
+.addressContent strong {
+  font-size: 1.125rem;
+  color: #1a5928;
+}
+
+.changAddressButton,
+.useSavedButton {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: #27ae60;
+  border: 2px solid #27ae60;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.changAddressButton:hover,
+.useSavedButton:hover {
+  background: #27ae60;
+  color: white;
+}
+
+/* ============================== */
+/* ===== ADDRESS FORM ===== */
+/* ============================== */
+
+.addressForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formGroup label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.formGroup input {
+  padding: 0.75rem;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.formGroup input.error {
+  border-color: #e74c3c;
+}
+
+.errorMessage {
+  color: #e74c3c;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.formActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.backButton {
+  flex: 1;
+  padding: 1rem;
+  background: white;
+  color: #7f8c8d;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.backButton:hover {
+  border-color: #7f8c8d;
+  color: #2c3e50;
+}
+
+.continueButton {
+  flex: 2;
+  padding: 1rem;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.continueButton:hover:not(:disabled) {
+  background: #229954;
+}
+
+.continueButton:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* ============================== */
+/* ===== ORDER SUMMARY ===== */
+/* ============================== */
+
+.orderSummary {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 2rem;
+}
+
+.orderSummary h2 {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.summaryItems {
+  margin-bottom: 1.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.itemName {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.itemQuantity {
+  font-size: 0.875rem;
+  color: #7f8c8d;
+}
+
+.itemPrice {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.summaryTotals {
+  padding-top: 1rem;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  color: #5d6d7e;
+}
+
+.summaryRow.total {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #2c3e50;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  border-top: 2px solid #ecf0f1;
+}
+
+.freeShipping {
+  color: #27ae60;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+/* ============================== */
+/* ===== LOADING CONTAINER ===== */
+/* ============================== */
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* ============================== */
+/* ===== RESPONSIVE DESIGN ===== */
+/* ============================== */
+
+@media (max-width: 1024px) {
+  .checkoutContent {
+    grid-template-columns: 1fr;
+  }
+
+  .orderSummary {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .checkoutContainer {
+    padding: 1rem;
+  }
+
+  .checkoutContainer h1 {
+    font-size: 1.5rem;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .addressBox {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .changAddressButton,
+  .useSavedButton {
+    width: 100%;
+  }
+}

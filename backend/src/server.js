@@ -45,12 +45,18 @@ const loginUserRoutes = require("./routes/loginUserRoutes.js");
 const profileRoutes = require("./routes/profileRoutes.js");
 const avatarRoutes = require("./routes/avatarRoutes.js");
 const healthRoutes = require("./routes/healthRoutes.js");
+const passwordResetRoutes = require("./routes/passwordResetRoutes.js");
+const productRoutes = require("./routes/productRoutes.js");
+const cartRoutes = require("./routes/cartRoutes.js");
 
 // ====================== Routes Setup ============================= //
 app.use("/api", registerUserRoutes);
 app.use("/api", loginUserRoutes);
 app.use("/api", profileRoutes);
 app.use("/api", avatarRoutes);
+app.use("/api", passwordResetRoutes);
+app.use("/api", productRoutes);
+app.use("/api", cartRoutes);
 app.use("/health", healthRoutes);
 
 ///////////////////////////////////////////////////////////////////////
