@@ -12,8 +12,8 @@ import styles from "./OrderConfirmation.module.css";
 //  ========== Component imports  ========== //
 import MainNavBar from "../common/MainNavBar";
 
-//  ========== Service imports  ========== //
-import { getOrderById } from "./services/orderService";
+//  ========== Function imports  ========== //
+import getOrderById from "./functions/orderService/getOrderById";
 
 ///////////////////////////////////////////////////////////////////////
 // ==================== ORDER CONFIRMATION =========================== //

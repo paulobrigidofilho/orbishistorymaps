@@ -13,10 +13,12 @@ import styles from "./Cart.module.css";
 import MainNavBar from "../common/MainNavBar";
 import CartItem from "./components/CartItem";
 
-//  ========== Service imports  ========== //
-import { getCart, updateCartItem, removeCartItem, clearCart } from "./services/cartService";
-
 //  ========== Function imports  ========== //
+import fetchCart from "./functions/fetchCart";
+import handleUpdateQuantity from "./functions/handleUpdateQuantity";
+import handleRemoveItem from "./functions/handleRemoveItem";
+import handleClearCart from "./functions/handleClearCart";
+import showMessage from "./functions/showMessage";
 import { calculateCartTotal } from "./functions/calculateCartTotal";
 
 //  ========== Validator imports  ========== //
@@ -52,7 +54,7 @@ export default function Cart() {
 
   // Fetch cart on component mount
   useEffect(() => {
-    fetchCart();
+    loadCart();
   }, []);
 
   ///////////////////////////////////////////////////////////////////////
@@ -60,93 +62,35 @@ export default function Cart() {
   ///////////////////////////////////////////////////////////////////////
 
   // Fetch cart data
-  const fetchCart = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getCart();
-      setCartData(data.data);
-    } catch (err) {
-      console.error("Error loading cart:", err);
-      setError(err.message || "Failed to load cart");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loadCart = () => fetchCart(setLoading, setError, setCartData);
 
   // Update item quantity
-  const handleUpdateQuantity = async (cartItemId, newQuantity) => {
-    try {
-      setUpdating(true);
-      await updateCartItem(cartItemId, newQuantity);
-      await fetchCart(); // Refresh cart
-      window.dispatchEvent(new Event("cartUpdated"));
-      showMessage("Cart updated", "success");
-    } catch (err) {
-      console.error("Error updating cart:", err);
-      showMessage(err.message || "Failed to update cart", "error");
-    } finally {
-      setUpdating(false);
-    }
-  };
+  const updateQuantity = (cartItemId, newQuantity) => 
+    handleUpdateQuantity(cartItemId, newQuantity, setUpdating, loadCart, (text, type) => showMessage(text, type, setMessage));
 
   // Remove item from cart
-  const handleRemoveItem = async (cartItemId) => {
-    if (!window.confirm("Remove this item from cart?")) return;
-
-    try {
-      setUpdating(true);
-      await removeCartItem(cartItemId);
-      await fetchCart(); // Refresh cart
-      window.dispatchEvent(new Event("cartUpdated"));
-      showMessage("Item removed from cart", "success");
-    } catch (err) {
-      console.error("Error removing item:", err);
-      showMessage(err.message || "Failed to remove item", "error");
-    } finally {
-      setUpdating(false);
-    }
-  };
+  const removeItem = (cartItemId) => 
+    handleRemoveItem(cartItemId, setUpdating, loadCart, (text, type) => showMessage(text, type, setMessage));
 
   // Clear entire cart
-  const handleClearCart = async () => {
-    if (!window.confirm("Clear all items from cart?")) return;
-
-    try {
-      setUpdating(true);
-      await clearCart(cartData.cart_id);
-      await fetchCart(); // Refresh cart
-      window.dispatchEvent(new Event("cartUpdated"));
-      showMessage("Cart cleared", "success");
-    } catch (err) {
-      console.error("Error clearing cart:", err);
-      showMessage(err.message || "Failed to clear cart", "error");
-    } finally {
-      setUpdating(false);
-    }
-  };
+  const clearEntireCart = () => 
+    handleClearCart(cartData.cart_id, setUpdating, loadCart, (text, type) => showMessage(text, type, setMessage));
 
   // Proceed to checkout
   const handleCheckout = () => {
     if (!user) {
-      showMessage(CART_MESSAGES.LOGIN_REQUIRED, "error");
+      showMessage(CART_MESSAGES.LOGIN_REQUIRED, "error", setMessage);
       setTimeout(() => navigate("/register"), 2000);
       return;
     }
 
     const validation = validateCartForCheckout(cartData?.items || []);
     if (!validation.isValid) {
-      showMessage(validation.message, "error");
+      showMessage(validation.message, "error", setMessage);
       return;
     }
 
     navigate("/checkout");
-  };
-
-  // Show message helper
-  const showMessage = (text, type) => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 3000);
   };
 
   // Calculate totals
@@ -240,15 +184,15 @@ export default function Cart() {
               <CartItem
                 key={item.cart_item_id}
                 item={item}
-                onUpdateQuantity={handleUpdateQuantity}
-                onRemove={handleRemoveItem}
+                onUpdateQuantity={updateQuantity}
+                onRemove={removeItem}
                 updating={updating}
               />
             ))}
 
             {/* Clear Cart Button */}
             <button
-              onClick={handleClearCart}
+              onClick={clearEntireCart}
               disabled={updating}
               className={styles.clearCartButton}
             >

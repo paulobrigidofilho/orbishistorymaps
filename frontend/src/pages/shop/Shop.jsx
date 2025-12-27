@@ -12,8 +12,8 @@ import styles from "./Shop.module.css";
 import MainNavBar from "../common/MainNavBar";
 import ProductGrid from "./components/ProductGrid";
 
-//  ========== Service imports  ========== //
-import { getAllProducts } from "./services/productService";
+//  ========== Function imports  ========== //
+import getAllProducts from "./functions/productService/getAllProducts";
 
 ///////////////////////////////////////////////////////////////////////
 // =========================== SHOP PAGE ============================= //

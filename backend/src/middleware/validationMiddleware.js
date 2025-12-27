@@ -67,6 +67,35 @@ const validateProfileUpdate = (req, res, next) => {
   next();
 };
 
+// ===== Generic Joi Validation Middleware ===== //
+// Validates request data against a Joi schema
+const validateRequest = (schema, source = "body") => {
+  return (req, res, next) => {
+    const dataToValidate = req[source];
+    const { error, value } = schema.validate(dataToValidate, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
+
+    if (error) {
+      const errors = error.details.map((detail) => ({
+        field: detail.path.join("."),
+        message: detail.message,
+      }));
+
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors,
+      });
+    }
+
+    // Replace request data with validated value
+    req[source] = value;
+    next();
+  };
+};
+
 ///////////////////////////////////////////////////////////////////////
 // ========================= EXPORT MIDDLEWARE ===================== //
 ///////////////////////////////////////////////////////////////////////
@@ -76,4 +105,5 @@ module.exports = {
   validateLogin,
   validateProfileUpdate,
   validateAvatarUpload,
+  validateRequest,
 };

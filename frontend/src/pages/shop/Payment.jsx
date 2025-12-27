@@ -12,9 +12,9 @@ import styles from "./Payment.module.css";
 //  ========== Component imports  ========== //
 import MainNavBar from "../common/MainNavBar";
 
-//  ========== Service imports  ========== //
-import { createOrder } from "./services/orderService";
-import { clearCart } from "./services/cartService";
+//  ========== Function imports  ========== //
+import createOrder from "./functions/orderService/createOrder";
+import clearCart from "./functions/cartService/clearCart";
 
 //  ========== Validator imports  ========== //
 import { validatePaymentMethod } from "./validators/checkoutValidator";

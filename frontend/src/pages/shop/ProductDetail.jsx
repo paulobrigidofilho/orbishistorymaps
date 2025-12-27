@@ -12,9 +12,10 @@ import styles from "./ProductDetail.module.css";
 //  ========== Component imports  ========== //
 import MainNavBar from "../common/MainNavBar";
 
-//  ========== Service imports  ========== //
-import { getProductDetails } from "./services/productService";
-import { addToCart } from "./services/cartService";
+//  ========== Function imports  ========== //
+import getProductDetails from "./functions/productService/getProductDetails";
+import handleAddToCart from "./functions/handleAddToCart";
+import handleQuantityChange from "./functions/handleQuantityChange";
 
 //  ========== Context imports  ========== //
 import { AuthContext } from "../common/context/AuthContext";
@@ -67,36 +68,12 @@ export default function ProductDetail() {
   ///////////////////////////////////////////////////////////////////////
 
   // Handle add to cart
-  const handleAddToCart = async () => {
-    try {
-      setAddingToCart(true);
-      setCartMessage(null);
-
-      await addToCart(product.product_id, quantity);
-
-      // Dispatch custom event to update cart badge
-      window.dispatchEvent(new Event("cartUpdated"));
-
-      setCartMessage({ type: "success", text: "Added to cart successfully!" });
-      setTimeout(() => setCartMessage(null), 3000);
-    } catch (err) {
-      console.error("Error adding to cart:", err);
-      setCartMessage({
-        type: "error",
-        text: err.message || "Failed to add to cart",
-      });
-    } finally {
-      setAddingToCart(false);
-    }
-  };
+  const addProductToCart = () => 
+    handleAddToCart(product.product_id, quantity, setAddingToCart, setCartMessage);
 
   // Handle quantity change
-  const handleQuantityChange = (change) => {
-    const newQuantity = quantity + change;
-    if (newQuantity >= 1 && newQuantity <= product.quantity_available) {
-      setQuantity(newQuantity);
-    }
-  };
+  const changeQuantity = (change) => 
+    handleQuantityChange(quantity, change, product.quantity_available, setQuantity);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= LOADING STATE ========================= //
@@ -272,7 +249,7 @@ export default function ProductDetail() {
                 {/* Quantity Selector */}
                 <div className={styles.quantitySelector}>
                   <button
-                    onClick={() => handleQuantityChange(-1)}
+                    onClick={() => changeQuantity(-1)}
                     disabled={quantity <= 1}
                     className={styles.quantityButton}
                   >
@@ -280,7 +257,7 @@ export default function ProductDetail() {
                   </button>
                   <span className={styles.quantityDisplay}>{quantity}</span>
                   <button
-                    onClick={() => handleQuantityChange(1)}
+                    onClick={() => changeQuantity(1)}
                     disabled={quantity >= product.quantity_available}
                     className={styles.quantityButton}
                   >
@@ -290,7 +267,7 @@ export default function ProductDetail() {
 
                 {/* Add to Cart Button */}
                 <button
-                  onClick={handleAddToCart}
+                  onClick={addProductToCart}
                   disabled={addingToCart}
                   className={styles.addToCartButton}
                 >

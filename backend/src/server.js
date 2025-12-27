@@ -48,6 +48,8 @@ const healthRoutes = require("./routes/healthRoutes.js");
 const passwordResetRoutes = require("./routes/passwordResetRoutes.js");
 const productRoutes = require("./routes/productRoutes.js");
 const cartRoutes = require("./routes/cartRoutes.js");
+const adminUserRoutes = require("./routes/adminUserRoutes.js");
+const adminProductRoutes = require("./routes/adminProductRoutes.js");
 
 // ====================== Routes Setup ============================= //
 app.use("/api", registerUserRoutes);
@@ -57,6 +59,8 @@ app.use("/api", avatarRoutes);
 app.use("/api", passwordResetRoutes);
 app.use("/api", productRoutes);
 app.use("/api", cartRoutes);
+app.use("/api", adminUserRoutes);
+app.use("/api", adminProductRoutes);
 app.use("/health", healthRoutes);
 
 ///////////////////////////////////////////////////////////////////////
@@ -64,6 +68,7 @@ app.use("/health", healthRoutes);
 ///////////////////////////////////////////////////////////////////////
 
 app.use("/uploads/avatars", express.static(config.staticPaths.avatars));
+app.use("/uploads/products", express.static(config.staticPaths.products));
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= SERVER START ========================== //

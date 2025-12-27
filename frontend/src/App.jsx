@@ -16,8 +16,12 @@ import OrderConfirmation from "./pages/shop/OrderConfirmation.jsx";import AboutU
 import RegisterForm from "./pages/common/auth/RegisterForm.jsx";
 import Profile from "./pages/common/auth/Profile.jsx";
 import ForgotPassword from "./pages/common/auth/ForgotPassword.jsx";
-import SetNewPassword from "./pages/common/auth/SetNewPassword.jsx";
-
+import SetNewPassword from "./pages/common/auth/SetNewPassword.jsx";import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+import AdminUsers from "./pages/admin/adminpages/AdminUsers/AdminUsers.jsx";
+import AdminProducts from "./pages/admin/adminpages/AdminProducts/AdminProducts.jsx";
+import AdminProductForm from "./pages/admin/adminpages/AdminProducts/AdminProductForm.jsx";
+import AdminOrders from "./pages/admin/adminpages/AdminOrders/AdminOrders.jsx";
+import AdminSettings from "./pages/admin/adminpages/AdminSettings/AdminSettings.jsx";
 function App() {
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
@@ -40,6 +44,15 @@ function App() {
           <Route path="/profile/:userId" element={<Profile />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<SetNewPassword />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/products/new" element={<AdminProductForm />} />
+          <Route path="/admin/products/edit/:productId" element={<AdminProductForm />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
         </Routes>
       </AuthProvider>
     </>

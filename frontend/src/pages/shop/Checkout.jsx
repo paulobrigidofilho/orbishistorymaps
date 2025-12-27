@@ -12,10 +12,9 @@ import styles from "./Checkout.module.css";
 //  ========== Component imports  ========== //
 import MainNavBar from "../common/MainNavBar";
 
-//  ========== Service imports  ========== //
-import { getCart } from "./services/cartService";
-
 //  ========== Function imports  ========== //
+import fetchCart from "./functions/fetchCart";
+import showMessage from "./functions/showMessage";
 import { calculateCartTotal } from "./functions/calculateCartTotal";
 
 //  ========== Validator imports  ========== //
@@ -62,12 +61,12 @@ export default function Checkout() {
   // Check authentication and load cart
   useEffect(() => {
     if (!user) {
-      showMessage("Please login to checkout", "error");
+      showMessage("Please login to checkout", "error", setMessage);
       setTimeout(() => navigate("/register"), 2000);
       return;
     }
 
-    fetchCart();
+    loadCart();
     loadSavedAddress();
   }, [user]);
 
@@ -76,21 +75,18 @@ export default function Checkout() {
   ///////////////////////////////////////////////////////////////////////
 
   // Fetch cart data
-  const fetchCart = async () => {
+  const loadCart = async () => {
     try {
       setLoading(true);
-      const data = await getCart();
-      if (!data.data || data.data.items.length === 0) {
-        showMessage("Your cart is empty", "error");
+      const data = await fetchCart(setLoading, () => {}, setCartData);
+      if (!data || data.items.length === 0) {
+        showMessage("Your cart is empty", "error", setMessage);
         setTimeout(() => navigate("/cart"), 2000);
         return;
       }
-      setCartData(data.data);
     } catch (err) {
       console.error("Error loading cart:", err);
-      showMessage("Failed to load cart", "error");
-    } finally {
-      setLoading(false);
+      showMessage("Failed to load cart", "error", setMessage);
     }
   };
 
@@ -162,12 +158,6 @@ export default function Checkout() {
 
     // Navigate to payment page
     navigate("/payment");
-  };
-
-  // Show message helper
-  const showMessage = (text, type) => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 3000);
   };
 
   // Calculate totals

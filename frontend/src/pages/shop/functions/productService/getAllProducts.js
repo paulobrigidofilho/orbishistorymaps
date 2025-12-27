@@ -1,15 +1,15 @@
 ///////////////////////////////////////////////////////////////////////
-// ======================= PRODUCT SERVICE =========================== //
+// ===================== GET ALL PRODUCTS ============================ //
 ///////////////////////////////////////////////////////////////////////
 
-// This service handles all product-related API requests
+// This function fetches all products with optional filters
 
 //  ========== Module imports  ========== //
 import axios from "axios";
-import { SHOP_ENDPOINTS } from "../constants/shopConstants";
+import { SHOP_ENDPOINTS } from "../../constants/shopConstants";
 
 ///////////////////////////////////////////////////////////////////////
-// ======================= GET ALL PRODUCTS ========================== //
+// =================== GET ALL PRODUCTS FUNCTION ===================== //
 ///////////////////////////////////////////////////////////////////////
 
 /**
@@ -24,7 +24,7 @@ import { SHOP_ENDPOINTS } from "../constants/shopConstants";
  * @param {number} filters.offset - Offset for pagination
  * @returns {Promise<Object>} Products array and metadata
  */
-export const getAllProducts = async (filters = {}) => {
+export default async function getAllProducts(filters = {}) {
   try {
     const response = await axios.get(SHOP_ENDPOINTS.GET_PRODUCTS, {
       params: filters,
@@ -37,27 +37,4 @@ export const getAllProducts = async (filters = {}) => {
       error.response?.data?.message || "Failed to fetch products"
     );
   }
-};
-
-///////////////////////////////////////////////////////////////////////
-// ======================= GET PRODUCT DETAILS ======================= //
-///////////////////////////////////////////////////////////////////////
-
-/**
- * Fetches a single product by ID or slug
- * @param {string} identifier - Product ID (UUID) or slug
- * @returns {Promise<Object>} Product details with images
- */
-export const getProductDetails = async (identifier) => {
-  try {
-    const response = await axios.get(SHOP_ENDPOINTS.GET_PRODUCT(identifier), {
-      withCredentials: true,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching product details:", error);
-    throw new Error(
-      error.response?.data?.message || "Failed to fetch product details"
-    );
-  }
-};
+}

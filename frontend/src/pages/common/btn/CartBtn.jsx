@@ -8,7 +8,7 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import styles from "../MainNavBar.module.css";
-import { getCart } from "../../../pages/shop/services/cartService";
+import getCart from "../../shop/functions/cartService/getCart";
 
 const CartBtn = () => {
   ///////////////////////////////////////////////////////////////////////

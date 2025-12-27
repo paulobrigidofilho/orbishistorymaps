@@ -1,0 +1,251 @@
+/* ============================================================ */
+/* ================ ADMIN USERS STYLES ======================== */
+/* ============================================================ */
+
+.usersPage {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* ================ FILTERS ==================== */
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 250px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.filterSelect {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+/* ================ TABLE ==================== */
+
+.tableContainer {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.usersTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.usersTable thead {
+  background: #f9fafb;
+}
+
+.usersTable th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.usersTable td {
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: #1a1a1a;
+}
+
+.usersTable tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* ================ BADGES ==================== */
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge.admin {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge.user {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.badge.active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge.inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge.suspended {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ================ ACTIONS ==================== */
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.actionSelect {
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.actionSelect:hover {
+  border-color: #9ca3af;
+}
+
+.actionSelect:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+/* ================ PAGINATION ==================== */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.pageButton {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pageButton:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.pageButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* ================ STATES ==================== */
+
+.loading,
+.error,
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loading {
+  color: #6b7280;
+}
+
+.error {
+  color: #dc2626;
+}
+
+.emptyState {
+  color: #9ca3af;
+}
+
+/* ================ RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+  .usersPage {
+    padding: 1rem;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .searchInput {
+    min-width: 100%;
+  }
+
+  .tableContainer {
+    overflow-x: auto;
+  }
+
+  .usersTable {
+    min-width: 800px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}
