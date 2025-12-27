@@ -72,7 +72,7 @@ const VALIDATION_ERRORS = {
   PASSWORD_TOO_WEAK:
     "Password must be at least 8 characters with uppercase, lowercase, number, and special character",
   NICKNAME_REQUIRED: "Nickname is required",
-  FILE_TOO_LARGE: "File size exceeds 5MB limit",
+  FILE_TOO_LARGE: "File size exceeds 3MB limit",
   INVALID_FILE_TYPE: "Only image files are allowed",
 };
 
