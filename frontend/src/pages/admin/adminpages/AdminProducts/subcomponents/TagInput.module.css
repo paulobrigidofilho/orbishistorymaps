@@ -1,0 +1,156 @@
+/* ============================================================ */
+/* =================== TAG INPUT STYLES ======================= */
+/* ============================================================ */
+
+.tagInputContainer {
+  width: 100%;
+}
+
+.tagInputWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  min-height: 42px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.tagInputWrapper:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ================ TAG STYLES ==================== */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #e0f2fe;
+  color: #0369a1;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.tagRemoveButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #0369a1;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.2s, color 0.2s;
+}
+
+.tagRemoveButton:hover {
+  background: #0369a1;
+  color: white;
+}
+
+/* ================ INPUT STYLES ==================== */
+
+.tagInput {
+  flex: 1;
+  min-width: 120px;
+  border: none;
+  outline: none;
+  font-size: 0.875rem;
+  padding: 0.25rem 0;
+  background: transparent;
+}
+
+.tagInput::placeholder {
+  color: #9ca3af;
+}
+
+/* ================ SUGGESTIONS DROPDOWN ==================== */
+
+.suggestionsDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.suggestionItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.suggestionItem:hover,
+.suggestionItem.highlighted {
+  background: #f3f4f6;
+}
+
+.suggestionItem:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.suggestionItem:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
+.suggestionItem:only-child {
+  border-radius: 8px;
+}
+
+.suggestionName {
+  font-size: 0.875rem;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.suggestionCount {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* ================ HELPER TEXT ==================== */
+
+.helperText {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0.375rem 0 0 0;
+}
+
+.tagLimitReached {
+  display: block;
+  font-size: 0.75rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
+}
+
+/* ================ CONTAINER FOR RELATIVE POSITIONING ==================== */
+
+.tagInputContainer {
+  position: relative;
+}

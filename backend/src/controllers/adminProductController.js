@@ -45,9 +45,11 @@ const getProducts = async (req, res) => {
         p.price, p.sale_price, p.category_id, p.is_active, p.is_featured,
         p.view_count, p.rating_average, p.rating_count,
         p.created_at, p.updated_at,
-        COALESCE(i.quantity_available, 0) as quantity_available
+        COALESCE(i.quantity_available, 0) as quantity_available,
+        c.category_name
       FROM products p
       LEFT JOIN inventory i ON p.product_id = i.product_id
+      LEFT JOIN product_categories c ON p.category_id = c.category_id
       WHERE 1=1
     `;
     const values = [];
@@ -332,6 +334,119 @@ const deleteImage = async (req, res) => {
   }
 };
 
+///////////////////////////////////
+// ===== TAG CONTROLLER FUNCTIONS ==== //
+///////////////////////////////////
+
+// ===== getProductTags Function ===== //
+// GET /api/admin/products/:productId/tags - Get all tags for a product
+
+const getProductTags = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const tags = await adminProductService.getProductTags(productId);
+
+    res.status(200).json({
+      success: true,
+      data: tags,
+    });
+  } catch (error) {
+    console.error("[adminProductController] Error fetching tags:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ===== addProductTag Function ===== //
+// POST /api/admin/products/:productId/tags - Add a tag to a product
+
+const addProductTag = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const { tagName } = req.body;
+
+    if (!tagName || typeof tagName !== "string") {
+      return res.status(400).json({ success: false, message: "Tag name is required" });
+    }
+
+    const tag = await adminProductService.addProductTag(productId, tagName);
+
+    res.status(201).json({
+      success: true,
+      message: "Tag added successfully",
+      data: tag,
+    });
+  } catch (error) {
+    console.error("[adminProductController] Error adding tag:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ===== addMultipleTags Function ===== //
+// POST /api/admin/products/:productId/tags/bulk - Add multiple tags to a product
+
+const addMultipleTags = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const { tags } = req.body;
+
+    if (!tags || !Array.isArray(tags) || tags.length === 0) {
+      return res.status(400).json({ success: false, message: "Tags array is required" });
+    }
+
+    const results = await adminProductService.addMultipleTags(productId, tags);
+
+    res.status(201).json({
+      success: true,
+      message: `${results.length} tags added successfully`,
+      data: results,
+    });
+  } catch (error) {
+    console.error("[adminProductController] Error adding multiple tags:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ===== deleteProductTag Function ===== //
+// DELETE /api/admin/products/tags/:tagId - Delete a tag from a product
+
+const deleteProductTag = async (req, res) => {
+  try {
+    const { tagId } = req.params;
+    const result = await adminProductService.deleteProductTag(tagId);
+
+    res.status(200).json({
+      success: true,
+      message: "Tag deleted successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.error("[adminProductController] Error deleting tag:", error);
+
+    if (error.message === "Tag not found") {
+      return res.status(404).json({ success: false, message: error.message });
+    }
+
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ===== getAllTags Function ===== //
+// GET /api/admin/tags - Get all unique tags (for autocomplete)
+
+const getAllTags = async (req, res) => {
+  try {
+    const tags = await adminProductService.getAllTags();
+
+    res.status(200).json({
+      success: true,
+      data: tags,
+    });
+  } catch (error) {
+    console.error("[adminProductController] Error fetching all tags:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   getProducts,
   getProduct,
@@ -340,4 +455,9 @@ module.exports = {
   deleteProduct,
   uploadImage,
   deleteImage,
+  getProductTags,
+  addProductTag,
+  addMultipleTags,
+  deleteProductTag,
+  getAllTags,
 };

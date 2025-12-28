@@ -348,10 +348,119 @@ const deleteProductImage = async (imageId) => {
   });
 };
 
+///////////////////////////////////////
+// ===== TAG MANAGEMENT ===== //
+///////////////////////////////////////
+
+// ===== getProductTags Function ===== //
+// Retrieves all tags for a specific product
+
+const getProductTags = async (productId) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT tag_id, tag_name, created_at
+      FROM product_tags
+      WHERE product_id = ?
+      ORDER BY tag_name ASC
+    `;
+    db.query(query, [productId], (err, results) => {
+      if (err) return reject(err);
+      resolve(results);
+    });
+  });
+};
+
+// ===== addProductTag Function ===== //
+// Adds a tag to a product (ignores duplicates)
+
+const addProductTag = async (productId, tagName) => {
+  return new Promise((resolve, reject) => {
+    // Normalize tag name (lowercase, trimmed)
+    const normalizedTag = tagName.trim().toLowerCase();
+    
+    if (!normalizedTag || normalizedTag.length > 50) {
+      return reject(new Error("Tag must be between 1 and 50 characters"));
+    }
+
+    const query = `
+      INSERT IGNORE INTO product_tags (product_id, tag_name)
+      VALUES (?, ?)
+    `;
+    db.query(query, [productId, normalizedTag], (err, result) => {
+      if (err) return reject(err);
+      
+      // Fetch the tag (whether newly inserted or existing)
+      const fetchQuery = "SELECT tag_id, tag_name, created_at FROM product_tags WHERE product_id = ? AND tag_name = ?";
+      db.query(fetchQuery, [productId, normalizedTag], (err, results) => {
+        if (err) return reject(err);
+        resolve(results[0]);
+      });
+    });
+  });
+};
+
+// ===== addMultipleTags Function ===== //
+// Adds multiple tags to a product at once
+
+const addMultipleTags = async (productId, tagNames) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const results = [];
+      for (const tagName of tagNames) {
+        const tag = await addProductTag(productId, tagName);
+        results.push(tag);
+      }
+      resolve(results);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+// ===== deleteProductTag Function ===== //
+// Removes a tag from a product
+
+const deleteProductTag = async (tagId) => {
+  return new Promise((resolve, reject) => {
+    const query = "DELETE FROM product_tags WHERE tag_id = ?";
+    db.query(query, [tagId], (err, result) => {
+      if (err) return reject(err);
+      if (result.affectedRows === 0) {
+        return reject(new Error("Tag not found"));
+      }
+      resolve({ tagId, deleted: true });
+    });
+  });
+};
+
+// ===== getAllTags Function ===== //
+// Gets all unique tags across all products (for autocomplete)
+
+const getAllTags = async () => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT DISTINCT tag_name, COUNT(*) as usage_count
+      FROM product_tags
+      GROUP BY tag_name
+      ORDER BY usage_count DESC, tag_name ASC
+      LIMIT 100
+    `;
+    db.query(query, (err, results) => {
+      if (err) return reject(err);
+      resolve(results);
+    });
+  });
+};
+
 module.exports = {
   createProduct,
   updateProduct,
   deleteProduct,
   uploadProductImage,
   deleteProductImage,
+  getProductTags,
+  addProductTag,
+  addMultipleTags,
+  deleteProductTag,
+  getAllTags,
 };

@@ -146,6 +146,24 @@
   color: #1a1a1a;
 }
 
+.category {
+  display: block;
+  font-size: 0.75rem;
+  color: #3b82f6;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.categoryBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
 .brand {
   display: block;
   font-size: 0.75rem;

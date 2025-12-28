@@ -6,16 +6,17 @@
 
 //  ========== Module imports  ========== //
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import styles from "./AdminProducts.module.css";
 
 //  ========== Component imports  ========== //
 import AdminLayout from "../../components/AdminLayout";
 import ProductEditModal from "./subcomponents/ProductEditModal";
+import AddProductModal from "./subcomponents/AddProductModal";
 import DeleteProductModal from "./subcomponents/DeleteProductModal";
 
 //  ========== Function imports  ========== //
 import getAllProducts from "../../functions/getAllProducts";
+import getAllCategories from "../../functions/getAllCategories";
 import updateProduct from "../../functions/updateProduct";
 import deleteProduct from "../../functions/deleteProduct";
 import formatDateDMY from "../../functions/formatDateDMY";
@@ -35,6 +36,7 @@ export default function AdminProducts() {
   ///////////////////////////////////////////////////////////////////////
 
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -57,6 +59,7 @@ export default function AdminProducts() {
   // Modal states
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -89,10 +92,27 @@ export default function AdminProducts() {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await getAllCategories();
+      if (response.data && response.data.length > 0) {
+        setCategories(response.data);
+      }
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+    }
+  };
+
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
   ///////////////////////////////////////////////////////////////////////
 
+  // Fetch categories on mount
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // Fetch products when filters change
   useEffect(() => {
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -142,13 +162,26 @@ export default function AdminProducts() {
     setSortConfig((prev) => {
       const newOrder = prev.field === field && prev.order === "asc" ? "desc" : "asc";
       return { field, order: newOrder };
-    });
+  });
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   const getSortIcon = (field) => {
     if (sortConfig.field !== field) return "↕";
     return sortConfig.order === "asc" ? "↑" : "↓";
+  };
+
+  // Add Modal handlers
+  const handleOpenAddModal = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+  };
+
+  const handleProductCreated = (newProduct) => {
+    fetchProducts(); // Refresh the product list
   };
 
   // Edit Modal handlers
@@ -205,9 +238,9 @@ export default function AdminProducts() {
       <div className={styles.productsPage}>
         <div className={styles.header}>
           <h1>Product Management</h1>
-          <Link to="/admin/products/new" className={styles.addButton}>
+          <button onClick={handleOpenAddModal} className={styles.addButton}>
             + Add Product
-          </Link>
+          </button>
         </div>
 
         {/* Filters */}
@@ -219,6 +252,19 @@ export default function AdminProducts() {
             onChange={handleSearchChange}
             className={styles.searchInput}
           />
+
+          <select
+            value={filters.category_id}
+            onChange={(e) => handleFilterChange("category_id", e.target.value)}
+            className={styles.filterSelect}
+          >
+            <option value="">All Categories</option>
+            {categories.map((category) => (
+              <option key={category.category_id} value={category.category_id}>
+                {category.category_name}
+              </option>
+            ))}
+          </select>
 
           <select
             value={filters.is_active}
@@ -262,6 +308,7 @@ export default function AdminProducts() {
                   <th className={styles.sortable} onClick={() => handleSort("sku")}>
                     SKU <span className={styles.sortIcon}>{getSortIcon("sku")}</span>
                   </th>
+                  <th>Category</th>
                   <th className={styles.sortable} onClick={() => handleSort("price")}>
                     Price <span className={styles.sortIcon}>{getSortIcon("price")}</span>
                   </th>
@@ -293,6 +340,11 @@ export default function AdminProducts() {
                       </div>
                     </td>
                     <td>{product.sku || "N/A"}</td>
+                    <td>
+                      <span className={styles.categoryBadge}>
+                        {product.category_name || "—"}
+                      </span>
+                    </td>
                     <td>
                       <div className={styles.priceCell}>
                         <span className={product.sale_price ? styles.originalPrice : ""}>
@@ -375,9 +427,9 @@ export default function AdminProducts() {
         {!loading && products.length === 0 && (
           <div className={styles.emptyState}>
             <p>No products found</p>
-            <Link to="/admin/products/new" className={styles.addButton}>
+            <button onClick={handleOpenAddModal} className={styles.addButton}>
               Add Your First Product
-            </Link>
+            </button>
           </div>
         )}
 
@@ -405,12 +457,21 @@ export default function AdminProducts() {
         )}
       </div>
 
+      {/* Add Product Modal */}
+      <AddProductModal
+        isOpen={isAddModalOpen}
+        onClose={handleCloseAddModal}
+        onSave={handleProductCreated}
+        categories={categories}
+      />
+
       {/* Product Edit Modal */}
       <ProductEditModal
         product={selectedProduct}
         isOpen={isEditModalOpen}
         onClose={handleCloseEditModal}
         onSave={handleSaveProduct}
+        categories={categories}
       />
 
       {/* Delete Product Modal */}

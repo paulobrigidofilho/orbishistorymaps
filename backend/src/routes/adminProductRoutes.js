@@ -15,6 +15,7 @@ const { validateRequest } = require("../middleware/validationMiddleware");
 
 // ======= Controller Imports ======= //
 const adminProductController = require("../controllers/adminProductController");
+const adminCategoryController = require("../controllers/adminCategoryController");
 
 // ======= Validator Imports ======= //
 const {
@@ -63,6 +64,9 @@ const upload = multer({
 // ===== ROUTE DEFINITIONS ======= //
 ///////////////////////////////////
 
+// GET /api/admin/categories - List all categories
+router.get("/admin/categories", requireAdmin, adminCategoryController.getAllCategories);
+
 // GET /api/admin/products - List all products with pagination
 router.get("/admin/products", requireAdmin, validateRequest(querySchema, "query"), adminProductController.getProducts);
 
@@ -98,5 +102,24 @@ router.post(
 
 // DELETE /api/admin/products/images/:imageId - Delete product image
 router.delete("/admin/products/images/:imageId", requireAdmin, adminProductController.deleteImage);
+
+///////////////////////////////////
+// ===== TAG ROUTES ============== //
+///////////////////////////////////
+
+// GET /api/admin/tags - Get all unique tags (for autocomplete)
+router.get("/admin/tags", requireAdmin, adminProductController.getAllTags);
+
+// GET /api/admin/products/:productId/tags - Get tags for a product
+router.get("/admin/products/:productId/tags", requireAdmin, adminProductController.getProductTags);
+
+// POST /api/admin/products/:productId/tags - Add single tag to product
+router.post("/admin/products/:productId/tags", requireAdmin, adminProductController.addProductTag);
+
+// POST /api/admin/products/:productId/tags/bulk - Add multiple tags to product
+router.post("/admin/products/:productId/tags/bulk", requireAdmin, adminProductController.addMultipleTags);
+
+// DELETE /api/admin/tags/:tagId - Delete a tag
+router.delete("/admin/tags/:tagId", requireAdmin, adminProductController.deleteProductTag);
 
 module.exports = router;

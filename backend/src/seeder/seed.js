@@ -153,6 +153,22 @@ require("dotenv").config({
     `);
     console.log("✓ Product images table ensured.");
 
+    // ===== Create Product Tags Table ===== //
+    // Supports flexible tagging for advanced search and filtering
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS product_tags (
+        tag_id INT AUTO_INCREMENT PRIMARY KEY,
+        product_id VARCHAR(36) NOT NULL,
+        tag_name VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
+        INDEX idx_product (product_id),
+        INDEX idx_tag_name (tag_name),
+        UNIQUE KEY unique_product_tag (product_id, tag_name)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("✓ Product tags table ensured.");
+
     // ===== Create Inventory Table ===== //
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS inventory (

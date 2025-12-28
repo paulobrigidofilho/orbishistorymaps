@@ -1,23 +1,21 @@
 ///////////////////////////////////////////////////////////////////////
-// ================== PRODUCT EDIT MODAL COMPONENT =================== //
+// ================== PRODUCT ADD MODAL COMPONENT =================== //
 ///////////////////////////////////////////////////////////////////////
 
-// This component provides a modal for editing product information
+// This component provides a modal for creating new products
+// Features: Image upload, auto-SKU generation, category selection, tags
 
 //  ========== Module imports  ========== //
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "./ProductEditModal.module.css";
 
 //  ========== Component imports  ========== //
 import TagInput from "./TagInput";
 
 //  ========== Function imports  ========== //
-import getProductById from "../../../functions/getProductById";
+import createProduct from "../../../functions/createProduct";
 import uploadProductImage from "../../../functions/uploadProductImage";
-import deleteProductImage from "../../../functions/deleteProductImage";
-import getProductTags from "../../../functions/getProductTags";
-import addProductTag from "../../../functions/addProductTag";
-import deleteProductTag from "../../../functions/deleteProductTag";
+import addMultipleTags from "../../../functions/addMultipleTags";
 import getAllTags from "../../../functions/getAllTags";
 
 //  ========== Validator imports  ========== //
@@ -29,10 +27,10 @@ import { ERROR_MESSAGES } from "../../../constants/adminErrorMessages";
 import { PRODUCT_IMAGE_LIMIT } from "../../../constants/adminConstants";
 
 ///////////////////////////////////////////////////////////////////////
-// =================== PRODUCT EDIT MODAL COMPONENT ================== //
+// =================== ADD PRODUCT MODAL COMPONENT ================== //
 ///////////////////////////////////////////////////////////////////////
 
-export default function ProductEditModal({ product, isOpen, onClose, onSave, categories = [] }) {
+export default function AddProductModal({ isOpen, onClose, onSave, categories = [] }) {
   ///////////////////////////////////////////////////////////////////////
   // ========================= STATE VARIABLES ======================= //
   ///////////////////////////////////////////////////////////////////////
@@ -49,84 +47,40 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
     is_featured: false,
     is_active: true,
   });
-  const [images, setImages] = useState([]);
-  const [tags, setTags] = useState([]);
+  const [pendingImages, setPendingImages] = useState([]);
+  const [pendingTags, setPendingTags] = useState([]);
   const [tagSuggestions, setTagSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
 
   // Image-specific state
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [imageUploading, setImageUploading] = useState(false);
   const [imageError, setImageError] = useState("");
-  const [imageSuccess, setImageSuccess] = useState("");
-
-  // Tag-specific state
-  const [tagError, setTagError] = useState("");
+  const fileInputRef = useRef(null);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
   ///////////////////////////////////////////////////////////////////////
 
+  // Fetch tag suggestions when modal opens
   useEffect(() => {
-    if (product && isOpen) {
-      setFormData({
-        name: product.product_name || "",
-        description: product.product_description || "",
-        price: product.price || "",
-        sale_price: product.sale_price || "",
-        sku: product.sku || "",
-        quantity_available: product.quantity_available || 0,
-        category_id: product.category_id ? String(product.category_id) : "",
-        brand: product.brand || "",
-        is_featured: product.is_featured || false,
-        is_active: product.is_active !== undefined ? product.is_active : true,
-      });
-      // Fetch full product details including images and tags
-      fetchProductDetails();
-      fetchProductTags();
+    if (isOpen) {
       fetchTagSuggestions();
-      // Reset states
-      setImageFile(null);
-      setImagePreview(null);
-      setImageError("");
-      setImageSuccess("");
-      setTagError("");
-      setErrors({});
-      setSuccessMessage("");
     }
-  }, [product, isOpen]);
+  }, [isOpen]);
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      resetForm();
+    }
+  }, [isOpen]);
 
   ///////////////////////////////////////////////////////////////////////
   // ======================= HELPER FUNCTIONS ======================== //
   ///////////////////////////////////////////////////////////////////////
 
-  const fetchProductDetails = async () => {
-    if (!product?.product_id) return;
-    try {
-      const response = await getProductById(product.product_id);
-      if (response.data?.images) {
-        setImages(response.data.images);
-      }
-    } catch (err) {
-      console.error("Error fetching product details:", err);
-    }
-  };
-
-  const fetchProductTags = async () => {
-    if (!product?.product_id) return;
-    try {
-      const response = await getProductTags(product.product_id);
-      if (response.data) {
-        setTags(response.data);
-      }
-    } catch (err) {
-      console.error("Error fetching product tags:", err);
-    }
-  };
-
+  // Fetch tag suggestions for autocomplete
   const fetchTagSuggestions = async () => {
     try {
       const response = await getAllTags();
@@ -138,186 +92,8 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: null }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = validateProductForm(formData);
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const getChangedFields = () => {
-    if (!product) return {};
-    const changes = {};
-    
-    if (formData.name !== (product.product_name || "")) changes.name = formData.name;
-    if (formData.description !== (product.product_description || "")) changes.description = formData.description;
-    if (parseFloat(formData.price) !== parseFloat(product.price || 0)) changes.price = parseFloat(formData.price);
-    if (formData.sale_price !== "" && parseFloat(formData.sale_price) !== parseFloat(product.sale_price || 0)) {
-      changes.sale_price = parseFloat(formData.sale_price) || null;
-    } else if (formData.sale_price === "" && product.sale_price) {
-      changes.sale_price = null;
-    }
-    if (formData.sku !== (product.sku || "")) changes.sku = formData.sku || null;
-    if (parseInt(formData.quantity_available) !== parseInt(product.quantity_available || 0)) {
-      changes.quantity_available = parseInt(formData.quantity_available);
-    }
-    if (formData.category_id !== "" && parseInt(formData.category_id) !== parseInt(product.category_id || 0)) {
-      changes.category_id = parseInt(formData.category_id) || null;
-    }
-    if (formData.brand !== (product.brand || "")) changes.brand = formData.brand || null;
-    if (formData.is_featured !== (product.is_featured || false)) changes.is_featured = formData.is_featured;
-    if (formData.is_active !== (product.is_active !== undefined ? product.is_active : true)) {
-      changes.is_active = formData.is_active;
-    }
-
-    return changes;
-  };
-
-  // Image handling functions
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImageError("");
-    setImageSuccess("");
-
-    if (file) {
-      // Check image limit first
-      if (images.length >= PRODUCT_IMAGE_LIMIT) {
-        setImageError(`Maximum ${PRODUCT_IMAGE_LIMIT} images allowed per product`);
-        e.target.value = "";
-        return;
-      }
-
-      // Validate file type
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-      if (!allowedTypes.includes(file.type)) {
-        setImageError("Only JPEG, PNG, and WebP images are allowed");
-        e.target.value = "";
-        return;
-      }
-      // Validate file size (10MB max)
-      if (file.size > 10 * 1024 * 1024) {
-        setImageError("Image must be less than 10MB");
-        e.target.value = "";
-        return;
-      }
-
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleImageUpload = async () => {
-    if (!imageFile || !product?.product_id) return;
-
-    setImageUploading(true);
-    setImageError("");
-    setImageSuccess("");
-
-    try {
-      await uploadProductImage(product.product_id, imageFile, images.length === 0);
-      setImageFile(null);
-      setImagePreview(null);
-      await fetchProductDetails(); // Refresh images
-      setImageSuccess("Image uploaded successfully!");
-      setTimeout(() => setImageSuccess(""), 3000);
-    } catch (error) {
-      setImageError(error.message || "Failed to upload image");
-    } finally {
-      setImageUploading(false);
-    }
-  };
-
-  const handleImageDelete = async (imageId) => {
-    if (!window.confirm("Delete this image?")) return;
-    try {
-      await deleteProductImage(imageId);
-      await fetchProductDetails(); // Refresh images
-    } catch (err) {
-      setImageError(err.message || "Failed to delete image");
-    }
-  };
-
-  const handleCancelImageSelection = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    setImageError("");
-    const fileInput = document.getElementById("product-image-upload");
-    if (fileInput) fileInput.value = "";
-  };
-
-  ///////////////////////////////////////////////////////////////////////
-  // ====================== TAG FUNCTIONS ============================ //
-  ///////////////////////////////////////////////////////////////////////
-
-  // Add a tag to the product (saves immediately)
-  const handleAddTag = async (tagName) => {
-    if (!product?.product_id) return;
-    
-    setTagError("");
-    try {
-      const response = await addProductTag(product.product_id, tagName);
-      if (response.data) {
-        setTags((prev) => [...prev, response.data]);
-        // Refresh suggestions to update usage counts
-        fetchTagSuggestions();
-      }
-    } catch (err) {
-      setTagError(err.message || "Failed to add tag");
-      setTimeout(() => setTagError(""), 3000);
-    }
-  };
-
-  // Remove a tag from the product (deletes immediately)
-  const handleRemoveTag = async (tagId) => {
-    setTagError("");
-    try {
-      await deleteProductTag(tagId);
-      setTags((prev) => prev.filter((tag) => tag.tag_id !== tagId));
-    } catch (err) {
-      setTagError(err.message || "Failed to remove tag");
-      setTimeout(() => setTagError(""), 3000);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
-
-    const changes = getChangedFields();
-
-    if (Object.keys(changes).length === 0) {
-      setErrors({ submit: "No changes to save" });
-      return;
-    }
-
-    setLoading(true);
-    setErrors({});
-    setSuccessMessage("");
-
-    try {
-      await onSave(product.product_id, changes);
-      setSuccessMessage(SUCCESS_MESSAGES.PRODUCT_UPDATED);
-      setTimeout(() => setSuccessMessage(""), 5000);
-    } catch (error) {
-      setErrors({ submit: error.message || ERROR_MESSAGES.UPDATE_PRODUCT_ERROR });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
+  // Reset form to initial state
+  const resetForm = () => {
     setFormData({
       name: "",
       description: "",
@@ -330,14 +106,213 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
       is_featured: false,
       is_active: true,
     });
-    setImages([]);
-    setTags([]);
+    setPendingImages([]);
+    setPendingTags([]);
     setErrors({});
     setSuccessMessage("");
-    setImageFile(null);
-    setImagePreview(null);
     setImageError("");
-    setImageSuccess("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // Generate SKU from product name and timestamp
+  const generateSKU = (productName) => {
+    if (!productName) return "";
+    
+    // Clean product name: take first 3-5 chars of first 2 words
+    const words = productName
+      .toUpperCase()
+      .replace(/[^A-Z0-9\s]/g, "")
+      .split(/\s+/)
+      .filter(word => word.length > 0);
+    
+    let prefix = "";
+    if (words.length >= 2) {
+      prefix = words[0].substring(0, 3) + words[1].substring(0, 3);
+    } else if (words.length === 1) {
+      prefix = words[0].substring(0, 6);
+    }
+    
+    // Add timestamp-based suffix for uniqueness (last 6 digits of timestamp)
+    const suffix = Date.now().toString().slice(-6);
+    
+    return `${prefix}-${suffix}`;
+  };
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: null }));
+    }
+  };
+
+  // Validate form data
+  const validateForm = () => {
+    const newErrors = validateProductForm(formData, pendingImages.length);
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  ///////////////////////////////////////////////////////////////////////
+  // ====================== IMAGE FUNCTIONS ========================== //
+  ///////////////////////////////////////////////////////////////////////
+
+  // Handle image file selection
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImageError("");
+
+    // Check total image limit
+    const totalImages = pendingImages.length + files.length;
+    if (totalImages > PRODUCT_IMAGE_LIMIT) {
+      setImageError(`Maximum ${PRODUCT_IMAGE_LIMIT} images allowed. You have ${pendingImages.length}, trying to add ${files.length}`);
+      e.target.value = "";
+      return;
+    }
+
+    // Validate each file
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const maxSize = 10 * 1024 * 1024; // 10MB
+
+    const validFiles = [];
+    for (const file of files) {
+      if (!allowedTypes.includes(file.type)) {
+        setImageError("Only JPEG, PNG, and WebP images are allowed");
+        e.target.value = "";
+        return;
+      }
+      if (file.size > maxSize) {
+        setImageError(`File "${file.name}" exceeds 10MB limit`);
+        e.target.value = "";
+        return;
+      }
+      validFiles.push({
+        file,
+        preview: URL.createObjectURL(file),
+        id: Date.now() + Math.random(), // Unique ID for key
+      });
+    }
+
+    setPendingImages((prev) => [...prev, ...validFiles]);
+    e.target.value = ""; // Reset input for next selection
+  };
+
+  // Remove pending image
+  const handleRemoveImage = (imageId) => {
+    setPendingImages((prev) => {
+      const imageToRemove = prev.find((img) => img.id === imageId);
+      if (imageToRemove) {
+        URL.revokeObjectURL(imageToRemove.preview); // Clean up preview URL
+      }
+      return prev.filter((img) => img.id !== imageId);
+    });
+  };
+
+  ///////////////////////////////////////////////////////////////////////
+  // ====================== TAG FUNCTIONS ============================ //
+  ///////////////////////////////////////////////////////////////////////
+
+  // Add a pending tag (will be saved after product creation)
+  const handleAddTag = (tagName) => {
+    // Create a temporary ID for the pending tag
+    const tempId = `temp-${Date.now()}-${Math.random()}`;
+    setPendingTags((prev) => [...prev, { tag_id: tempId, tag_name: tagName }]);
+  };
+
+  // Remove a pending tag
+  const handleRemoveTag = (tagId) => {
+    setPendingTags((prev) => prev.filter((tag) => tag.tag_id !== tagId));
+  };
+
+  ///////////////////////////////////////////////////////////////////////
+  // ====================== SUBMIT FUNCTION ========================== //
+  ///////////////////////////////////////////////////////////////////////
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setErrors({});
+    setSuccessMessage("");
+
+    try {
+      // Prepare product data with auto-generated SKU if empty
+      const productPayload = {
+        name: formData.name.trim(),
+        description: formData.description.trim() || null,
+        price: parseFloat(formData.price),
+        sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
+        sku: formData.sku.trim() || generateSKU(formData.name),
+        quantity_available: parseInt(formData.quantity_available),
+        category_id: formData.category_id ? parseInt(formData.category_id) : null,
+        brand: formData.brand.trim() || null,
+        is_featured: formData.is_featured,
+        is_active: formData.is_active,
+      };
+
+      // Create the product
+      const response = await createProduct(productPayload);
+      const newProductId = response.data?.product_id;
+
+      // Upload images if any
+      if (pendingImages.length > 0 && newProductId) {
+        for (let i = 0; i < pendingImages.length; i++) {
+          const isPrimary = i === 0; // First image is primary
+          try {
+            await uploadProductImage(newProductId, pendingImages[i].file, isPrimary);
+          } catch (imgError) {
+            console.error(`Failed to upload image ${i + 1}:`, imgError);
+            // Continue with other images even if one fails
+          }
+        }
+      }
+
+      // Add tags if any
+      if (pendingTags.length > 0 && newProductId) {
+        const tagNames = pendingTags.map((tag) => tag.tag_name);
+        try {
+          await addMultipleTags(newProductId, tagNames);
+        } catch (tagError) {
+          console.error("Failed to add tags:", tagError);
+          // Continue anyway - tags can be added later
+        }
+      }
+
+      setSuccessMessage(SUCCESS_MESSAGES.PRODUCT_CREATED);
+      
+      // Notify parent and close after delay
+      if (onSave) {
+        onSave(response.data);
+      }
+      
+      setTimeout(() => {
+        handleClose();
+      }, 1500);
+
+    } catch (error) {
+      setErrors({ submit: error.message || ERROR_MESSAGES.CREATE_PRODUCT_ERROR });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  ///////////////////////////////////////////////////////////////////////
+  // ======================= CLOSE FUNCTION ========================== //
+  ///////////////////////////////////////////////////////////////////////
+
+  const handleClose = () => {
+    // Clean up preview URLs
+    pendingImages.forEach((img) => URL.revokeObjectURL(img.preview));
+    resetForm();
     onClose();
   };
 
@@ -351,7 +326,7 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
     <div className={styles.modalOverlay} onClick={handleClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Edit Product</h2>
+          <h2>Add New Product</h2>
           <button
             type="button"
             className={styles.closeButton}
@@ -378,15 +353,16 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
             <h3 className={styles.sectionTitle}>Basic Information</h3>
 
             <div className={styles.formGroup}>
-              <label htmlFor="name">
+              <label htmlFor="add-name">
                 Product Name <span className={styles.required}>*</span>
               </label>
               <input
                 type="text"
-                id="name"
+                id="add-name"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
+                placeholder="Enter product name"
                 className={errors.name ? styles.inputError : ""}
               />
               {errors.name && (
@@ -395,26 +371,34 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="description">Description</label>
+              <label htmlFor="add-description">Description</label>
               <textarea
-                id="description"
+                id="add-description"
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={4}
+                placeholder="Enter product description"
                 className={errors.description ? styles.inputError : ""}
               />
+              {errors.description && (
+                <span className={styles.errorText}>{errors.description}</span>
+              )}
             </div>
 
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label htmlFor="sku">SKU</label>
+                <label htmlFor="add-sku">
+                  SKU
+                  <span className={styles.skuHint}> (auto-generated if empty)</span>
+                </label>
                 <input
                   type="text"
-                  id="sku"
+                  id="add-sku"
                   name="sku"
                   value={formData.sku}
                   onChange={handleInputChange}
+                  placeholder="e.g., PROD-001"
                   className={errors.sku ? styles.inputError : ""}
                 />
                 {errors.sku && (
@@ -423,26 +407,27 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="brand">Brand</label>
+                <label htmlFor="add-brand">Brand</label>
                 <input
                   type="text"
-                  id="brand"
+                  id="add-brand"
                   name="brand"
                   value={formData.brand}
                   onChange={handleInputChange}
+                  placeholder="Enter brand name"
                 />
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="category_id">Category</label>
+                <label htmlFor="add-category_id">Category</label>
                 <select
-                  id="category_id"
+                  id="add-category_id"
                   name="category_id"
                   value={formData.category_id}
                   onChange={handleInputChange}
                   className={errors.category_id ? styles.inputError : ""}
                 >
-                  <option value="">No Category</option>
+                  <option value="">Select Category</option>
                   {categories.map((category) => (
                     <option key={category.category_id} value={String(category.category_id)}>
                       {category.category_name}
@@ -462,17 +447,18 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
 
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label htmlFor="price">
+                <label htmlFor="add-price">
                   Price ($) <span className={styles.required}>*</span>
                 </label>
                 <input
                   type="number"
-                  id="price"
+                  id="add-price"
                   name="price"
                   value={formData.price}
                   onChange={handleInputChange}
                   step="0.01"
                   min="0"
+                  placeholder="0.00"
                   className={errors.price ? styles.inputError : ""}
                 />
                 {errors.price && (
@@ -481,29 +467,34 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="sale_price">Sale Price ($)</label>
+                <label htmlFor="add-sale_price">Sale Price ($)</label>
                 <input
                   type="number"
-                  id="sale_price"
+                  id="add-sale_price"
                   name="sale_price"
                   value={formData.sale_price}
                   onChange={handleInputChange}
                   step="0.01"
                   min="0"
+                  placeholder="0.00"
                 />
+                {errors.sale_price && (
+                  <span className={styles.errorText}>{errors.sale_price}</span>
+                )}
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="quantity_available">
+                <label htmlFor="add-quantity_available">
                   Stock Quantity <span className={styles.required}>*</span>
                 </label>
                 <input
                   type="number"
-                  id="quantity_available"
+                  id="add-quantity_available"
                   name="quantity_available"
                   value={formData.quantity_available}
                   onChange={handleInputChange}
                   min="0"
+                  placeholder="0"
                   className={errors.quantity_available ? styles.inputError : ""}
                 />
                 {errors.quantity_available && (
@@ -540,43 +531,40 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
             </div>
           </div>
 
-          {/* Tags Management */}
+          {/* Tags Section */}
           <div className={styles.formSection}>
             <h3 className={styles.sectionTitle}>Product Tags</h3>
             <TagInput
-              tags={tags}
+              tags={pendingTags}
               suggestions={tagSuggestions}
               onAddTag={handleAddTag}
               onRemoveTag={handleRemoveTag}
               placeholder="Add tags for search (e.g., wireless, bluetooth)..."
               maxTags={20}
             />
-            {tagError && (
-              <span className={styles.errorText}>{tagError}</span>
-            )}
           </div>
 
-          {/* Image Management */}
+          {/* Image Upload Section */}
           <div className={styles.formSection}>
             <h3 className={styles.sectionTitle}>
               Product Images
               <span className={styles.imageCount}>
-                ({images.length}/{PRODUCT_IMAGE_LIMIT})
+                ({pendingImages.length}/{PRODUCT_IMAGE_LIMIT})
               </span>
             </h3>
 
-            {/* Existing Images */}
-            {images.length > 0 && (
+            {/* Pending Images Preview */}
+            {pendingImages.length > 0 && (
               <div className={styles.imageGrid}>
-                {images.map((image) => (
-                  <div key={image.image_id} className={styles.imageCard}>
-                    <img src={image.image_url} alt="Product" />
-                    {image.is_primary && (
+                {pendingImages.map((image, index) => (
+                  <div key={image.id} className={styles.imageCard}>
+                    <img src={image.preview} alt={`Preview ${index + 1}`} />
+                    {index === 0 && (
                       <span className={styles.primaryBadge}>Primary</span>
                     )}
                     <button
                       type="button"
-                      onClick={() => handleImageDelete(image.image_id)}
+                      onClick={() => handleRemoveImage(image.id)}
                       className={styles.deleteImageButton}
                     >
                       ×
@@ -586,58 +574,30 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
               </div>
             )}
 
-            {/* Upload New Image */}
+            {/* Upload Controls */}
             <div className={styles.imageUploadSection}>
-              {images.length >= PRODUCT_IMAGE_LIMIT ? (
+              {pendingImages.length >= PRODUCT_IMAGE_LIMIT ? (
                 <p className={styles.imageLimitReached}>
-                  Maximum {PRODUCT_IMAGE_LIMIT} images reached. Delete an image to upload a new one.
+                  Maximum {PRODUCT_IMAGE_LIMIT} images reached. Remove an image to add a new one.
                 </p>
               ) : (
-                <>
-                  {imagePreview && (
-                    <div className={styles.imagePreviewContainer}>
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className={styles.imagePreview}
-                      />
-                      <button
-                        type="button"
-                        onClick={handleCancelImageSelection}
-                        className={styles.cancelImageButton}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-
-                  <div className={styles.uploadControls}>
-                    <input
-                      type="file"
-                      id="product-image-upload"
-                      accept="image/jpeg,image/jpg,image/png,image/webp"
-                      onChange={handleImageChange}
-                      className={styles.fileInput}
-                    />
-                    {imageFile && (
-                      <button
-                        type="button"
-                        onClick={handleImageUpload}
-                        disabled={imageUploading}
-                        className={styles.uploadButton}
-                      >
-                        {imageUploading ? "Uploading..." : "Upload Image"}
-                      </button>
-                    )}
-                  </div>
-                </>
+                <div className={styles.uploadControls}>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={handleImageChange}
+                    multiple
+                    className={styles.fileInput}
+                  />
+                  <p className={styles.uploadHint}>
+                    The first image will be the primary image. Max 10MB per image.
+                  </p>
+                </div>
               )}
 
               {imageError && (
                 <span className={styles.errorText}>{imageError}</span>
-              )}
-              {imageSuccess && (
-                <span className={styles.successText}>{imageSuccess}</span>
               )}
             </div>
           </div>
@@ -656,7 +616,7 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
               className={styles.saveButton}
               disabled={loading}
             >
-              {loading ? "Saving..." : "Save Changes"}
+              {loading ? "Creating..." : "Create Product"}
             </button>
           </div>
         </form>
