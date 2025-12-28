@@ -31,6 +31,8 @@ const getAllUsers = async (filters = {}) => {
       search = "",
       role = "all",
       status = "all",
+      sortBy = "user_id",
+      sortOrder = "desc",
     } = filters;
 
     const offset = (page - 1) * limit;
@@ -62,6 +64,22 @@ const getAllUsers = async (filters = {}) => {
         ? `WHERE ${whereConditions.join(" AND ")}`
         : "";
 
+    // Validate and sanitize sort parameters
+    const allowedSortFields = [
+      "user_id",
+      "user_email",
+      "user_firstname",
+      "user_lastname",
+      "user_role",
+      "user_status",
+      "user_created_at",
+      "user_updated_at",
+    ];
+    const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : "user_id";
+    const validSortOrder = sortOrder.toLowerCase() === "asc" ? "ASC" : "DESC";
+
+    console.log(`[adminUserService] Sorting by: ${validSortBy} ${validSortOrder} (received: ${sortBy} ${sortOrder})`);
+
     // Get total count
     const countQuery = `SELECT COUNT(*) as total FROM users ${whereClause}`;
 
@@ -79,15 +97,23 @@ const getAllUsers = async (filters = {}) => {
           user_lastname,
           user_nickname,
           user_avatar,
+          user_address,
+          user_address_line_2,
+          user_city,
+          user_state,
+          user_zipcode,
           user_role,
           user_status,
+          user_password,
           user_created_at,
-          user_last_login
+          user_updated_at
         FROM users
         ${whereClause}
-        ORDER BY user_created_at DESC
+        ORDER BY ${validSortBy} ${validSortOrder}
         LIMIT ? OFFSET ?
       `;
+
+      console.log(`[adminUserService] SQL Query ORDER BY: ${validSortBy} ${validSortOrder}`);
 
       const usersParams = [...queryParams, limit, offset];
 
@@ -185,9 +211,94 @@ const updateUserRole = async (userId, role, adminId) => {
   });
 };
 
+// ===== updateUser Function ===== //
+// Updates user profile information (supports partial updates)
+// Automatically hashes password if provided
+
+const updateUser = async (userId, updates, adminId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Build dynamic update query
+      const allowedFields = [
+        "user_firstname",
+        "user_lastname",
+        "user_nickname",
+        "user_avatar",
+        "user_address",
+        "user_address_line_2",
+        "user_city",
+        "user_state",
+        "user_zipcode",
+        "user_password",
+      ];
+
+      const updateFields = [];
+      const values = [];
+
+      // Only update fields that are provided
+      for (const [key, value] of Object.entries(updates)) {
+        // Map frontend field names to database column names
+        const fieldMapping = {
+          firstName: "user_firstname",
+          lastName: "user_lastname",
+          nickname: "user_nickname",
+          avatar: "user_avatar",
+          address: "user_address",
+          addressLine2: "user_address_line_2",
+          city: "user_city",
+          state: "user_state",
+          zipCode: "user_zipcode",
+          password: "user_password",
+        };
+
+        const fieldName = fieldMapping[key];
+
+        if (fieldName && allowedFields.includes(fieldName)) {
+          // Hash password if it's being updated
+          if (fieldName === "user_password") {
+            const bcrypt = require("bcrypt");
+            const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
+            const hashedPassword = await bcrypt.hash(value, saltRounds);
+            updateFields.push(`${fieldName} = ?`);
+            values.push(hashedPassword);
+          } else {
+            updateFields.push(`${fieldName} = ?`);
+            values.push(value);
+          }
+        }
+      }
+
+      if (updateFields.length === 0) {
+        return reject(new Error(ADMIN_ERRORS.USER_UPDATE_FAILED));
+      }
+
+      // Always update the user_updated_at timestamp
+      updateFields.push("user_updated_at = NOW()");
+      values.push(userId);
+
+      const query = `UPDATE users SET ${updateFields.join(", ")} WHERE user_id = ?`;
+
+      db.query(query, values, (err, result) => {
+        if (err) return reject(err);
+        if (result.affectedRows === 0) {
+          return reject(new Error(ADMIN_ERRORS.USER_NOT_FOUND));
+        }
+
+        // Fetch updated user
+        getUserById(userId)
+          .then((user) => resolve(user))
+          .catch((err) => reject(err));
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
   updateUserStatus,
   updateUserRole,
+  updateUser,
 };

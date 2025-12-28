@@ -50,6 +50,7 @@ const productRoutes = require("./routes/productRoutes.js");
 const cartRoutes = require("./routes/cartRoutes.js");
 const adminUserRoutes = require("./routes/adminUserRoutes.js");
 const adminProductRoutes = require("./routes/adminProductRoutes.js");
+const adminStatsRoutes = require("./routes/adminStatsRoutes.js");
 
 // ====================== Routes Setup ============================= //
 app.use("/api", registerUserRoutes);
@@ -61,6 +62,7 @@ app.use("/api", productRoutes);
 app.use("/api", cartRoutes);
 app.use("/api", adminUserRoutes);
 app.use("/api", adminProductRoutes);
+app.use("/api", adminStatsRoutes);
 app.use("/health", healthRoutes);
 
 ///////////////////////////////////////////////////////////////////////

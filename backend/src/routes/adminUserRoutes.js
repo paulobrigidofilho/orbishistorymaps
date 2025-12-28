@@ -14,6 +14,7 @@ const {
   getUser,
   patchUserStatus,
   patchUserRole,
+  putUser,
 } = require("../controllers/adminUserController");
 
 // ======= Middleware imports ======= //
@@ -45,6 +46,11 @@ router.get(
 // Get specific user details
 // Access: Admin only
 router.get("/admin/users/:userId", requireAdmin, getUser);
+
+// ===== PUT /api/admin/users/:userId ===== //
+// Update user profile information
+// Access: Admin only
+router.put("/admin/users/:userId", requireAdmin, putUser);
 
 // ===== PATCH /api/admin/users/:userId/status ===== //
 // Update user status (active, inactive, suspended)

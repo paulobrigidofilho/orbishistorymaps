@@ -38,6 +38,7 @@ const ADMIN_ERRORS = {
   // General
   UNAUTHORIZED: "Admin privileges required",
   FORBIDDEN: "Access denied",
+  STATS_FETCH_ERROR: "Failed to fetch statistics",
 };
 
 /////////////////////////////////////////
@@ -48,6 +49,7 @@ const ADMIN_SUCCESS = {
   // User Management
   USER_STATUS_UPDATED: "User status updated successfully",
   USER_ROLE_UPDATED: "User role updated successfully",
+  USER_UPDATED: "User profile updated successfully",
   USER_RETRIEVED: "User retrieved successfully",
   USERS_RETRIEVED: "Users retrieved successfully",
   

@@ -17,19 +17,14 @@ axios.defaults.withCredentials = true;
 ///////////////////////////////////////////////////////////////////////
 
 /**
- * Get admin dashboard stats (placeholder - implement backend endpoint)
+ * Get admin dashboard statistics
  */
 export default async function getAdminStats() {
   try {
-    // TODO: Implement backend endpoint for stats
-    // For now, return mock data
-    return {
-      totalUsers: 0,
-      totalProducts: 0,
-      activeOrders: 0,
-      totalRevenue: 0,
-    };
+    const response = await axios.get(`${API_BASE_URL}/api/admin/stats`);
+    return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to fetch stats");
+    console.error("Error fetching admin stats:", error);
+    throw new Error(error.response?.data?.error || "Failed to fetch stats");
   }
 }

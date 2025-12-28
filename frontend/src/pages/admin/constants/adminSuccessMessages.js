@@ -6,6 +6,7 @@ export const SUCCESS_MESSAGES = {
   // User success messages
   USER_STATUS_UPDATED: "User status updated successfully",
   USER_ROLE_UPDATED: "User role updated successfully",
+  USER_UPDATED: "User profile updated successfully",
 
   // Product success messages
   PRODUCT_CREATED: "Product created successfully!",

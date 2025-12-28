@@ -10,6 +10,7 @@ const {
   getUserById,
   updateUserStatus,
   updateUserRole,
+  updateUser,
 } = require("../services/adminUserService");
 const { handleServerError } = require("../helpers/handleServerError");
 const { ADMIN_ERRORS, ADMIN_SUCCESS } = require("../constants/adminMessages");
@@ -22,13 +23,23 @@ const { ADMIN_ERRORS, ADMIN_SUCCESS } = require("../constants/adminMessages");
 // Retrieves paginated list of users with optional filters
 
 const getUsers = async (req, res) => {
+  console.log("==================== NEW REQUEST ====================");
+  console.log("[adminUserController] req.url:", req.url);
+  console.log("[adminUserController] req.originalUrl:", req.originalUrl);
+  console.log("[adminUserController] Full req.query:", JSON.stringify(req.query, null, 2));
+  
   try {
+    console.log("[adminUserController] sortBy from query:", req.query.sortBy);
+    console.log("[adminUserController] sortOrder from query:", req.query.sortOrder);
+    
     const filters = {
       page: parseInt(req.query.page) || 1,
       limit: parseInt(req.query.limit) || 20,
       search: req.query.search || "",
       role: req.query.role || "all",
       status: req.query.status || "all",
+      sortBy: req.query.sortBy || "user_id",
+      sortOrder: req.query.sortOrder || "desc",
     };
 
     console.log("GET /api/admin/users requested with filters:", filters);
@@ -163,9 +174,47 @@ const patchUserRole = async (req, res) => {
   }
 };
 
+// ====== Update User Profile Function ====== //
+// Updates user profile information (supports partial updates)
+
+const putUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const updates = req.body;
+    const adminId = req.session.user.id;
+
+    console.log(
+      `PUT /api/admin/users/${userId} requested by admin ${adminId}`
+    );
+    console.log("Updates:", updates);
+
+    const updatedUser = await updateUser(userId, updates, adminId);
+
+    console.log("User profile updated successfully:", updatedUser.email);
+
+    return res.status(200).json({
+      success: true,
+      message: ADMIN_SUCCESS.USER_UPDATED,
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error in putUser:", error);
+
+    if (error.message === ADMIN_ERRORS.USER_NOT_FOUND) {
+      return res.status(404).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    return handleServerError(res, error, "Update user error");
+  }
+};
+
 module.exports = {
   getUsers,
   getUser,
   patchUserStatus,
   patchUserRole,
+  putUser,
 };

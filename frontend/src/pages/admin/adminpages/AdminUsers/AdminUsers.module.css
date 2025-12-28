@@ -88,6 +88,23 @@
   border-bottom: 2px solid #e5e7eb;
 }
 
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.sortable:hover {
+  background-color: #e5e7eb;
+}
+
+.sortIcon {
+  display: inline-block;
+  margin-left: 0.5rem;
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
 .usersTable td {
   padding: 1rem;
   border-bottom: 1px solid #e5e7eb;
@@ -134,12 +151,38 @@
   color: #92400e;
 }
 
+/* ================ PASSWORD HASH ==================== */
+
+.passwordHash {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: #6b7280;
+  cursor: help;
+}
+
 /* ================ ACTIONS ==================== */
 
 .actions {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.editButton {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.editButton:hover {
+  background-color: #2563eb;
 }
 
 .actionSelect {

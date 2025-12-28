@@ -8,6 +8,7 @@ export const ERROR_MESSAGES = {
   FETCH_USER_ERROR: "Error fetching user",
   UPDATE_USER_STATUS_ERROR: "Failed to update user status",
   UPDATE_USER_ROLE_ERROR: "Failed to update user role",
+  UPDATE_USER_ERROR: "Failed to update user profile",
 
   // Product errors
   FETCH_PRODUCTS_ERROR: "Error fetching products",

@@ -10,11 +10,13 @@ import styles from "./AdminUsers.module.css";
 
 //  ========== Component imports  ========== //
 import AdminLayout from "../../components/AdminLayout";
+import UserEditModal from "./subcomponents/UserEditModal";
 
 //  ========== Function imports  ========== //
 import getAllUsers from "../../functions/getAllUsers";
 import updateUserStatus from "../../functions/updateUserStatus";
 import updateUserRole from "../../functions/updateUserRole";
+import updateUser from "../../functions/updateUser";
 
 //  ========== Constants imports  ========== //
 import { ERROR_MESSAGES } from "../../constants/adminErrorMessages";
@@ -43,29 +45,37 @@ export default function AdminUsers() {
     role: "",
     status: "",
   });
-
-  ///////////////////////////////////////////////////////////////////////
-  // ========================= USE EFFECT HOOK ======================= //
-  ///////////////////////////////////////////////////////////////////////
-
-  useEffect(() => {
-    fetchUsers();
-  }, [pagination.page, filters]);
+  const [sortConfig, setSortConfig] = useState({
+    field: "user_id",
+    order: "desc",
+  });
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   ///////////////////////////////////////////////////////////////////////
   // ======================= HELPER FUNCTIONS ======================== //
   ///////////////////////////////////////////////////////////////////////
 
   const fetchUsers = async () => {
+    console.log("fetchUsers called with:", {
+      sortBy: sortConfig.field,
+      sortOrder: sortConfig.order,
+      page: pagination.page,
+    });
     try {
       setLoading(true);
       setError(null);
       const data = await getAllUsers({
         page: pagination.page,
         limit: pagination.limit,
-        ...filters,
+        search: filters.search,
+        role: filters.role,
+        status: filters.status,
+        sortBy: sortConfig.field,
+        sortOrder: sortConfig.order,
       });
-      setUsers(data.data || []);
+      console.log("Received users data:", data.data?.map(u => ({ name: u.firstName, email: u.email })));
+      setUsers([...data.data] || []); // Force new array reference
       setPagination((prev) => ({ ...prev, ...data.pagination }));
     } catch (err) {
       setError(err.message);
@@ -74,6 +84,15 @@ export default function AdminUsers() {
       setLoading(false);
     }
   };
+
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= USE EFFECT HOOK ======================= //
+  ///////////////////////////////////////////////////////////////////////
+
+  useEffect(() => {
+    fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page, pagination.limit, filters.search, filters.role, filters.status, sortConfig.field, sortConfig.order]);
 
   const handleStatusChange = async (userId, newStatus) => {
     if (!window.confirm(`Change user status to ${newStatus}?`)) return;
@@ -109,6 +128,40 @@ export default function AdminUsers() {
 
   const handlePageChange = (newPage) => {
     setPagination((prev) => ({ ...prev, page: newPage }));
+  };
+
+  const handleEditUser = (user) => {
+    setSelectedUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleSaveUser = async (userId, updates) => {
+    try {
+      await updateUser(userId, updates);
+      fetchUsers(); // Refresh list
+    } catch (err) {
+      throw err; // Let modal handle the error
+    }
+  };
+
+  const handleSort = (field) => {
+    console.log("Sorting by:", field);
+    setSortConfig((prev) => {
+      const newOrder = prev.field === field && prev.order === "asc" ? "desc" : "asc";
+      console.log("New sort config:", { field, order: newOrder });
+      return { field, order: newOrder };
+    });
+    setPagination((prev) => ({ ...prev, page: 1 })); // Reset to first page
+  };
+
+  const getSortIcon = (field) => {
+    if (sortConfig.field !== field) return "↕";
+    return sortConfig.order === "asc" ? "↑" : "↓";
   };
 
   ///////////////////////////////////////////////////////////////////////
@@ -166,21 +219,37 @@ export default function AdminUsers() {
             <table className={styles.usersTable}>
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Created</th>
+                  <th className={styles.sortable} onClick={() => handleSort("user_id")}>
+                    ID <span className={styles.sortIcon}>{getSortIcon("user_id")}</span>
+                  </th>
+                  <th className={styles.sortable} onClick={() => handleSort("user_firstname")}>
+                    Name <span className={styles.sortIcon}>{getSortIcon("user_firstname")}</span>
+                  </th>
+                  <th className={styles.sortable} onClick={() => handleSort("user_email")}>
+                    Email <span className={styles.sortIcon}>{getSortIcon("user_email")}</span>
+                  </th>
+                  <th className={styles.sortable} onClick={() => handleSort("user_role")}>
+                    Role <span className={styles.sortIcon}>{getSortIcon("user_role")}</span>
+                  </th>
+                  <th className={styles.sortable} onClick={() => handleSort("user_status")}>
+                    Status <span className={styles.sortIcon}>{getSortIcon("user_status")}</span>
+                  </th>
+                  <th>Password Hash</th>
+                  <th className={styles.sortable} onClick={() => handleSort("user_created_at")}>
+                    Created <span className={styles.sortIcon}>{getSortIcon("user_created_at")}</span>
+                  </th>
+                  <th className={styles.sortable} onClick={() => handleSort("user_updated_at")}>
+                    Updated <span className={styles.sortIcon}>{getSortIcon("user_updated_at")}</span>
+                  </th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
-                  <tr key={user.user_id}>
-                    <td>{user.user_id}</td>
+                  <tr key={user.id}>
+                    <td>{user.id}</td>
                     <td>
-                      {user.first_name} {user.last_name}
+                      {user.firstName} {user.lastName}
                     </td>
                     <td>{user.email}</td>
                     <td>
@@ -193,12 +262,25 @@ export default function AdminUsers() {
                         {user.status}
                       </span>
                     </td>
-                    <td>{new Date(user.created_at).toLocaleDateString()}</td>
+                    <td>
+                      <span className={styles.passwordHash} title={user.password}>
+                        {user.password ? `${user.password.substring(0, 20)}...` : 'N/A'}
+                      </span>
+                    </td>
+                    <td>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</td>
+                    <td>{user.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : 'N/A'}</td>
                     <td>
                       <div className={styles.actions}>
+                        <button
+                          className={styles.editButton}
+                          onClick={() => handleEditUser(user)}
+                          title="Edit user profile"
+                        >
+                          Edit
+                        </button>
                         <select
                           value={user.role}
-                          onChange={(e) => handleRoleChange(user.user_id, e.target.value)}
+                          onChange={(e) => handleRoleChange(user.id, e.target.value)}
                           className={styles.actionSelect}
                         >
                           <option value="user">User</option>
@@ -206,7 +288,7 @@ export default function AdminUsers() {
                         </select>
                         <select
                           value={user.status}
-                          onChange={(e) => handleStatusChange(user.user_id, e.target.value)}
+                          onChange={(e) => handleStatusChange(user.id, e.target.value)}
                           className={styles.actionSelect}
                         >
                           <option value="active">Active</option>
@@ -250,6 +332,14 @@ export default function AdminUsers() {
           </div>
         )}
       </div>
+
+      {/* User Edit Modal */}
+      <UserEditModal
+        user={selectedUser}
+        isOpen={isEditModalOpen}
+        onClose={handleCloseModal}
+        onSave={handleSaveUser}
+      />
     </AdminLayout>
   );
 }
