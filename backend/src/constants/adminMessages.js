@@ -14,9 +14,12 @@ const ADMIN_ERRORS = {
   INVALID_USER_ID: "Invalid user ID provided",
   CANNOT_MODIFY_OWN_ROLE: "Cannot modify your own admin role",
   CANNOT_MODIFY_OWN_STATUS: "Cannot modify your own account status",
+  CANNOT_DELETE_ADMIN: "Admin accounts cannot be deleted",
+  CANNOT_DELETE_SELF: "Cannot delete your own account",
   INVALID_STATUS: "Invalid status value. Must be: active, inactive, or suspended",
   INVALID_ROLE: "Invalid role value. Must be: user or admin",
   USER_UPDATE_FAILED: "Failed to update user",
+  USER_DELETE_FAILED: "Failed to delete user",
   
   // Product Management
   PRODUCT_NOT_FOUND: "Product not found",
@@ -50,6 +53,7 @@ const ADMIN_SUCCESS = {
   USER_STATUS_UPDATED: "User status updated successfully",
   USER_ROLE_UPDATED: "User role updated successfully",
   USER_UPDATED: "User profile updated successfully",
+  USER_DELETED: "User account deleted successfully",
   USER_RETRIEVED: "User retrieved successfully",
   USERS_RETRIEVED: "Users retrieved successfully",
   

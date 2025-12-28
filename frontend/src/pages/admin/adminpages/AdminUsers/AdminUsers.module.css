@@ -204,6 +204,12 @@
 
 /* ================ ACTIONS ==================== */
 
+.actionButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .editButton {
   padding: 0.5rem 1rem;
   background-color: #3b82f6;
@@ -214,10 +220,35 @@
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
+  width: 100%;
 }
 
 .editButton:hover {
   background-color: #2563eb;
+}
+
+.deleteButton {
+  padding: 0.5rem 1rem;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.deleteButton.disabled,
+.deleteButton:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* ================ PAGINATION ==================== */

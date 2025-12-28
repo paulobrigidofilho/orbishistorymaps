@@ -295,10 +295,76 @@ const updateUser = async (userId, updates, adminId) => {
   });
 };
 
+// ===== deleteUserById Function ===== //
+// Deletes a user account and all associated data
+// Admin accounts cannot be deleted
+
+const deleteUserById = async (userId, adminId) => {
+  return new Promise((resolve, reject) => {
+    // Prevent deleting own account
+    if (userId === adminId) {
+      return reject(new Error(ADMIN_ERRORS.CANNOT_DELETE_SELF));
+    }
+
+    // First, check if user exists and is not an admin
+    userModel.getUserById(userId, async (err, user) => {
+      if (err) return reject(err);
+      if (!user) return reject(new Error(ADMIN_ERRORS.USER_NOT_FOUND));
+
+      // Prevent deletion of admin accounts
+      if (user.user_role === "admin") {
+        return reject(new Error(ADMIN_ERRORS.CANNOT_DELETE_ADMIN));
+      }
+
+      // Delete user avatar file if exists
+      const fs = require("fs");
+      const path = require("path");
+      if (user.user_avatar && !user.user_avatar.startsWith("http")) {
+        const avatarPath = path.join(__dirname, "../../", user.user_avatar);
+        if (fs.existsSync(avatarPath)) {
+          try {
+            fs.unlinkSync(avatarPath);
+            console.log(`Deleted avatar file: ${avatarPath}`);
+          } catch (fileErr) {
+            console.error(`Failed to delete avatar file: ${fileErr.message}`);
+          }
+        }
+      }
+
+      // Delete user's cart items
+      const deleteCartQuery = `DELETE FROM cart_items WHERE user_id = ?`;
+      db.query(deleteCartQuery, [userId], (cartErr) => {
+        if (cartErr) {
+          console.error("Failed to delete cart items:", cartErr.message);
+        }
+
+        // Delete user's orders (optional - you may want to keep for records)
+        // For now, we'll just log that we're keeping order history
+        console.log(`Note: Order history for user ${userId} is preserved`);
+
+        // Finally, delete the user
+        const deleteUserQuery = `DELETE FROM users WHERE user_id = ?`;
+        db.query(deleteUserQuery, [userId], (deleteErr, result) => {
+          if (deleteErr) return reject(deleteErr);
+          if (result.affectedRows === 0) {
+            return reject(new Error(ADMIN_ERRORS.USER_NOT_FOUND));
+          }
+
+          resolve({
+            userId: userId,
+            deleted: true,
+          });
+        });
+      });
+    });
+  });
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
   updateUserStatus,
   updateUserRole,
   updateUser,
+  deleteUserById,
 };

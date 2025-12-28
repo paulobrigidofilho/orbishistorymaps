@@ -11,6 +11,7 @@ const {
   updateUserStatus,
   updateUserRole,
   updateUser,
+  deleteUserById,
 } = require("../services/adminUserService");
 const { handleServerError } = require("../helpers/handleServerError");
 const { ADMIN_ERRORS, ADMIN_SUCCESS } = require("../constants/adminMessages");
@@ -211,10 +212,50 @@ const putUser = async (req, res) => {
   }
 };
 
+// ====== Delete User Function ====== //
+// Deletes a user account and all associated data (admin accounts cannot be deleted)
+
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const adminId = req.session.user.id;
+
+    console.log(
+      `DELETE /api/admin/users/${userId} requested by admin ${adminId}`
+    );
+
+    const result = await deleteUserById(userId, adminId);
+
+    console.log("User deleted successfully:", userId);
+
+    return res.status(200).json({
+      success: true,
+      message: ADMIN_SUCCESS.USER_DELETED,
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error in deleteUser:", error);
+
+    if (
+      error.message === ADMIN_ERRORS.USER_NOT_FOUND ||
+      error.message === ADMIN_ERRORS.CANNOT_DELETE_ADMIN ||
+      error.message === ADMIN_ERRORS.CANNOT_DELETE_SELF
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    return handleServerError(res, error, "Delete user error");
+  }
+};
+
 module.exports = {
   getUsers,
   getUser,
   patchUserStatus,
   patchUserRole,
   putUser,
+  deleteUser,
 };

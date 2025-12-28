@@ -4,158 +4,17 @@
 
 .adminLayout {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background: #f3f4f6;
-}
-
-/* ================ SIDEBAR ==================== */
-
-.sidebar {
-  width: 280px;
-  background: #1f2937;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  height: 100vh;
-  overflow-y: auto;
-}
-
-.sidebarHeader {
-  padding: 2rem 1.5rem;
-  border-bottom: 1px solid #374151;
-}
-
-.sidebarHeader h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0;
-  color: white;
-}
-
-/* ================ NAVIGATION ==================== */
-
-.nav {
-  flex: 1;
-  padding: 1.5rem 0;
-}
-
-.navLink {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.875rem 1.5rem;
-  color: #d1d5db;
-  text-decoration: none;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.2s;
-  border-left: 3px solid transparent;
-}
-
-.navLink:hover {
-  background: #374151;
-  color: white;
-}
-
-.navLink.active {
-  background: #374151;
-  color: white;
-  border-left-color: #3b82f6;
-}
-
-.icon {
-  font-size: 1.25rem;
-  line-height: 1;
-}
-
-.divider {
-  height: 1px;
-  background: #374151;
-  margin: 1rem 0;
-}
-
-.logoutButton {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.875rem 1.5rem;
-  color: #d1d5db;
-  font-size: 1rem;
-  font-weight: 500;
-  background: none;
-  border: none;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s;
-  border-left: 3px solid transparent;
-}
-
-.logoutButton:hover {
-  background: #374151;
-  color: white;
-}
-
-/* ================ SIDEBAR FOOTER ==================== */
-
-.sidebarFooter {
-  padding: 1.5rem;
-  border-top: 1px solid #374151;
-}
-
-.userInfo {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.userAvatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #3b82f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1.25rem;
-  overflow: hidden;
-}
-
-.userAvatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.userDetails {
-  flex: 1;
-  min-width: 0;
-}
-
-.userName {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: white;
-  margin: 0 0 0.25rem 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.userRole {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  margin: 0;
 }
 
 /* ================ MAIN CONTENT ==================== */
 
 .mainContent {
   flex: 1;
-  margin-left: 280px;
-  min-height: 100vh;
+  margin-top: 70px; /* Height of AdminNavBar */
+  min-height: calc(100vh - 70px);
   background: #f3f4f6;
 }
 
@@ -198,6 +57,12 @@
 }
 
 /* ================ RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+  .mainContent {
+    margin-top: 70px;
+  }
+}
 
 @media (max-width: 768px) {
   .sidebar {

@@ -18,6 +18,15 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+.statCard.clickable {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.statCard.clickable:hover {
+  background: #f9fafb;
+}
+
 .statIcon {
   font-size: 3rem;
   line-height: 1;

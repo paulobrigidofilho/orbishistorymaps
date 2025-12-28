@@ -67,6 +67,7 @@ export default function AdminDashboard() {
                   : stats[card.key]
               }
               isLoading={loading}
+              to={card.to}
             />
           ))}
         </div>

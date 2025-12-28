@@ -15,6 +15,7 @@ const {
   patchUserStatus,
   patchUserRole,
   putUser,
+  deleteUser,
 } = require("../controllers/adminUserController");
 
 // ======= Middleware imports ======= //
@@ -71,5 +72,10 @@ router.patch(
   validateRequest(updateUserRoleSchema, "body"),
   patchUserRole
 );
+
+// ===== DELETE /api/admin/users/:userId ===== //
+// Delete user account and all associated data
+// Access: Admin only (cannot delete admin accounts)
+router.delete("/admin/users/:userId", requireAdmin, deleteUser);
 
 module.exports = router;

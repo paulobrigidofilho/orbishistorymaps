@@ -11,12 +11,14 @@ import styles from "./AdminUsers.module.css";
 //  ========== Component imports  ========== //
 import AdminLayout from "../../components/AdminLayout";
 import UserEditModal from "./subcomponents/UserEditModal";
+import DeleteUserModal from "./subcomponents/DeleteUserModal";
 
 //  ========== Function imports  ========== //
 import getAllUsers from "../../functions/getAllUsers";
 import updateUserStatus from "../../functions/updateUserStatus";
 import updateUserRole from "../../functions/updateUserRole";
 import updateUser from "../../functions/updateUser";
+import deleteUser from "../../functions/deleteUser";
 import formatDateDMY from "../../functions/formatDateDMY";
 
 //  ========== Constants imports  ========== //
@@ -52,6 +54,9 @@ export default function AdminUsers() {
   });
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   ///////////////////////////////////////////////////////////////////////
   // ======================= HELPER FUNCTIONS ======================== //
@@ -147,6 +152,35 @@ export default function AdminUsers() {
       fetchUsers(); // Refresh list
     } catch (err) {
       throw err; // Let modal handle the error
+    }
+  };
+
+  const handleDeleteUser = (user) => {
+    // Prevent deletion of admin accounts
+    if (user.role === "admin") {
+      alert("Admin accounts cannot be deleted.");
+      return;
+    }
+    setUserToDelete(user);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setUserToDelete(null);
+  };
+
+  const handleConfirmDelete = async (userId) => {
+    setIsDeleting(true);
+    try {
+      await deleteUser(userId);
+      setIsDeleteModalOpen(false);
+      setUserToDelete(null);
+      fetchUsers(); // Refresh list
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -278,13 +312,23 @@ export default function AdminUsers() {
                     <td>{formatDateDMY(user.createdAt)}</td>
                     <td>{formatDateDMY(user.updatedAt)}</td>
                     <td>
-                      <button
-                        className={styles.editButton}
-                        onClick={() => handleEditUser(user)}
-                        title="Edit user profile"
-                      >
-                        Edit
-                      </button>
+                      <div className={styles.actionButtons}>
+                        <button
+                          className={styles.editButton}
+                          onClick={() => handleEditUser(user)}
+                          title="Edit user profile"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className={`${styles.deleteButton} ${user.role === 'admin' ? styles.disabled : ''}`}
+                          onClick={() => handleDeleteUser(user)}
+                          disabled={user.role === 'admin'}
+                          title={user.role === 'admin' ? "Admin accounts cannot be deleted" : "Delete user"}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -328,6 +372,15 @@ export default function AdminUsers() {
         isOpen={isEditModalOpen}
         onClose={handleCloseModal}
         onSave={handleSaveUser}
+      />
+
+      {/* Delete User Modal */}
+      <DeleteUserModal
+        user={userToDelete}
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
       />
     </AdminLayout>
   );

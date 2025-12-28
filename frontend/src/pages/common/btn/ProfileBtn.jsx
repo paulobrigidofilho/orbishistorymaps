@@ -117,6 +117,9 @@ const ProfileBtn = () => {
 
           {isProfileDropdownOpen && (
             <div className={styles.dropdownMenu}>
+              {user.role === "admin" && (
+                <NavLink to="/admin">Admin Dashboard</NavLink>
+              )}
               <NavLink to={`/profile/${user.id}`}>Edit Profile</NavLink>
               <button onClick={handleLogout}>Log Out</button>
             </div>

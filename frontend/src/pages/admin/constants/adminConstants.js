@@ -10,22 +10,26 @@ export const STAT_CARDS = [
     icon: "👥",
     label: "Total Users",
     key: "totalUsers",
+    to: "/admin/users",
   },
   {
     icon: "📦",
     label: "Total Products",
     key: "totalProducts",
+    to: "/admin/products",
   },
   {
     icon: "🛒",
     label: "Active Orders",
     key: "activeOrders",
+    to: "/admin/orders",
   },
   {
     icon: "💰",
     label: "Total Revenue",
     key: "totalRevenue",
     formatter: (value) => `$${value.toFixed(2)}`,
+    to: "/admin/orders",
   },
 ];
 
