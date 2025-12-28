@@ -222,6 +222,7 @@ const querySchema = Joi.object({
     
   sortBy: Joi.string()
     .valid(
+      // User fields
       "user_id",
       "user_email",
       "user_firstname",
@@ -229,7 +230,18 @@ const querySchema = Joi.object({
       "user_role",
       "user_status",
       "user_created_at",
-      "user_updated_at"
+      "user_updated_at",
+      // Product fields
+      "product_id",
+      "product_name",
+      "sku",
+      "price",
+      "quantity_available",
+      "view_count",
+      "rating_average",
+      "rating_count",
+      "created_at",
+      "updated_at"
     )
     .optional()
     .default("user_id"),

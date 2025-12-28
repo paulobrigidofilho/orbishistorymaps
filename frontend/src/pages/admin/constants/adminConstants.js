@@ -88,3 +88,43 @@ export const PRODUCT_STATUS = {
   ACTIVE: "active",
   INACTIVE: "inactive",
 };
+
+/////////////////////////////////////////////////////////////////////////
+// =================== STOCK LEVEL THRESHOLDS ======================== //
+/////////////////////////////////////////////////////////////////////////
+
+// Stock quantity thresholds for badge colors
+// These values determine the color of the stock badge in the product table
+export const STOCK_THRESHOLDS = {
+  OUT_OF_STOCK: 0,      // Gray - No stock
+  CRITICAL: 5,          // Red - 1-5 products
+  LOW: 10,              // Yellow - 6-10 products
+  MODERATE: 15,         // Yellow-Green - 11-15 products
+  // Above MODERATE = Green - 15+ products
+};
+
+// Helper function to get stock level class name
+export const getStockLevelClass = (quantity) => {
+  if (quantity === 0) return "stockOutOfStock";
+  if (quantity <= STOCK_THRESHOLDS.CRITICAL) return "stockCritical";
+  if (quantity <= STOCK_THRESHOLDS.LOW) return "stockLow";
+  if (quantity <= STOCK_THRESHOLDS.MODERATE) return "stockModerate";
+  return "stockGood";
+};
+
+// Stock level descriptions
+export const STOCK_LEVEL_LABELS = {
+  stockOutOfStock: "Out of Stock",
+  stockCritical: "Critical Stock",
+  stockLow: "Low Stock",
+  stockModerate: "Moderate Stock",
+  stockGood: "In Stock",
+};
+
+/////////////////////////////////////////////////////////////////////////
+// =================== PRODUCT IMAGE LIMITS ========================== //
+/////////////////////////////////////////////////////////////////////////
+
+// Maximum number of images allowed per product (Amazon standard: 9)
+// 1 primary image + 8 additional images
+export const PRODUCT_IMAGE_LIMIT = 9;

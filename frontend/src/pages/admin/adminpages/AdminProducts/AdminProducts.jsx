@@ -2,7 +2,7 @@
 // ===================== ADMIN PRODUCTS PAGE ========================= //
 ///////////////////////////////////////////////////////////////////////
 
-// This page displays product management with CRUD operations
+// This page displays product management with pagination and filters
 
 //  ========== Module imports  ========== //
 import React, { useState, useEffect } from "react";
@@ -11,14 +11,19 @@ import styles from "./AdminProducts.module.css";
 
 //  ========== Component imports  ========== //
 import AdminLayout from "../../components/AdminLayout";
+import ProductEditModal from "./subcomponents/ProductEditModal";
+import DeleteProductModal from "./subcomponents/DeleteProductModal";
 
 //  ========== Function imports  ========== //
 import getAllProducts from "../../functions/getAllProducts";
+import updateProduct from "../../functions/updateProduct";
 import deleteProduct from "../../functions/deleteProduct";
+import formatDateDMY from "../../functions/formatDateDMY";
 
 //  ========== Constants imports  ========== //
 import { ERROR_MESSAGES } from "../../constants/adminErrorMessages";
 import { SUCCESS_MESSAGES } from "../../constants/adminSuccessMessages";
+import { getStockLevelClass } from "../../constants/adminConstants";
 
 ///////////////////////////////////////////////////////////////////////
 // ====================== ADMIN PRODUCTS PAGE ======================== //
@@ -44,14 +49,17 @@ export default function AdminProducts() {
     is_active: "",
     is_featured: "",
   });
+  const [sortConfig, setSortConfig] = useState({
+    field: "created_at",
+    order: "desc",
+  });
 
-  ///////////////////////////////////////////////////////////////////////
-  // ========================= USE EFFECT HOOK ======================= //
-  ///////////////////////////////////////////////////////////////////////
-
-  useEffect(() => {
-    fetchProducts();
-  }, [pagination.page, filters]);
+  // Modal states
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   ///////////////////////////////////////////////////////////////////////
   // ======================= HELPER FUNCTIONS ======================== //
@@ -64,7 +72,12 @@ export default function AdminProducts() {
       const data = await getAllProducts({
         page: pagination.page,
         limit: pagination.limit,
-        ...filters,
+        search: filters.search,
+        category_id: filters.category_id,
+        is_active: filters.is_active,
+        is_featured: filters.is_featured,
+        sortBy: sortConfig.field,
+        sortOrder: sortConfig.order,
       });
       setProducts(data.data || []);
       setPagination((prev) => ({ ...prev, ...data.pagination }));
@@ -76,12 +89,36 @@ export default function AdminProducts() {
     }
   };
 
-  const handleDelete = async (productId) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= USE EFFECT HOOK ======================= //
+  ///////////////////////////////////////////////////////////////////////
+
+  useEffect(() => {
+    fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page, pagination.limit, filters.search, filters.category_id, filters.is_active, filters.is_featured, sortConfig.field, sortConfig.order]);
+
+  ///////////////////////////////////////////////////////////////////////
+  // ======================= EVENT HANDLERS ========================== //
+  ///////////////////////////////////////////////////////////////////////
+
+  const handleStatusChange = async (productId, newStatus) => {
+    if (!window.confirm(`Change product status to ${newStatus ? "Active" : "Inactive"}?`)) return;
 
     try {
-      await deleteProduct(productId);
-      fetchProducts(); // Refresh list
+      await updateProduct(productId, { is_active: newStatus });
+      fetchProducts();
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+  const handleFeaturedChange = async (productId, newFeatured) => {
+    if (!window.confirm(`${newFeatured ? "Feature" : "Unfeature"} this product?`)) return;
+
+    try {
+      await updateProduct(productId, { is_featured: newFeatured });
+      fetchProducts();
     } catch (err) {
       alert(`Error: ${err.message}`);
     }
@@ -99,6 +136,64 @@ export default function AdminProducts() {
 
   const handlePageChange = (newPage) => {
     setPagination((prev) => ({ ...prev, page: newPage }));
+  };
+
+  const handleSort = (field) => {
+    setSortConfig((prev) => {
+      const newOrder = prev.field === field && prev.order === "asc" ? "desc" : "asc";
+      return { field, order: newOrder };
+    });
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
+
+  const getSortIcon = (field) => {
+    if (sortConfig.field !== field) return "↕";
+    return sortConfig.order === "asc" ? "↑" : "↓";
+  };
+
+  // Edit Modal handlers
+  const handleEditProduct = (product) => {
+    setSelectedProduct(product);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedProduct(null);
+  };
+
+  const handleSaveProduct = async (productId, updates) => {
+    try {
+      await updateProduct(productId, updates);
+      fetchProducts();
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  // Delete Modal handlers
+  const handleDeleteProduct = (product) => {
+    setProductToDelete(product);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setProductToDelete(null);
+  };
+
+  const handleConfirmDelete = async (productId) => {
+    setIsDeleting(true);
+    try {
+      await deleteProduct(productId);
+      setIsDeleteModalOpen(false);
+      setProductToDelete(null);
+      fetchProducts();
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   ///////////////////////////////////////////////////////////////////////
@@ -130,7 +225,7 @@ export default function AdminProducts() {
             onChange={(e) => handleFilterChange("is_active", e.target.value)}
             className={styles.filterSelect}
           >
-            <option value="">All Products</option>
+            <option value="">All Status</option>
             <option value="true">Active</option>
             <option value="false">Inactive</option>
           </select>
@@ -140,7 +235,7 @@ export default function AdminProducts() {
             onChange={(e) => handleFilterChange("is_featured", e.target.value)}
             className={styles.filterSelect}
           >
-            <option value="">All Featured Status</option>
+            <option value="">All Featured</option>
             <option value="true">Featured</option>
             <option value="false">Not Featured</option>
           </select>
@@ -158,70 +253,112 @@ export default function AdminProducts() {
             <table className={styles.productsTable}>
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Product</th>
-                  <th>SKU</th>
-                  <th>Price</th>
-                  <th>Stock</th>
+                  <th className={styles.sortable} onClick={() => handleSort("product_id")}>
+                    ID <span className={styles.sortIcon}>{getSortIcon("product_id")}</span>
+                  </th>
+                  <th className={styles.sortable} onClick={() => handleSort("product_name")}>
+                    Product <span className={styles.sortIcon}>{getSortIcon("product_name")}</span>
+                  </th>
+                  <th className={styles.sortable} onClick={() => handleSort("sku")}>
+                    SKU <span className={styles.sortIcon}>{getSortIcon("sku")}</span>
+                  </th>
+                  <th className={styles.sortable} onClick={() => handleSort("price")}>
+                    Price <span className={styles.sortIcon}>{getSortIcon("price")}</span>
+                  </th>
+                  <th className={styles.sortable} onClick={() => handleSort("quantity_available")}>
+                    Stock <span className={styles.sortIcon}>{getSortIcon("quantity_available")}</span>
+                  </th>
+                  <th className={styles.sortable} onClick={() => handleSort("view_count")}>
+                    Views <span className={styles.sortIcon}>{getSortIcon("view_count")}</span>
+                  </th>
+                  <th className={styles.sortable} onClick={() => handleSort("rating_average")}>
+                    Rating <span className={styles.sortIcon}>{getSortIcon("rating_average")}</span>
+                  </th>
                   <th>Status</th>
                   <th>Featured</th>
+                  <th className={styles.sortable} onClick={() => handleSort("created_at")}>
+                    Created <span className={styles.sortIcon}>{getSortIcon("created_at")}</span>
+                  </th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {products.map((product) => (
                   <tr key={product.product_id}>
-                    <td>{product.product_id}</td>
+                    <td className={styles.idCell}>{product.product_id}</td>
                     <td>
                       <div className={styles.productInfo}>
                         <strong>{product.product_name}</strong>
+                        {product.brand && <span className={styles.brand}>{product.brand}</span>}
                       </div>
                     </td>
                     <td>{product.sku || "N/A"}</td>
                     <td>
-                      ${product.price}
-                      {product.sale_price && (
-                        <span className={styles.salePrice}> (${product.sale_price})</span>
-                      )}
+                      <div className={styles.priceCell}>
+                        <span className={product.sale_price ? styles.originalPrice : ""}>
+                          ${parseFloat(product.price).toFixed(2)}
+                        </span>
+                        {product.sale_price && (
+                          <span className={styles.salePrice}>
+                            ${parseFloat(product.sale_price).toFixed(2)}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td>
                       <span
-                        className={`${styles.stock} ${
-                          product.quantity_available > 0 ? styles.inStock : styles.outOfStock
-                        }`}
+                        className={`${styles.stock} ${styles[getStockLevelClass(product.quantity_available || 0)]}`}
                       >
-                        {product.quantity_available}
+                        {product.quantity_available || 0}
                       </span>
                     </td>
-                    <td>
-                      <span
-                        className={`${styles.badge} ${
-                          product.is_active ? styles.active : styles.inactive
-                        }`}
-                      >
-                        {product.is_active ? "Active" : "Inactive"}
-                      </span>
+                    <td className={styles.viewsCell}>
+                      {product.view_count || 0}
                     </td>
                     <td>
-                      <span
-                        className={`${styles.badge} ${
-                          product.is_featured ? styles.featured : styles.notFeatured
-                        }`}
-                      >
-                        {product.is_featured ? "Yes" : "No"}
-                      </span>
+                      <div className={styles.ratingCell}>
+                        <span className={styles.ratingAvg}>
+                          ⭐ {parseFloat(product.rating_average || 0).toFixed(1)}
+                        </span>
+                        <span className={styles.ratingCount}>
+                          ({product.rating_count || 0})
+                        </span>
+                      </div>
                     </td>
                     <td>
-                      <div className={styles.actions}>
-                        <Link
-                          to={`/admin/products/edit/${product.product_id}`}
+                      <select
+                        value={product.is_active ? "true" : "false"}
+                        onChange={(e) => handleStatusChange(product.product_id, e.target.value === "true")}
+                        className={`${styles.inlineSelect} ${product.is_active ? styles.selectActive : styles.selectInactive}`}
+                      >
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select
+                        value={product.is_featured ? "true" : "false"}
+                        onChange={(e) => handleFeaturedChange(product.product_id, e.target.value === "true")}
+                        className={`${styles.inlineSelect} ${product.is_featured ? styles.selectFeatured : styles.selectNotFeatured}`}
+                      >
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                      </select>
+                    </td>
+                    <td>{formatDateDMY(product.created_at)}</td>
+                    <td>
+                      <div className={styles.actionButtons}>
+                        <button
                           className={styles.editButton}
+                          onClick={() => handleEditProduct(product)}
+                          title="Edit product"
                         >
                           Edit
-                        </Link>
+                        </button>
                         <button
-                          onClick={() => handleDelete(product.product_id)}
                           className={styles.deleteButton}
+                          onClick={() => handleDeleteProduct(product)}
+                          title="Delete product"
                         >
                           Delete
                         </button>
@@ -267,6 +404,23 @@ export default function AdminProducts() {
           </div>
         )}
       </div>
+
+      {/* Product Edit Modal */}
+      <ProductEditModal
+        product={selectedProduct}
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onSave={handleSaveProduct}
+      />
+
+      {/* Delete Product Modal */}
+      <DeleteProductModal
+        product={productToDelete}
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
     </AdminLayout>
   );
 }

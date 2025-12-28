@@ -20,33 +20,61 @@ const { ADMIN_SUCCESS, ADMIN_ERRORS } = require("../constants/adminMessages");
 
 const getProducts = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, category_id, is_active, is_featured } = req.query;
+    const { 
+      page = 1, 
+      limit = 10, 
+      search, 
+      category_id, 
+      is_active, 
+      is_featured,
+      sortBy = "created_at",
+      sortOrder = "desc"
+    } = req.query;
 
-    // Build query dynamically
-    let query = "SELECT * FROM products WHERE 1=1";
+    // Validate sort fields to prevent SQL injection
+    const allowedSortFields = ["product_id", "product_name", "sku", "price", "quantity_available", "created_at", "view_count", "rating_average", "rating_count"];
+    const allowedSortOrders = ["asc", "desc"];
+    
+    const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : "created_at";
+    const safeSortOrder = allowedSortOrders.includes(sortOrder.toLowerCase()) ? sortOrder.toLowerCase() : "desc";
+
+    // Build query with JOIN to inventory table
+    let query = `
+      SELECT 
+        p.product_id, p.product_name, p.product_description, p.sku, p.brand,
+        p.price, p.sale_price, p.category_id, p.is_active, p.is_featured,
+        p.view_count, p.rating_average, p.rating_count,
+        p.created_at, p.updated_at,
+        COALESCE(i.quantity_available, 0) as quantity_available
+      FROM products p
+      LEFT JOIN inventory i ON p.product_id = i.product_id
+      WHERE 1=1
+    `;
     const values = [];
 
     if (search) {
-      query += " AND (product_name LIKE ? OR sku LIKE ?)";
+      query += " AND (p.product_name LIKE ? OR p.sku LIKE ?)";
       values.push(`%${search}%`, `%${search}%`);
     }
 
     if (category_id) {
-      query += " AND category_id = ?";
+      query += " AND p.category_id = ?";
       values.push(category_id);
     }
 
     if (is_active !== undefined) {
-      query += " AND is_active = ?";
+      query += " AND p.is_active = ?";
       values.push(is_active === "true" || is_active === true);
     }
 
     if (is_featured !== undefined) {
-      query += " AND is_featured = ?";
+      query += " AND p.is_featured = ?";
       values.push(is_featured === "true" || is_featured === true);
     }
 
-    query += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    // Handle sorting - prefix with table alias for ambiguous columns
+    const sortField = safeSortBy === "quantity_available" ? "i.quantity_available" : `p.${safeSortBy}`;
+    query += ` ORDER BY ${sortField} ${safeSortOrder.toUpperCase()} LIMIT ? OFFSET ?`;
     const offset = (parseInt(page) - 1) * parseInt(limit);
     values.push(parseInt(limit), offset);
 
@@ -59,23 +87,23 @@ const getProducts = async (req, res) => {
       }
 
       // Get total count for pagination
-      let countQuery = "SELECT COUNT(*) as total FROM products WHERE 1=1";
+      let countQuery = "SELECT COUNT(*) as total FROM products p WHERE 1=1";
       const countValues = [];
 
       if (search) {
-        countQuery += " AND (product_name LIKE ? OR sku LIKE ?)";
+        countQuery += " AND (p.product_name LIKE ? OR p.sku LIKE ?)";
         countValues.push(`%${search}%`, `%${search}%`);
       }
       if (category_id) {
-        countQuery += " AND category_id = ?";
+        countQuery += " AND p.category_id = ?";
         countValues.push(category_id);
       }
       if (is_active !== undefined) {
-        countQuery += " AND is_active = ?";
+        countQuery += " AND p.is_active = ?";
         countValues.push(is_active === "true" || is_active === true);
       }
       if (is_featured !== undefined) {
-        countQuery += " AND is_featured = ?";
+        countQuery += " AND p.is_featured = ?";
         countValues.push(is_featured === "true" || is_featured === true);
       }
 
@@ -112,18 +140,51 @@ const getProducts = async (req, res) => {
 const getProduct = async (req, res) => {
   try {
     const { productId } = req.params;
+    const db = require("../config/config").db;
 
-    productModel.getProductById(productId, (err, product) => {
+    // Get product with inventory data
+    const productQuery = `
+      SELECT 
+        p.*,
+        COALESCE(i.quantity_available, 0) as quantity_available,
+        COALESCE(i.quantity_reserved, 0) as quantity_reserved
+      FROM products p
+      LEFT JOIN inventory i ON p.product_id = i.product_id
+      WHERE p.product_id = ?
+    `;
+
+    db.query(productQuery, [productId], (err, productResults) => {
       if (err) {
         console.error("[adminProductController] Error fetching product:", err);
         return res.status(500).json({ success: false, message: err.message });
       }
 
-      if (!product) {
+      if (!productResults || productResults.length === 0) {
         return res.status(404).json({ success: false, message: ADMIN_ERRORS.PRODUCT_NOT_FOUND });
       }
 
-      res.status(200).json({ success: true, data: product });
+      const product = productResults[0];
+
+      // Get product images
+      const imagesQuery = `
+        SELECT image_id, image_url, image_alt_text, is_primary, display_order
+        FROM product_images
+        WHERE product_id = ?
+        ORDER BY is_primary DESC, display_order ASC
+      `;
+
+      db.query(imagesQuery, [productId], (imgErr, images) => {
+        if (imgErr) {
+          console.error("[adminProductController] Error fetching images:", imgErr);
+          // Return product without images if image fetch fails
+          return res.status(200).json({ success: true, data: { ...product, images: [] } });
+        }
+
+        res.status(200).json({ 
+          success: true, 
+          data: { ...product, images: images || [] } 
+        });
+      });
     });
   } catch (error) {
     console.error("[adminProductController] Error in getProduct:", error);

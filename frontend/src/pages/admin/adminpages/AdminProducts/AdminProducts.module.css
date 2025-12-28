@@ -109,6 +109,22 @@
   border-bottom: 2px solid #e5e7eb;
 }
 
+.productsTable th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.productsTable th.sortable:hover {
+  background: #f3f4f6;
+}
+
+.sortIcon {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
 .productsTable td {
   padding: 1rem;
   border-bottom: 1px solid #e5e7eb;
@@ -119,15 +135,65 @@
   background: #f9fafb;
 }
 
+.idCell {
+  font-weight: 600;
+  color: #6b7280;
+}
+
 .productInfo strong {
   display: block;
   font-weight: 600;
   color: #1a1a1a;
 }
 
+.brand {
+  display: block;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+.priceCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.originalPrice {
+  color: #9ca3af;
+  text-decoration: line-through;
+  font-size: 0.875rem;
+}
+
 .salePrice {
   color: #dc2626;
   font-weight: 600;
+}
+
+/* ================ VIEWS & RATINGS ==================== */
+
+.viewsCell {
+  font-weight: 500;
+  color: #6b7280;
+  text-align: center;
+}
+
+.ratingCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.ratingAvg {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 0.875rem;
+}
+
+.ratingCount {
+  font-size: 0.75rem;
+  color: #9ca3af;
 }
 
 /* ================ BADGES ==================== */
@@ -161,25 +227,96 @@
   color: #6b7280;
 }
 
+/* Stock quantity badge colors */
 .stock {
   font-weight: 600;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
+  display: inline-block;
+  min-width: 2rem;
+  text-align: center;
 }
 
-.stock.inStock {
-  color: #065f46;
-  background: #d1fae5;
+/* 0 products - Gray */
+.stockOutOfStock {
+  color: #6b7280;
+  background: #e5e7eb;
 }
 
-.stock.outOfStock {
+/* 1-5 products - Red */
+.stockCritical {
   color: #991b1b;
   background: #fee2e2;
 }
 
+/* 6-10 products - Yellow */
+.stockLow {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+/* 11-15 products - Yellow-Green */
+.stockModerate {
+  color: #3f6212;
+  background: #ecfccb;
+}
+
+/* 15+ products - Solid Green */
+.stockGood {
+  color: #065f46;
+  background: #d1fae5;
+}
+
+/* ================ INLINE SELECTS ==================== */
+
+.inlineSelect {
+  padding: 0.375rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.25rem center;
+  background-size: 0.75rem;
+  padding-right: 1.25rem;
+}
+
+.inlineSelect:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+/* Active: Green background */
+.selectActive {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* Not Active: Gray background */
+.selectInactive {
+  background-color: #e5e7eb;
+  color: #6b7280;
+}
+
+/* Featured: Orange background */
+.selectFeatured {
+  background-color: #ffedd5;
+  color: #c2410c;
+}
+
+/* Not Featured: Gray background */
+.selectNotFeatured {
+  background-color: #e5e7eb;
+  color: #6b7280;
+}
+
 /* ================ ACTIONS ==================== */
 
-.actions {
+.actionButtons {
   display: flex;
   gap: 0.5rem;
 }

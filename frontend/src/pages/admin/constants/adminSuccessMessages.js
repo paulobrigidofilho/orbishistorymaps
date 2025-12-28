@@ -7,6 +7,7 @@ export const SUCCESS_MESSAGES = {
   USER_STATUS_UPDATED: "User status updated successfully",
   USER_ROLE_UPDATED: "User role updated successfully",
   USER_UPDATED: "User profile updated successfully",
+  USER_DELETED: "User account deleted successfully",
   AVATAR_UPLOADED: "Avatar uploaded successfully",
   AVATAR_DELETED: "Avatar deleted successfully",
 
@@ -14,6 +15,8 @@ export const SUCCESS_MESSAGES = {
   PRODUCT_CREATED: "Product created successfully!",
   PRODUCT_UPDATED: "Product updated successfully!",
   PRODUCT_DELETED: "Product deleted successfully",
+  PRODUCT_STATUS_UPDATED: "Product status updated successfully",
+  PRODUCT_FEATURED_UPDATED: "Product featured status updated successfully",
   IMAGE_UPLOADED: "Image uploaded successfully!",
   IMAGE_DELETED: "Image deleted successfully!",
 

@@ -12,6 +12,9 @@ import styles from "./CartItem.module.css";
 //  ========== Function imports  ========== //
 import { calculateItemSubtotal } from "../functions/calculateCartTotal";
 
+// Default product image path
+const DEFAULT_PRODUCT_IMAGE = "/assets/common/default-product-img.png";
+
 ///////////////////////////////////////////////////////////////////////
 // ========================= CART ITEM =============================== //
 ///////////////////////////////////////////////////////////////////////
@@ -39,15 +42,12 @@ const CartItem = ({ item, onUpdateQuantity, onRemove, updating }) => {
     <div className={styles.cartItem}>
       {/* Product Image */}
       <Link to={`/shop/product/${item.product_slug}`} className={styles.imageLink}>
-        {item.primary_image ? (
-          <img
-            src={item.primary_image}
-            alt={item.product_name}
-            className={styles.productImage}
-          />
-        ) : (
-          <div className={styles.noImage}>No Image</div>
-        )}
+        <img
+          src={item.primary_image || DEFAULT_PRODUCT_IMAGE}
+          alt={item.product_name}
+          className={styles.productImage}
+          onError={(e) => { e.target.src = DEFAULT_PRODUCT_IMAGE; }}
+        />
       </Link>
 
       {/* Product Info */}

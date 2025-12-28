@@ -64,14 +64,14 @@ const upload = multer({
 ///////////////////////////////////
 
 // GET /api/admin/products - List all products with pagination
-router.get("/products", requireAdmin, validateRequest(querySchema, "query"), adminProductController.getProducts);
+router.get("/admin/products", requireAdmin, validateRequest(querySchema, "query"), adminProductController.getProducts);
 
 // GET /api/admin/products/:productId - Get single product
-router.get("/products/:productId", requireAdmin, adminProductController.getProduct);
+router.get("/admin/products/:productId", requireAdmin, adminProductController.getProduct);
 
 // POST /api/admin/products - Create new product
 router.post(
-  "/products",
+  "/admin/products",
   requireAdmin,
   validateRequest(createProductSchema),
   adminProductController.createProduct
@@ -79,24 +79,24 @@ router.post(
 
 // PATCH /api/admin/products/:productId - Update product
 router.patch(
-  "/products/:productId",
+  "/admin/products/:productId",
   requireAdmin,
   validateRequest(updateProductSchema),
   adminProductController.updateProduct
 );
 
 // DELETE /api/admin/products/:productId - Soft delete product
-router.delete("/products/:productId", requireAdmin, adminProductController.deleteProduct);
+router.delete("/admin/products/:productId", requireAdmin, adminProductController.deleteProduct);
 
 // POST /api/admin/products/:productId/images - Upload product image
 router.post(
-  "/products/:productId/images",
+  "/admin/products/:productId/images",
   requireAdmin,
   upload.single("image"),
   adminProductController.uploadImage
 );
 
 // DELETE /api/admin/products/images/:imageId - Delete product image
-router.delete("/products/images/:imageId", requireAdmin, adminProductController.deleteImage);
+router.delete("/admin/products/images/:imageId", requireAdmin, adminProductController.deleteImage);
 
 module.exports = router;

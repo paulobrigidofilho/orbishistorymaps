@@ -13,6 +13,9 @@ import styles from "./ProductCard.module.css";
 // ========================= PRODUCT CARD ============================ //
 ///////////////////////////////////////////////////////////////////////
 
+// Default product image path
+const DEFAULT_PRODUCT_IMAGE = "/assets/common/default-product-img.png";
+
 const ProductCard = ({ product }) => {
   // Calculate if product is on sale
   const isOnSale = product.sale_price && parseFloat(product.sale_price) < parseFloat(product.price);
@@ -20,6 +23,9 @@ const ProductCard = ({ product }) => {
   const discountPercent = isOnSale
     ? Math.round(((parseFloat(product.price) - parseFloat(product.sale_price)) / parseFloat(product.price)) * 100)
     : 0;
+  
+  // Get product image with fallback to default
+  const productImage = product.primary_image || DEFAULT_PRODUCT_IMAGE;
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
@@ -33,15 +39,12 @@ const ProductCard = ({ product }) => {
           {isOnSale && (
             <span className={styles.saleBadge}>-{discountPercent}%</span>
           )}
-          {product.primary_image ? (
-            <img
-              src={product.primary_image}
-              alt={product.product_name}
-              className={styles.productImage}
-            />
-          ) : (
-            <div className={styles.noImage}>No Image</div>
-          )}
+          <img
+            src={productImage}
+            alt={product.product_name}
+            className={styles.productImage}
+            onError={(e) => { e.target.src = DEFAULT_PRODUCT_IMAGE; }}
+          />
         </div>
 
         {/* Product Info */}

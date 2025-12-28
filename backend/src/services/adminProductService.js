@@ -52,11 +52,11 @@ const createProduct = async (productData) => {
         INSERT INTO products (
           product_name,
           product_description,
-          slug,
+          product_slug,
           price,
           sale_price,
           sku,
-          quantity_available,
+          brand,
           category_id,
           is_featured,
           is_active,
@@ -72,7 +72,7 @@ const createProduct = async (productData) => {
         productData.price,
         productData.sale_price || null,
         productData.sku || null,
-        productData.quantity_available,
+        productData.brand || null,
         productData.category_id || null,
         productData.is_featured || false,
         productData.is_active !== undefined ? productData.is_active : true,
@@ -84,10 +84,30 @@ const createProduct = async (productData) => {
         const productId = result.insertId;
         console.log(`[adminProductService] Product created with ID: ${productId}`);
 
-        // Fetch created product
-        productModel.getProductById(productId, (err, product) => {
-          if (err) return reject(err);
-          resolve(product);
+        // Create inventory record for the new product
+        const inventoryQuantity = productData.quantity_available || 0;
+        const inventoryQuery = `
+          INSERT INTO inventory (product_id, quantity_available, quantity_reserved, created_at, updated_at)
+          VALUES (?, ?, 0, NOW(), NOW())
+        `;
+
+        db.query(inventoryQuery, [productId, inventoryQuantity], (err) => {
+          if (err) {
+            console.error(`[adminProductService] Failed to create inventory for product ${productId}:`, err);
+            // Continue anyway - inventory can be added later
+          }
+
+          // Fetch created product with inventory
+          const fetchQuery = `
+            SELECT p.*, COALESCE(i.quantity_available, 0) as quantity_available
+            FROM products p
+            LEFT JOIN inventory i ON p.product_id = i.product_id
+            WHERE p.product_id = ?
+          `;
+          db.query(fetchQuery, [productId], (err, results) => {
+            if (err) return reject(err);
+            resolve(results[0]);
+          });
         });
       });
     }
@@ -114,17 +134,18 @@ const updateProduct = async (productId, productData) => {
     }
 
     function proceedWithUpdate() {
-      // Build dynamic UPDATE query
+      // Build dynamic UPDATE query for products table
       const updates = [];
       const values = [];
 
+      // Fields that belong to the products table
       const fieldMap = {
         name: "product_name",
         description: "product_description",
         price: "price",
         sale_price: "sale_price",
         sku: "sku",
-        quantity_available: "quantity_available",
+        brand: "brand",
         category_id: "category_id",
         is_featured: "is_featured",
         is_active: "is_active",
@@ -143,29 +164,82 @@ const updateProduct = async (productId, productData) => {
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/^-+|-+$/g, "");
-        updates.push("slug = ?");
+        updates.push("product_slug = ?");
         values.push(slug);
       }
 
-      if (updates.length === 0) {
+      // Handle inventory update separately if quantity_available is provided
+      const updateInventory = productData.quantity_available !== undefined;
+      const inventoryQuantity = productData.quantity_available;
+
+      // If no product updates and no inventory update, reject
+      if (updates.length === 0 && !updateInventory) {
         return reject(new Error(ADMIN_ERRORS.PRODUCT_UPDATE_FAILED));
       }
 
-      updates.push("updated_at = NOW()");
-      values.push(productId);
-
-      const query = `UPDATE products SET ${updates.join(", ")} WHERE product_id = ?`;
-
-      db.query(query, values, (err, result) => {
-        if (err) return reject(err);
-        if (result.affectedRows === 0) {
-          return reject(new Error(ADMIN_ERRORS.PRODUCT_NOT_FOUND));
+      // Function to update inventory
+      const handleInventoryUpdate = (callback) => {
+        if (!updateInventory) {
+          return callback();
         }
 
-        // Fetch updated product
-        productModel.getProductById(productId, (err, product) => {
+        // Check if inventory record exists
+        const checkInventoryQuery = "SELECT inventory_id FROM inventory WHERE product_id = ?";
+        db.query(checkInventoryQuery, [productId], (err, results) => {
           if (err) return reject(err);
-          resolve(product);
+
+          if (results.length > 0) {
+            // Update existing inventory
+            const updateInvQuery = "UPDATE inventory SET quantity_available = ?, updated_at = NOW() WHERE product_id = ?";
+            db.query(updateInvQuery, [inventoryQuantity, productId], (err) => {
+              if (err) return reject(err);
+              callback();
+            });
+          } else {
+            // Insert new inventory record
+            const insertInvQuery = "INSERT INTO inventory (product_id, quantity_available, created_at, updated_at) VALUES (?, ?, NOW(), NOW())";
+            db.query(insertInvQuery, [productId, inventoryQuantity], (err) => {
+              if (err) return reject(err);
+              callback();
+            });
+          }
+        });
+      };
+
+      // Function to update product
+      const handleProductUpdate = (callback) => {
+        if (updates.length === 0) {
+          return callback();
+        }
+
+        updates.push("updated_at = NOW()");
+        values.push(productId);
+
+        const query = `UPDATE products SET ${updates.join(", ")} WHERE product_id = ?`;
+
+        db.query(query, values, (err, result) => {
+          if (err) return reject(err);
+          if (result.affectedRows === 0) {
+            return reject(new Error(ADMIN_ERRORS.PRODUCT_NOT_FOUND));
+          }
+          callback();
+        });
+      };
+
+      // Execute updates
+      handleProductUpdate(() => {
+        handleInventoryUpdate(() => {
+          // Fetch updated product with inventory
+          const fetchQuery = `
+            SELECT p.*, COALESCE(i.quantity_available, 0) as quantity_available
+            FROM products p
+            LEFT JOIN inventory i ON p.product_id = i.product_id
+            WHERE p.product_id = ?
+          `;
+          db.query(fetchQuery, [productId], (err, results) => {
+            if (err) return reject(err);
+            resolve(results[0]);
+          });
         });
       });
     }

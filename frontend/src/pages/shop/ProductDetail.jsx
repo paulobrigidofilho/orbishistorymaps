@@ -20,6 +20,9 @@ import handleQuantityChange from "./functions/handleQuantityChange";
 //  ========== Context imports  ========== //
 import { AuthContext } from "../common/context/AuthContext";
 
+// Default product image path
+const DEFAULT_PRODUCT_IMAGE = "/assets/common/default-product-img.png";
+
 ///////////////////////////////////////////////////////////////////////
 // ====================== PRODUCT DETAIL PAGE ======================== //
 ///////////////////////////////////////////////////////////////////////
@@ -127,10 +130,11 @@ export default function ProductDetail() {
       )
     : 0;
 
-  // Get primary image from images array or use primary_image field
+  // Get primary image from images array or use primary_image field, with fallback to default
   const primaryImage =
     product.images?.find((img) => img.is_primary)?.image_url ||
-    product.primary_image;
+    product.primary_image ||
+    DEFAULT_PRODUCT_IMAGE;
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
@@ -154,15 +158,12 @@ export default function ProductDetail() {
             {isOnSale && (
               <span className={styles.saleBadge}>-{discountPercent}% OFF</span>
             )}
-            {primaryImage ? (
-              <img
-                src={primaryImage}
-                alt={product.product_name}
-                className={styles.productImage}
-              />
-            ) : (
-              <div className={styles.noImage}>No Image Available</div>
-            )}
+            <img
+              src={primaryImage}
+              alt={product.product_name}
+              className={styles.productImage}
+              onError={(e) => { e.target.src = DEFAULT_PRODUCT_IMAGE; }}
+            />
           </div>
 
           {/* Product Info Section */}

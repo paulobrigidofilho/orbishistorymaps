@@ -9,6 +9,7 @@ export const ERROR_MESSAGES = {
   UPDATE_USER_STATUS_ERROR: "Failed to update user status",
   UPDATE_USER_ROLE_ERROR: "Failed to update user role",
   UPDATE_USER_ERROR: "Failed to update user profile",
+  DELETE_USER_ERROR: "Failed to delete user account",
 
   // Product errors
   FETCH_PRODUCTS_ERROR: "Error fetching products",
@@ -16,6 +17,8 @@ export const ERROR_MESSAGES = {
   CREATE_PRODUCT_ERROR: "Failed to create product",
   UPDATE_PRODUCT_ERROR: "Failed to update product",
   DELETE_PRODUCT_ERROR: "Failed to delete product",
+  UPDATE_PRODUCT_STATUS_ERROR: "Failed to update product status",
+  UPDATE_PRODUCT_FEATURED_ERROR: "Failed to update product featured status",
   UPLOAD_IMAGE_ERROR: "Failed to upload image",
   DELETE_IMAGE_ERROR: "Failed to delete image",
 
