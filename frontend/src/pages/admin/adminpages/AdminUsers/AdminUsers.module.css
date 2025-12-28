@@ -151,23 +151,58 @@
   color: #92400e;
 }
 
-/* ================ PASSWORD HASH ==================== */
+/* ================ INLINE SELECT (ROLE & STATUS) ==================== */
 
-.passwordHash {
-  font-family: 'Courier New', monospace;
+.inlineSelect {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 9999px;
   font-size: 0.75rem;
-  color: #6b7280;
-  cursor: help;
+  font-weight: 600;
+  text-transform: capitalize;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.25rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem 1rem;
+  padding-right: 1.25rem;
+  transition: all 0.2s;
+}
+
+.inlineSelect:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.inlineSelect.admin {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.inlineSelect.user {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.inlineSelect.active {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.inlineSelect.inactive {
+  background-color: #e5e7eb;
+  color: #4b5563;
+}
+
+.inlineSelect.suspended {
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
 /* ================ ACTIONS ==================== */
-
-.actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
 
 .editButton {
   padding: 0.5rem 1rem;
@@ -183,25 +218,6 @@
 
 .editButton:hover {
   background-color: #2563eb;
-}
-
-.actionSelect {
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  background: white;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-
-.actionSelect:hover {
-  border-color: #9ca3af;
-}
-
-.actionSelect:focus {
-  outline: none;
-  border-color: #3b82f6;
 }
 
 /* ================ PAGINATION ==================== */
@@ -285,10 +301,6 @@
   }
 
   .usersTable {
-    min-width: 800px;
-  }
-
-  .actions {
-    flex-direction: column;
+    min-width: 900px;
   }
 }

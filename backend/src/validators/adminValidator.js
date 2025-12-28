@@ -220,6 +220,25 @@ const querySchema = Joi.object({
     .valid("active", "inactive", "suspended", "all")
     .optional(),
     
+  sortBy: Joi.string()
+    .valid(
+      "user_id",
+      "user_email",
+      "user_firstname",
+      "user_lastname",
+      "user_role",
+      "user_status",
+      "user_created_at",
+      "user_updated_at"
+    )
+    .optional()
+    .default("user_id"),
+    
+  sortOrder: Joi.string()
+    .valid("asc", "desc")
+    .optional()
+    .default("desc"),
+    
   category_id: Joi.number()
     .integer()
     .positive()

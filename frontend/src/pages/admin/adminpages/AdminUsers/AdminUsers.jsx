@@ -17,6 +17,7 @@ import getAllUsers from "../../functions/getAllUsers";
 import updateUserStatus from "../../functions/updateUserStatus";
 import updateUserRole from "../../functions/updateUserRole";
 import updateUser from "../../functions/updateUser";
+import formatDateDMY from "../../functions/formatDateDMY";
 
 //  ========== Constants imports  ========== //
 import { ERROR_MESSAGES } from "../../constants/adminErrorMessages";
@@ -223,7 +224,10 @@ export default function AdminUsers() {
                     ID <span className={styles.sortIcon}>{getSortIcon("user_id")}</span>
                   </th>
                   <th className={styles.sortable} onClick={() => handleSort("user_firstname")}>
-                    Name <span className={styles.sortIcon}>{getSortIcon("user_firstname")}</span>
+                    First Name <span className={styles.sortIcon}>{getSortIcon("user_firstname")}</span>
+                  </th>
+                  <th className={styles.sortable} onClick={() => handleSort("user_lastname")}>
+                    Last Name <span className={styles.sortIcon}>{getSortIcon("user_lastname")}</span>
                   </th>
                   <th className={styles.sortable} onClick={() => handleSort("user_email")}>
                     Email <span className={styles.sortIcon}>{getSortIcon("user_email")}</span>
@@ -234,7 +238,6 @@ export default function AdminUsers() {
                   <th className={styles.sortable} onClick={() => handleSort("user_status")}>
                     Status <span className={styles.sortIcon}>{getSortIcon("user_status")}</span>
                   </th>
-                  <th>Password Hash</th>
                   <th className={styles.sortable} onClick={() => handleSort("user_created_at")}>
                     Created <span className={styles.sortIcon}>{getSortIcon("user_created_at")}</span>
                   </th>
@@ -248,54 +251,40 @@ export default function AdminUsers() {
                 {users.map((user) => (
                   <tr key={user.id}>
                     <td>{user.id}</td>
-                    <td>
-                      {user.firstName} {user.lastName}
-                    </td>
+                    <td>{user.firstName}</td>
+                    <td>{user.lastName}</td>
                     <td>{user.email}</td>
                     <td>
-                      <span className={`${styles.badge} ${styles[user.role]}`}>
-                        {user.role}
-                      </span>
+                      <select
+                        value={user.role}
+                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                        className={`${styles.inlineSelect} ${styles[user.role]}`}
+                      >
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                      </select>
                     </td>
                     <td>
-                      <span className={`${styles.badge} ${styles[user.status]}`}>
-                        {user.status}
-                      </span>
+                      <select
+                        value={user.status}
+                        onChange={(e) => handleStatusChange(user.id, e.target.value)}
+                        className={`${styles.inlineSelect} ${styles[user.status]}`}
+                      >
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="suspended">Suspended</option>
+                      </select>
                     </td>
+                    <td>{formatDateDMY(user.createdAt)}</td>
+                    <td>{formatDateDMY(user.updatedAt)}</td>
                     <td>
-                      <span className={styles.passwordHash} title={user.password}>
-                        {user.password ? `${user.password.substring(0, 20)}...` : 'N/A'}
-                      </span>
-                    </td>
-                    <td>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</td>
-                    <td>{user.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : 'N/A'}</td>
-                    <td>
-                      <div className={styles.actions}>
-                        <button
-                          className={styles.editButton}
-                          onClick={() => handleEditUser(user)}
-                          title="Edit user profile"
-                        >
-                          Edit
-                        </button>
-                        <select
-                          value={user.role}
-                          onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                          className={styles.actionSelect}
-                        >
-                          <option value="user">User</option>
-                          <option value="admin">Admin</option>
-                        </select>
-                        <select
-                          value={user.status}
-                          onChange={(e) => handleStatusChange(user.id, e.target.value)}
-                          className={styles.actionSelect}
-                        >
-                          <option value="active">Active</option>
-                          <option value="inactive">Inactive</option>
-                          <option value="suspended">Suspended</option>
-                        </select>
-                      </div>
+                      <button
+                        className={styles.editButton}
+                        onClick={() => handleEditUser(user)}
+                        title="Edit user profile"
+                      >
+                        Edit
+                      </button>
                     </td>
                   </tr>
                 ))}

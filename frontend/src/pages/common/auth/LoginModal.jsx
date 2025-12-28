@@ -9,7 +9,7 @@
 import styles from "./Auth.module.css"; 
 import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext.jsx';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 //  ========== Function imports  ========== //
 import handleSubmitLogin from './functions/handleSubmitLogin';
@@ -21,11 +21,12 @@ function LoginModal({ onClose }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useContext(AuthContext); // Get login function from context
+  const navigate = useNavigate(); // Get navigate function for redirects
 
   // Handler function with proper context
   const handleSubmitWithContext = (e) => {
     const credentials = { email, password };
-    handleSubmitLogin(e, credentials, login, setError, onClose);
+    handleSubmitLogin(e, credentials, login, setError, onClose, navigate);
   };
 
 ///////////////////////////////////////////////////////////////////////

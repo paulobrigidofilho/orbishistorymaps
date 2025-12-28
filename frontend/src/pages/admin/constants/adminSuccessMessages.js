@@ -7,6 +7,8 @@ export const SUCCESS_MESSAGES = {
   USER_STATUS_UPDATED: "User status updated successfully",
   USER_ROLE_UPDATED: "User role updated successfully",
   USER_UPDATED: "User profile updated successfully",
+  AVATAR_UPLOADED: "Avatar uploaded successfully",
+  AVATAR_DELETED: "Avatar deleted successfully",
 
   // Product success messages
   PRODUCT_CREATED: "Product created successfully!",
@@ -22,3 +24,7 @@ export const SUCCESS_MESSAGES = {
   // Settings success messages
   SETTINGS_SAVED: "Settings saved successfully!",
 };
+
+// Default avatar path
+export const DEFAULT_AVATAR = "/assets/common/default-avatar.png";
+

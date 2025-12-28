@@ -10,12 +10,14 @@ import styles from "./UserEditModal.module.css";
 
 //  ========== Function imports  ========== //
 import getChangedUserFields from "../../../functions/getChangedUserFields";
+import uploadUserAvatar from "../../../functions/uploadUserAvatar";
 
 //  ========== Validator imports  ========== //
 import validateUserEditForm from "../../../validators/validateUserEditForm";
+import validateAvatarFile from "../../../validators/validateAvatarFile";
 
 //  ========== Constants imports  ========== //
-import { SUCCESS_MESSAGES } from "../../../constants/adminSuccessMessages";
+import { SUCCESS_MESSAGES, DEFAULT_AVATAR } from "../../../constants/adminSuccessMessages";
 import { ERROR_MESSAGES } from "../../../constants/adminErrorMessages";
 
 ///////////////////////////////////////////////////////////////////////
@@ -44,6 +46,13 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
 
+  // Avatar-specific state
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
+  const [avatarSuccess, setAvatarSuccess] = useState("");
+
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
   ///////////////////////////////////////////////////////////////////////
@@ -63,6 +72,11 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
         password: "", // Never pre-fill password
         confirmPassword: "", // Never pre-fill confirm password
       });
+      // Reset avatar states when user changes
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      setAvatarError("");
+      setAvatarSuccess("");
     }
   }, [user]);
 
@@ -93,6 +107,74 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
 
   const getChangedFields = () => {
     return getChangedUserFields(formData, user);
+  };
+
+  // Avatar handling functions
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    setAvatarError("");
+    setAvatarSuccess("");
+
+    if (file) {
+      const validation = validateAvatarFile(file);
+
+      if (!validation.success) {
+        setAvatarError(validation.error);
+        e.target.value = "";
+        return;
+      }
+
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleAvatarUpload = async () => {
+    if (!avatarFile || !user?.id) return;
+
+    setAvatarUploading(true);
+    setAvatarError("");
+    setAvatarSuccess("");
+
+    try {
+      const response = await uploadUserAvatar(user.id, avatarFile);
+      const newAvatarPath = response.avatar || response.avatarPath;
+      
+      // Update formData with new avatar path
+      setFormData((prev) => ({
+        ...prev,
+        avatar: newAvatarPath,
+      }));
+      
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      setAvatarSuccess(SUCCESS_MESSAGES.AVATAR_UPLOADED);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setAvatarSuccess("");
+      }, 3000);
+    } catch (error) {
+      setAvatarError(error.message || "Failed to upload avatar");
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+  const handleCancelAvatarSelection = () => {
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    setAvatarError("");
+    // Reset file input
+    const fileInput = document.getElementById("admin-avatar-upload");
+    if (fileInput) fileInput.value = "";
+  };
+
+  // Get current avatar source for display
+  const getCurrentAvatarSrc = () => {
+    if (avatarPreview) return avatarPreview;
+    if (formData.avatar && formData.avatar.trim() !== "") return formData.avatar;
+    return DEFAULT_AVATAR;
   };
 
   const handleSubmit = async (e) => {
@@ -144,6 +226,11 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
     });
     setErrors({});
     setSuccessMessage("");
+    // Reset avatar states
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    setAvatarError("");
+    setAvatarSuccess("");
     onClose();
   };
 
@@ -220,16 +307,70 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label htmlFor="avatar">Avatar URL</label>
-              <input
-                type="text"
-                id="avatar"
-                name="avatar"
-                value={formData.avatar}
-                onChange={handleInputChange}
-                placeholder="https://example.com/avatar.jpg"
-              />
+            {/* Avatar Section */}
+            <div className={styles.avatarSection}>
+              <label className={styles.avatarLabel}>Avatar</label>
+              
+              {/* Current Avatar Display */}
+              <div className={styles.avatarPreviewContainer}>
+                <img
+                  src={getCurrentAvatarSrc()}
+                  alt="User Avatar"
+                  className={styles.avatarPreview}
+                />
+                <span className={styles.avatarStatus}>
+                  {avatarPreview ? "Preview" : formData.avatar ? "Current" : "Default"}
+                </span>
+              </div>
+
+              {/* File Upload Controls */}
+              <div className={styles.avatarUploadControls}>
+                <input
+                  type="file"
+                  id="admin-avatar-upload"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className={styles.fileInput}
+                  disabled={avatarUploading}
+                />
+                
+                {/* Upload/Cancel buttons when file is selected */}
+                {avatarFile && !avatarUploading && (
+                  <div className={styles.avatarButtons}>
+                    <button
+                      type="button"
+                      onClick={handleAvatarUpload}
+                      className={styles.uploadAvatarButton}
+                      title="Upload Avatar"
+                    >
+                      📤 Upload
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCancelAvatarSelection}
+                      className={styles.cancelAvatarButton}
+                      title="Cancel Selection"
+                    >
+                      ✕ Cancel
+                    </button>
+                  </div>
+                )}
+
+                {/* Loading state */}
+                {avatarUploading && (
+                  <span className={styles.avatarLoading}>Uploading...</span>
+                )}
+              </div>
+
+              {/* Avatar Error Message */}
+              {avatarError && (
+                <div className={styles.avatarErrorMessage}>{avatarError}</div>
+              )}
+
+              {/* Avatar Success Message */}
+              {avatarSuccess && (
+                <div className={styles.avatarSuccessMessage}>{avatarSuccess}</div>
+              )}
             </div>
 
             <div className={styles.formGroup}>
