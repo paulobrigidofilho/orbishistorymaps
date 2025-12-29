@@ -11,6 +11,7 @@ import styles from "./ProductEditModal.module.css";
 
 //  ========== Component imports  ========== //
 import TagInput from "./TagInput";
+import { CloseBtn, CancelBtn, SaveBtn } from "../../../btn";
 
 //  ========== Function imports  ========== //
 import createProduct from "../../../functions/createProduct";
@@ -18,8 +19,14 @@ import uploadProductImage from "../../../functions/uploadProductImage";
 import addMultipleTags from "../../../functions/addMultipleTags";
 import getAllTags from "../../../functions/getAllTags";
 
+//  ========== Helper imports  ========== //
+import generateSKU from "../../../helpers/generateSKU";
+import { addPendingTag, removePendingTag } from "../../../helpers/pendingTagHelpers";
+import { removePendingImage, cleanupPendingImages } from "../../../helpers/pendingImageHelpers";
+
 //  ========== Validator imports  ========== //
 import validateProductForm from "../../../validators/validateProductForm";
+import { validateProductImages } from "../../../validators/validateProductImages";
 
 //  ========== Constants imports  ========== //
 import { SUCCESS_MESSAGES } from "../../../constants/adminSuccessMessages";
@@ -116,30 +123,6 @@ export default function AddProductModal({ isOpen, onClose, onSave, categories = 
     }
   };
 
-  // Generate SKU from product name and timestamp
-  const generateSKU = (productName) => {
-    if (!productName) return "";
-    
-    // Clean product name: take first 3-5 chars of first 2 words
-    const words = productName
-      .toUpperCase()
-      .replace(/[^A-Z0-9\s]/g, "")
-      .split(/\s+/)
-      .filter(word => word.length > 0);
-    
-    let prefix = "";
-    if (words.length >= 2) {
-      prefix = words[0].substring(0, 3) + words[1].substring(0, 3);
-    } else if (words.length === 1) {
-      prefix = words[0].substring(0, 6);
-    }
-    
-    // Add timestamp-based suffix for uniqueness (last 6 digits of timestamp)
-    const suffix = Date.now().toString().slice(-6);
-    
-    return `${prefix}-${suffix}`;
-  };
-
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -169,50 +152,26 @@ export default function AddProductModal({ isOpen, onClose, onSave, categories = 
     const files = Array.from(e.target.files);
     setImageError("");
 
-    // Check total image limit
-    const totalImages = pendingImages.length + files.length;
-    if (totalImages > PRODUCT_IMAGE_LIMIT) {
-      setImageError(`Maximum ${PRODUCT_IMAGE_LIMIT} images allowed. You have ${pendingImages.length}, trying to add ${files.length}`);
+    // Validate images using the validator
+    const validation = validateProductImages(
+      files,
+      pendingImages.length,
+      PRODUCT_IMAGE_LIMIT
+    );
+
+    if (!validation.success) {
+      setImageError(validation.error);
       e.target.value = "";
       return;
     }
 
-    // Validate each file
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-    const maxSize = 10 * 1024 * 1024; // 10MB
-
-    const validFiles = [];
-    for (const file of files) {
-      if (!allowedTypes.includes(file.type)) {
-        setImageError("Only JPEG, PNG, and WebP images are allowed");
-        e.target.value = "";
-        return;
-      }
-      if (file.size > maxSize) {
-        setImageError(`File "${file.name}" exceeds 10MB limit`);
-        e.target.value = "";
-        return;
-      }
-      validFiles.push({
-        file,
-        preview: URL.createObjectURL(file),
-        id: Date.now() + Math.random(), // Unique ID for key
-      });
-    }
-
-    setPendingImages((prev) => [...prev, ...validFiles]);
+    setPendingImages((prev) => [...prev, ...validation.validFiles]);
     e.target.value = ""; // Reset input for next selection
   };
 
   // Remove pending image
   const handleRemoveImage = (imageId) => {
-    setPendingImages((prev) => {
-      const imageToRemove = prev.find((img) => img.id === imageId);
-      if (imageToRemove) {
-        URL.revokeObjectURL(imageToRemove.preview); // Clean up preview URL
-      }
-      return prev.filter((img) => img.id !== imageId);
-    });
+    setPendingImages((prev) => removePendingImage(prev, imageId));
   };
 
   ///////////////////////////////////////////////////////////////////////
@@ -221,14 +180,12 @@ export default function AddProductModal({ isOpen, onClose, onSave, categories = 
 
   // Add a pending tag (will be saved after product creation)
   const handleAddTag = (tagName) => {
-    // Create a temporary ID for the pending tag
-    const tempId = `temp-${Date.now()}-${Math.random()}`;
-    setPendingTags((prev) => [...prev, { tag_id: tempId, tag_name: tagName }]);
+    setPendingTags((prev) => addPendingTag(prev, tagName));
   };
 
   // Remove a pending tag
   const handleRemoveTag = (tagId) => {
-    setPendingTags((prev) => prev.filter((tag) => tag.tag_id !== tagId));
+    setPendingTags((prev) => removePendingTag(prev, tagId));
   };
 
   ///////////////////////////////////////////////////////////////////////
@@ -310,8 +267,8 @@ export default function AddProductModal({ isOpen, onClose, onSave, categories = 
   ///////////////////////////////////////////////////////////////////////
 
   const handleClose = () => {
-    // Clean up preview URLs
-    pendingImages.forEach((img) => URL.revokeObjectURL(img.preview));
+    // Clean up preview URLs using helper
+    cleanupPendingImages(pendingImages);
     resetForm();
     onClose();
   };
@@ -327,14 +284,7 @@ export default function AddProductModal({ isOpen, onClose, onSave, categories = 
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>Add New Product</h2>
-          <button
-            type="button"
-            className={styles.closeButton}
-            onClick={handleClose}
-            aria-label="Close modal"
-          >
-            ×
-          </button>
+          <CloseBtn onClick={handleClose} />
         </div>
 
         <form onSubmit={handleSubmit} className={styles.modalForm}>
@@ -604,20 +554,10 @@ export default function AddProductModal({ isOpen, onClose, onSave, categories = 
 
           {/* Form Actions */}
           <div className={styles.modalFooter}>
-            <button
-              type="button"
-              className={styles.cancelButton}
-              onClick={handleClose}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className={styles.saveButton}
-              disabled={loading}
-            >
-              {loading ? "Creating..." : "Create Product"}
-            </button>
+            <CancelBtn onClick={handleClose} />
+            <SaveBtn loading={loading} loadingText="Creating...">
+              Create Product
+            </SaveBtn>
           </div>
         </form>
       </div>

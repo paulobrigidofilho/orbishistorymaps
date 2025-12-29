@@ -10,6 +10,7 @@ import styles from "./ProductEditModal.module.css";
 
 //  ========== Component imports  ========== //
 import TagInput from "./TagInput";
+import { CloseBtn, CancelBtn, SaveBtn, UploadBtn } from "../../../btn";
 
 //  ========== Function imports  ========== //
 import getProductById from "../../../functions/getProductById";
@@ -19,9 +20,11 @@ import getProductTags from "../../../functions/getProductTags";
 import addProductTag from "../../../functions/addProductTag";
 import deleteProductTag from "../../../functions/deleteProductTag";
 import getAllTags from "../../../functions/getAllTags";
+import getChangedProductFields from "../../../helpers/getChangedProductFields";
 
 //  ========== Validator imports  ========== //
 import validateProductForm from "../../../validators/validateProductForm";
+import validateEditProductImage from "../../../validators/validateEditProductImage";
 
 //  ========== Constants imports  ========== //
 import { SUCCESS_MESSAGES } from "../../../constants/adminSuccessMessages";
@@ -156,34 +159,6 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
     return Object.keys(newErrors).length === 0;
   };
 
-  const getChangedFields = () => {
-    if (!product) return {};
-    const changes = {};
-    
-    if (formData.name !== (product.product_name || "")) changes.name = formData.name;
-    if (formData.description !== (product.product_description || "")) changes.description = formData.description;
-    if (parseFloat(formData.price) !== parseFloat(product.price || 0)) changes.price = parseFloat(formData.price);
-    if (formData.sale_price !== "" && parseFloat(formData.sale_price) !== parseFloat(product.sale_price || 0)) {
-      changes.sale_price = parseFloat(formData.sale_price) || null;
-    } else if (formData.sale_price === "" && product.sale_price) {
-      changes.sale_price = null;
-    }
-    if (formData.sku !== (product.sku || "")) changes.sku = formData.sku || null;
-    if (parseInt(formData.quantity_available) !== parseInt(product.quantity_available || 0)) {
-      changes.quantity_available = parseInt(formData.quantity_available);
-    }
-    if (formData.category_id !== "" && parseInt(formData.category_id) !== parseInt(product.category_id || 0)) {
-      changes.category_id = parseInt(formData.category_id) || null;
-    }
-    if (formData.brand !== (product.brand || "")) changes.brand = formData.brand || null;
-    if (formData.is_featured !== (product.is_featured || false)) changes.is_featured = formData.is_featured;
-    if (formData.is_active !== (product.is_active !== undefined ? product.is_active : true)) {
-      changes.is_active = formData.is_active;
-    }
-
-    return changes;
-  };
-
   // Image handling functions
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -191,23 +166,11 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
     setImageSuccess("");
 
     if (file) {
-      // Check image limit first
-      if (images.length >= PRODUCT_IMAGE_LIMIT) {
-        setImageError(`Maximum ${PRODUCT_IMAGE_LIMIT} images allowed per product`);
-        e.target.value = "";
-        return;
-      }
-
-      // Validate file type
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-      if (!allowedTypes.includes(file.type)) {
-        setImageError("Only JPEG, PNG, and WebP images are allowed");
-        e.target.value = "";
-        return;
-      }
-      // Validate file size (10MB max)
-      if (file.size > 10 * 1024 * 1024) {
-        setImageError("Image must be less than 10MB");
+      // Validate using the validator
+      const validation = validateEditProductImage(file, images.length, PRODUCT_IMAGE_LIMIT);
+      
+      if (!validation.success) {
+        setImageError(validation.error);
         e.target.value = "";
         return;
       }
@@ -295,7 +258,7 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
 
     if (!validateForm()) return;
 
-    const changes = getChangedFields();
+    const changes = getChangedProductFields(formData, product);
 
     if (Object.keys(changes).length === 0) {
       setErrors({ submit: "No changes to save" });
@@ -352,27 +315,10 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>Edit Product</h2>
-          <button
-            type="button"
-            className={styles.closeButton}
-            onClick={handleClose}
-            aria-label="Close modal"
-          >
-            ×
-          </button>
+          <CloseBtn onClick={handleClose} />
         </div>
 
         <form onSubmit={handleSubmit} className={styles.modalForm}>
-          {/* Success Message */}
-          {successMessage && (
-            <div className={styles.successMessage}>{successMessage}</div>
-          )}
-
-          {/* Error Message */}
-          {errors.submit && (
-            <div className={styles.errorMessage}>{errors.submit}</div>
-          )}
-
           {/* Basic Information */}
           <div className={styles.formSection}>
             <h3 className={styles.sectionTitle}>Basic Information</h3>
@@ -620,14 +566,12 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
                       className={styles.fileInput}
                     />
                     {imageFile && (
-                      <button
-                        type="button"
+                      <UploadBtn
                         onClick={handleImageUpload}
-                        disabled={imageUploading}
-                        className={styles.uploadButton}
+                        loading={imageUploading}
                       >
-                        {imageUploading ? "Uploading..." : "Upload Image"}
-                      </button>
+                        Upload Image
+                      </UploadBtn>
                     )}
                   </div>
                 </>
@@ -642,22 +586,20 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
             </div>
           </div>
 
+          {/* Success Message */}
+          {successMessage && (
+            <div className={styles.successMessage}>{successMessage}</div>
+          )}
+
+          {/* Error Message */}
+          {errors.submit && (
+            <div className={styles.errorMessage}>{errors.submit}</div>
+          )}
+
           {/* Form Actions */}
           <div className={styles.modalFooter}>
-            <button
-              type="button"
-              className={styles.cancelButton}
-              onClick={handleClose}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className={styles.saveButton}
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Save Changes"}
-            </button>
+            <CancelBtn onClick={handleClose} />
+            <SaveBtn loading={loading} />
           </div>
         </form>
       </div>

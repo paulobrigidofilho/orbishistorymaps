@@ -12,6 +12,7 @@ import styles from "./AdminUsers.module.css";
 import AdminLayout from "../../components/AdminLayout";
 import UserEditModal from "./subcomponents/UserEditModal";
 import DeleteUserModal from "./subcomponents/DeleteUserModal";
+import { EditBtn, DeleteBtn, PageBtn } from "../../btn";
 
 //  ========== Function imports  ========== //
 import getAllUsers from "../../functions/getAllUsers";
@@ -19,7 +20,7 @@ import updateUserStatus from "../../functions/updateUserStatus";
 import updateUserRole from "../../functions/updateUserRole";
 import updateUser from "../../functions/updateUser";
 import deleteUser from "../../functions/deleteUser";
-import formatDateDMY from "../../functions/formatDateDMY";
+import formatDateDMY from "../../helpers/formatDateDMY";
 
 //  ========== Constants imports  ========== //
 import { ERROR_MESSAGES } from "../../constants/adminErrorMessages";
@@ -313,21 +314,15 @@ export default function AdminUsers() {
                     <td>{formatDateDMY(user.updatedAt)}</td>
                     <td>
                       <div className={styles.actionButtons}>
-                        <button
-                          className={styles.editButton}
+                        <EditBtn
                           onClick={() => handleEditUser(user)}
                           title="Edit user profile"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className={`${styles.deleteButton} ${user.role === 'admin' ? styles.disabled : ''}`}
+                        />
+                        <DeleteBtn
                           onClick={() => handleDeleteUser(user)}
                           disabled={user.role === 'admin'}
                           title={user.role === 'admin' ? "Admin accounts cannot be deleted" : "Delete user"}
-                        >
-                          Delete
-                        </button>
+                        />
                       </div>
                     </td>
                   </tr>
@@ -345,23 +340,21 @@ export default function AdminUsers() {
         {/* Pagination */}
         {pagination.totalPages > 1 && (
           <div className={styles.pagination}>
-            <button
+            <PageBtn
               onClick={() => handlePageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
-              className={styles.pageButton}
             >
               Previous
-            </button>
+            </PageBtn>
             <span className={styles.pageInfo}>
               Page {pagination.page} of {pagination.totalPages}
             </span>
-            <button
+            <PageBtn
               onClick={() => handlePageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
-              className={styles.pageButton}
             >
               Next
-            </button>
+            </PageBtn>
           </div>
         )}
       </div>

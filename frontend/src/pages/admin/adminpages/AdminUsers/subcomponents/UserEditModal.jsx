@@ -8,8 +8,11 @@
 import React, { useState, useEffect } from "react";
 import styles from "./UserEditModal.module.css";
 
+//  ========== Button imports  ========== //
+import { CloseBtn, CancelBtn, SaveBtn } from "../../../btn";
+
 //  ========== Function imports  ========== //
-import getChangedUserFields from "../../../functions/getChangedUserFields";
+import getChangedUserFields from "../../../helpers/getChangedUserFields";
 import uploadUserAvatar from "../../../functions/uploadUserAvatar";
 
 //  ========== Validator imports  ========== //
@@ -245,14 +248,7 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>Edit User Profile</h2>
-          <button
-            type="button"
-            className={styles.closeButton}
-            onClick={handleClose}
-            aria-label="Close modal"
-          >
-            ×
-          </button>
+          <CloseBtn onClick={handleClose} />
         </div>
 
         <form onSubmit={handleSubmit} className={styles.modalForm}>
@@ -486,21 +482,8 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
 
           {/* Modal Actions */}
           <div className={styles.modalActions}>
-            <button
-              type="button"
-              className={styles.cancelButton}
-              onClick={handleClose}
-              disabled={loading}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className={styles.saveButton}
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Save Changes"}
-            </button>
+            <CancelBtn onClick={handleClose} disabled={loading} />
+            <SaveBtn loading={loading} />
           </div>
         </form>
       </div>

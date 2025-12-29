@@ -8,6 +8,9 @@
 import React from "react";
 import styles from "./DeleteProductModal.module.css";
 
+//  ========== Button imports  ========== //
+import { CancelBtn, ConfirmBtn, CloseBtn } from "../../../btn";
+
 ///////////////////////////////////////////////////////////////////////
 // =================== DELETE PRODUCT MODAL ========================== //
 ///////////////////////////////////////////////////////////////////////
@@ -29,9 +32,7 @@ export default function DeleteProductModal({ product, isOpen, onClose, onConfirm
         {/* Modal Header */}
         <div className={styles.modalHeader}>
           <h2>Delete Product</h2>
-          <button className={styles.closeButton} onClick={onClose}>
-            ×
-          </button>
+          <CloseBtn onClick={onClose} />
         </div>
 
         {/* Modal Body */}
@@ -62,20 +63,15 @@ export default function DeleteProductModal({ product, isOpen, onClose, onConfirm
 
         {/* Modal Footer */}
         <div className={styles.modalFooter}>
-          <button
-            className={styles.cancelButton}
-            onClick={onClose}
-            disabled={isDeleting}
-          >
-            Cancel
-          </button>
-          <button
-            className={styles.deleteButton}
+          <CancelBtn onClick={onClose} disabled={isDeleting} />
+          <ConfirmBtn
             onClick={() => onConfirm(product.product_id)}
             disabled={isDeleting}
+            loading={isDeleting}
+            loadingText="Deleting..."
           >
-            {isDeleting ? "Deleting..." : "Delete Product"}
-          </button>
+            Delete Product
+          </ConfirmBtn>
         </div>
       </div>
     </div>

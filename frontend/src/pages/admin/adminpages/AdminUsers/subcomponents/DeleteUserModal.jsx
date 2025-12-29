@@ -8,6 +8,9 @@
 import React from "react";
 import styles from "./DeleteUserModal.module.css";
 
+//  ========== Button imports  ========== //
+import { CancelBtn, ConfirmBtn, CloseBtn } from "../../../btn";
+
 ///////////////////////////////////////////////////////////////////////
 // ===================== DELETE USER MODAL ========================== //
 ///////////////////////////////////////////////////////////////////////
@@ -29,9 +32,7 @@ export default function DeleteUserModal({ user, isOpen, onClose, onConfirm, isDe
         {/* Modal Header */}
         <div className={styles.modalHeader}>
           <h2>Delete User</h2>
-          <button className={styles.closeButton} onClick={onClose}>
-            ×
-          </button>
+          <CloseBtn onClick={onClose} />
         </div>
 
         {/* Modal Body */}
@@ -61,20 +62,15 @@ export default function DeleteUserModal({ user, isOpen, onClose, onConfirm, isDe
 
         {/* Modal Footer */}
         <div className={styles.modalFooter}>
-          <button
-            className={styles.cancelButton}
-            onClick={onClose}
-            disabled={isDeleting}
-          >
-            Cancel
-          </button>
-          <button
-            className={styles.deleteButton}
+          <CancelBtn onClick={onClose} disabled={isDeleting} />
+          <ConfirmBtn
             onClick={() => onConfirm(user.id)}
             disabled={isDeleting}
+            loading={isDeleting}
+            loadingText="Deleting..."
           >
-            {isDeleting ? "Deleting..." : "Delete User"}
-          </button>
+            Delete User
+          </ConfirmBtn>
         </div>
       </div>
     </div>

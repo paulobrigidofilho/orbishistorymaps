@@ -13,13 +13,14 @@ import AdminLayout from "../../components/AdminLayout";
 import ProductEditModal from "./subcomponents/ProductEditModal";
 import AddProductModal from "./subcomponents/AddProductModal";
 import DeleteProductModal from "./subcomponents/DeleteProductModal";
+import { EditBtn, DeleteBtn, AddBtn, PageBtn } from "../../btn";
 
 //  ========== Function imports  ========== //
 import getAllProducts from "../../functions/getAllProducts";
 import getAllCategories from "../../functions/getAllCategories";
 import updateProduct from "../../functions/updateProduct";
 import deleteProduct from "../../functions/deleteProduct";
-import formatDateDMY from "../../functions/formatDateDMY";
+import formatDateDMY from "../../helpers/formatDateDMY";
 
 //  ========== Constants imports  ========== //
 import { ERROR_MESSAGES } from "../../constants/adminErrorMessages";
@@ -238,9 +239,9 @@ export default function AdminProducts() {
       <div className={styles.productsPage}>
         <div className={styles.header}>
           <h1>Product Management</h1>
-          <button onClick={handleOpenAddModal} className={styles.addButton}>
+          <AddBtn onClick={handleOpenAddModal}>
             + Add Product
-          </button>
+          </AddBtn>
         </div>
 
         {/* Filters */}
@@ -400,20 +401,14 @@ export default function AdminProducts() {
                     <td>{formatDateDMY(product.created_at)}</td>
                     <td>
                       <div className={styles.actionButtons}>
-                        <button
-                          className={styles.editButton}
+                        <EditBtn
                           onClick={() => handleEditProduct(product)}
                           title="Edit product"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className={styles.deleteButton}
+                        />
+                        <DeleteBtn
                           onClick={() => handleDeleteProduct(product)}
                           title="Delete product"
-                        >
-                          Delete
-                        </button>
+                        />
                       </div>
                     </td>
                   </tr>
@@ -427,32 +422,30 @@ export default function AdminProducts() {
         {!loading && products.length === 0 && (
           <div className={styles.emptyState}>
             <p>No products found</p>
-            <button onClick={handleOpenAddModal} className={styles.addButton}>
+            <AddBtn onClick={handleOpenAddModal}>
               Add Your First Product
-            </button>
+            </AddBtn>
           </div>
         )}
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
           <div className={styles.pagination}>
-            <button
+            <PageBtn
               onClick={() => handlePageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
-              className={styles.pageButton}
             >
               Previous
-            </button>
+            </PageBtn>
             <span className={styles.pageInfo}>
               Page {pagination.page} of {pagination.totalPages}
             </span>
-            <button
+            <PageBtn
               onClick={() => handlePageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
-              className={styles.pageButton}
             >
               Next
-            </button>
+            </PageBtn>
           </div>
         )}
       </div>
