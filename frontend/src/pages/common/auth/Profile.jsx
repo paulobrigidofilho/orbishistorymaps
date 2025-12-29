@@ -1,11 +1,10 @@
-///////////////////////////////////
-// ===== PROFILE COMPONENT ===== //
-///////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ======================= PROFILE COMPONENT ======================= //
+///////////////////////////////////////////////////////////////////////
 
 // This component allows users to view and edit their profile information
 
 //  ========== Module imports  ========== //
-
 import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -16,14 +15,19 @@ import PersonalDetailsDiv from "./components/PersonalDetailsDiv";
 import ProfileDiv from "./components/ProfileDiv";
 import FullAddressDiv from "./components/FullAddressDiv";
 
+//  ========== Button imports  ========== //
+import { SubmitBtn } from "./btn";
+
 //  ========== Function imports  ========== //
-import capitalizeWords from "./functions/capitalizeWords";
 import handleDeleteAvatar from "./functions/handleDeleteAvatar";
 import handleProfileAvatarChange from "./functions/handleProfileAvatarChange";
 import handleProfileSubmit from "./functions/handleProfileSubmit";
 import fetchProfileData from "./functions/fetchProfileData";
 import handleCancelAvatarSelection from "./functions/handleCancelAvatarSelection";
 import handleSubmitAvatar from "./functions/handleSubmitAvatar";
+
+//  ========== Helper imports  ========== //
+import capitalizeWords from "./helpers/capitalizeWords";
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= PROFILE COMPONENT ===================== //
@@ -264,19 +268,15 @@ function Profile() {
 
       {/* Only show Save Changes button if it's the user's own profile */}
       {isOwnProfile && (
-        <button type="submit" className={styles.submitButton}>
-          Save Changes
-        </button>
+        <SubmitBtn variant="submit">Save Changes</SubmitBtn>
       )}
 
       {/* Always show Return Home button */}
-      <button
-        type="button"
+      <SubmitBtn 
+        variant="home" 
+        type="button" 
         onClick={() => navigate("/")}
-        className={styles.homeButton}
-      >
-        Return Home
-      </button>
+      />
 
       {/* Display general error messages */}
       {error && !successMessage && <div className={styles.error}>{error}</div>}

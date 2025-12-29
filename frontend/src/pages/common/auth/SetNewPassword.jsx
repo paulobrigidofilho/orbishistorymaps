@@ -1,6 +1,6 @@
-////////////////////////////////////////
-// ===== SET NEW PASSWORD PAGE ====== //
-////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ================== SET NEW PASSWORD COMPONENT =================== //
+///////////////////////////////////////////////////////////////////////
 
 // This component handles the password reset process
 // using a token from the reset link
@@ -9,6 +9,9 @@
 import styles from "./Auth.module.css";
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+
+//  ========== Button imports  ========== //
+import { SubmitBtn, LinkBtn } from "./btn";
 
 // ========================= SET NEW PASSWORD COMPONENT ======================== //
 
@@ -119,9 +122,7 @@ function SetNewPassword() {
         <div className={styles.error}>
           {error || "This password reset link is invalid or has expired."}
         </div>
-        <div className={styles.registerLink}>
-          <a href="/forgot-password">Request a new reset link</a>
-        </div>
+        <LinkBtn variant="newResetLink" />
       </div>
     );
   }
@@ -172,13 +173,13 @@ function SetNewPassword() {
               </ul>
             </div>
 
-            <button
-              type="submit"
-              className={styles.registerButton}
-              disabled={isLoading}
+            <SubmitBtn
+              variant="register"
+              loading={isLoading}
+              loadingText="Resetting..."
             >
-              {isLoading ? "Resetting..." : "Reset Password"}
-            </button>
+              Reset Password
+            </SubmitBtn>
           </div>
         </form>
       )}

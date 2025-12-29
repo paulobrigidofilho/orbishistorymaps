@@ -12,9 +12,7 @@ import styles from "./ProductDetail.module.css";
 //  ========== Component imports  ========== //
 import MainNavBar from "../common/MainNavBar";
 import WishlistToggleBtn from "../common/wishlist/components/WishlistToggleBtn";
-import QuantitySelector from "./btn/QuantitySelector";
-import AddToCartBtn from "./btn/AddToCartBtn";
-import ProceedToCheckoutBtn from "./btn/ProceedToCheckoutBtn";
+import { QuantitySelector, AddToCartBtn, ProceedToCheckoutBtn } from "./btn";
 import FadeNotification from "../common/components/FadeNotification";
 
 //  ========== Function imports  ========== //
@@ -22,7 +20,7 @@ import getProductDetails from "./functions/productService/getProductDetails";
 import addToCart from "./functions/cartService/addToCart";
 
 //  ========== Helper imports  ========== //
-import handleQuantityChange from "./helpers/handleQuantityChange";
+import { handleQuantityChange } from "./helpers";
 
 //  ========== Context imports  ========== //
 import { AuthContext } from "../common/context/AuthContext";

@@ -16,8 +16,7 @@ import MainNavBar from "../common/MainNavBar";
 import fetchCart from "./functions/fetchCart";
 
 //  ========== Helper imports  ========== //
-import showMessage from "./helpers/showMessage";
-import { calculateCartTotal } from "./helpers/calculateCartTotal";
+import { showMessage, calculateCartTotal } from "./helpers";
 
 //  ========== Validator imports  ========== //
 import { validateShippingAddress } from "./validators/checkoutValidator";

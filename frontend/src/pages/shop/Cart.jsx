@@ -20,8 +20,7 @@ import handleRemoveItem from "./functions/handleRemoveItem";
 import handleClearCart from "./functions/handleClearCart";
 
 //  ========== Helper imports  ========== //
-import showMessage from "./helpers/showMessage";
-import { calculateCartTotal } from "./helpers/calculateCartTotal";
+import { showMessage, calculateCartTotal } from "./helpers";
 
 //  ========== Validator imports  ========== //
 import { validateCartForCheckout } from "./validators/cartValidator";

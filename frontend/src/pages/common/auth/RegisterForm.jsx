@@ -1,12 +1,11 @@
-///////////////////////////////
-// ===== REGISTER FORM ===== //
-///////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// =================== REGISTER FORM COMPONENT ===================== //
+///////////////////////////////////////////////////////////////////////
 
 // This component handles the user registration form fields including
 // personal details, profile information, and full address.
 
 //  ========== Module imports  ========== //
-
 import styles from "./Auth.module.css";
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
@@ -17,12 +16,17 @@ import PersonalDetailsDiv from "./components/PersonalDetailsDiv";
 import ProfileDiv from "./components/ProfileDiv";
 import FullAddressDiv from "./components/FullAddressDiv";
 
+//  ========== Button imports  ========== //
+import { SubmitBtn } from "./btn";
+
 //  ========== Function imports  ========== //
 import handleAvatarChange from "./functions/handleAvatarChange";
 import handleDeleteAvatar from "./functions/handleDeleteAvatar";
-import capitalizeWords from "./functions/capitalizeWords";
 import handleSubmitRegistration from "./functions/handleSubmitRegistration";
 import useRedirectAfterRegistration from "./functions/useRedirectAfterRegistration";
+
+//  ========== Helper imports  ========== //
+import capitalizeWords from "./helpers/capitalizeWords";
 
 // ========================= REGISTER FORM COMPONENT ======================== //
 
@@ -168,9 +172,7 @@ function RegisterForm() {
       <p className={styles.requiredNote}>* Required Fields</p>
 
       {/* Submit Button */}
-      <button type="submit" className={styles.registerButton}>
-        Register
-      </button>
+      <SubmitBtn variant="register" />
 
       {/* Messages to be displayed */}
       {error && <div className={styles.error}>{error}</div>}
