@@ -1,0 +1,171 @@
+/* ============================== */
+/* ===== WISHLIST PAGE STYLES ===== */
+/* ============================== */
+
+.wishlistPage {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.wishlistContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* ============================== */
+/* ===== WISHLIST HEADER ===== */
+/* ============================== */
+
+.wishlistHeader {
+  margin-bottom: 2rem;
+}
+
+.wishlistHeader h1 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.wishlistHeader p {
+  color: #7f8c8d;
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* ============================== */
+/* ===== MESSAGE DISPLAY ===== */
+/* ============================== */
+
+.message {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* ============================== */
+/* ===== WISHLIST CONTENT ===== */
+/* ============================== */
+
+.wishlistContent {
+  min-height: 300px;
+}
+
+.wishlistItems {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ============================== */
+/* ===== ACTIONS CONTAINER ===== */
+/* ============================== */
+
+.actionsContainer {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.continueShoppingButton {
+  padding: 0.75rem 2rem;
+  background: white;
+  color: #3498db;
+  border: 2px solid #3498db;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.continueShoppingButton:hover {
+  background: #3498db;
+  color: white;
+}
+
+/* ============================== */
+/* ===== STATE CONTAINERS ===== */
+/* ============================== */
+
+.loadingContainer,
+.errorContainer,
+.emptyWishlistContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.errorContainer h2,
+.emptyWishlistContainer h2 {
+  margin: 1rem 0;
+  color: #2c3e50;
+}
+
+.errorContainer p,
+.emptyWishlistContainer p {
+  color: #7f8c8d;
+  margin-bottom: 1.5rem;
+}
+
+.retryButton,
+.shopButton {
+  padding: 0.75rem 2rem;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retryButton:hover,
+.shopButton:hover {
+  background: #c0392b;
+}
+
+/* ============================== */
+/* ===== RESPONSIVE DESIGN ===== */
+/* ============================== */
+
+@media (max-width: 768px) {
+  .wishlistContainer {
+    padding: 1rem;
+  }
+
+  .wishlistHeader h1 {
+    font-size: 1.5rem;
+  }
+
+  .wishlistItems {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .wishlistItems {
+    grid-template-columns: 1fr;
+  }
+}

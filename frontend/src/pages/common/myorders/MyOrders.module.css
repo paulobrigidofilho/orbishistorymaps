@@ -1,0 +1,133 @@
+/* ============================== */
+/* ===== MY ORDERS PAGE STYLES ===== */
+/* ============================== */
+
+.ordersPage {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.ordersContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* ============================== */
+/* ===== ORDERS HEADER ===== */
+/* ============================== */
+
+.ordersHeader {
+  margin-bottom: 2rem;
+}
+
+.ordersHeader h1 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.ordersHeader p {
+  color: #7f8c8d;
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* ============================== */
+/* ===== ORDERS LIST ===== */
+/* ============================== */
+
+.ordersList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ============================== */
+/* ===== ACTIONS CONTAINER ===== */
+/* ============================== */
+
+.actionsContainer {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.continueShoppingButton {
+  padding: 0.75rem 2rem;
+  background: white;
+  color: #3498db;
+  border: 2px solid #3498db;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.continueShoppingButton:hover {
+  background: #3498db;
+  color: white;
+}
+
+/* ============================== */
+/* ===== STATE CONTAINERS ===== */
+/* ============================== */
+
+.loadingContainer,
+.errorContainer,
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.errorContainer h2,
+.emptyContainer h2 {
+  margin: 1rem 0;
+  color: #2c3e50;
+}
+
+.errorContainer p,
+.emptyContainer p {
+  color: #7f8c8d;
+  margin-bottom: 1.5rem;
+}
+
+.retryButton,
+.actionButton {
+  padding: 0.75rem 2rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retryButton:hover,
+.actionButton:hover {
+  background: #2980b9;
+}
+
+/* ============================== */
+/* ===== RESPONSIVE DESIGN ===== */
+/* ============================== */
+
+@media (max-width: 768px) {
+  .ordersContainer {
+    padding: 1rem;
+  }
+
+  .ordersHeader h1 {
+    font-size: 1.5rem;
+  }
+}

@@ -13,6 +13,7 @@ const fsSync = require("fs"); // Keep sync API only for existsSync check
 // ======= Helper Imports ======= //
 const { getUserByIdAsync } = require("../helpers/getUserByIdAsync");
 const { sanitizeFilename } = require("../helpers/sanitizePath");
+const { compressAvatar } = require("../helpers/compressAvatar");
 
 // ======= Service Imports ======= //
 const { getUserProfile, updateUserProfile } = require("./profileService");
@@ -38,29 +39,37 @@ const toRelativeAvatarPath = (avatarValue) => {
 };
 
 // ===== saveAvatarUrl Function ===== //
-// Constructs absolute URL for stored avatar based on filename and backend public URL
+// Compresses the avatar image and constructs absolute URL for storage
 
 const saveAvatarUrl = async (filename) => {
-  const base =
-    process.env.BACKEND_PUBLIC_URL?.replace(/\/+$/, "") ||
-    "http://localhost:4000";
-  const relativePath = `/uploads/avatars/${filename}`;
   const absolutePath = path.resolve(
     __dirname,
     "../../uploads/avatars",
     filename
   );
 
-  // Verify file exists on disk before returning URL
+  // Verify file exists on disk before compression
   if (!fsSync.existsSync(absolutePath)) {
     console.error(
-      "[avatar] File not found on disk after upload:",
+      "[avatar] File not found on disk before compression:",
       absolutePath
     );
-    throw new Error("Avatar file not found after upload");
+    throw new Error("Avatar file not found before compression");
   }
 
-  console.log("[avatar] File verified on disk:", absolutePath);
+  console.log("[avatar] File verified on disk, starting compression:", absolutePath);
+
+  // Compress the avatar image
+  const compressed = await compressAvatar(absolutePath);
+  console.log("[avatar] Compression complete:", compressed);
+
+  // Construct absolute URL using the compressed filename
+  const base =
+    process.env.BACKEND_PUBLIC_URL?.replace(/\/+$/, "") ||
+    "http://localhost:4000";
+  const relativePath = `/uploads/avatars/${compressed.filename}`;
+  
+  console.log("[avatar] Returning avatar URL:", `${base}${relativePath}`);
   return `${base}${relativePath}`;
 };
 

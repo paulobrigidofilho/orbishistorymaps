@@ -22,8 +22,8 @@ const validateAvatar = (file) => {
     return { success: true, error: null };
   }
   
-  // Check file size (max 5MB to match frontend and multer config)
-  const maxSize = 5 * 1024 * 1024; // 5MB
+  // Check file size (max 3MB before compression to 100KB at 720x720)
+  const maxSize = 3 * 1024 * 1024; // 3MB
   if (file.size > maxSize) {
     return { success: false, error: VALIDATION_ERRORS.FILE_TOO_LARGE };
   }

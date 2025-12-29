@@ -1,0 +1,165 @@
+/* ============================================================ */
+/* ================ ADMIN BUTTON STYLES ======================= */
+/* ============================================================ */
+
+/* Shared button styles for all admin button components */
+
+/* ================ BASE BUTTON STYLES ==================== */
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ================ SIZE VARIANTS ==================== */
+
+.sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.md {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+/* ================ EDIT BUTTON ==================== */
+
+.editBtn {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.editBtn:hover:not(:disabled) {
+  background: #bfdbfe;
+}
+
+/* ================ DELETE BUTTON ==================== */
+
+.deleteBtn {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.deleteBtn:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+.deleteBtn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ================ SAVE/SUBMIT BUTTON ==================== */
+
+.saveBtn {
+  background: #3b82f6;
+  color: white;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+/* ================ CANCEL BUTTON ==================== */
+
+.cancelBtn {
+  background: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+/* ================ ADD/CREATE BUTTON ==================== */
+
+.addBtn {
+  background: #3b82f6;
+  color: white;
+}
+
+.addBtn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+/* ================ CONFIRM/DANGER BUTTON ==================== */
+
+.confirmBtn {
+  background: #dc2626;
+  color: white;
+}
+
+.confirmBtn:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+/* ================ UPLOAD BUTTON ==================== */
+
+.uploadBtn {
+  background: #10b981;
+  color: white;
+}
+
+.uploadBtn:hover:not(:disabled) {
+  background: #059669;
+}
+
+/* ================ PAGE NAVIGATION BUTTON ==================== */
+
+.pageBtn {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pageBtn:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ================ CLOSE BUTTON ==================== */
+
+.closeBtn {
+  background: transparent;
+  color: #6b7280;
+  font-size: 1.5rem;
+  padding: 0.25rem 0.5rem;
+  line-height: 1;
+}
+
+.closeBtn:hover:not(:disabled) {
+  color: #374151;
+}

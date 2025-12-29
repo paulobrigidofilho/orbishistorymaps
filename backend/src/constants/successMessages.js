@@ -42,9 +42,31 @@ const AVATAR_SUCCESS = {
   AVATAR_UPDATED: "Avatar updated successfully",
 };
 
+////////////////////////////////////////
+// ===== Password Reset Success ===== //
+////////////////////////////////////////
+
+const PASSWORD_RESET_SUCCESS = {
+  RESET_EMAIL_SENT: "Password reset email sent. Please check your inbox.",
+  PASSWORD_UPDATED:
+    "Password updated successfully. You can now login with your new password.",
+};
+
+/////////////////////////////////////
+// ===== Wishlist Success ===== //
+/////////////////////////////////////
+
+const WISHLIST_SUCCESS = {
+  ITEM_ADDED: "Item added to wishlist",
+  ITEM_REMOVED: "Item removed from wishlist",
+  WISHLIST_RETRIEVED: "Wishlist retrieved successfully",
+};
+
 module.exports = {
   AUTH_SUCCESS,
   REGISTRATION_SUCCESS,
   PROFILE_SUCCESS,
   AVATAR_SUCCESS,
+  PASSWORD_RESET_SUCCESS,
+  WISHLIST_SUCCESS,
 };

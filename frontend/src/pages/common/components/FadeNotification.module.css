@@ -1,0 +1,155 @@
+/***********************************************************************
+ * ================ FADE NOTIFICATION STYLES ========================= *
+ ***********************************************************************/
+
+/* ====================== BASE NOTIFICATION ========================== */
+.notification {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
+.notification i {
+  font-size: 18px;
+}
+
+/* ====================== TYPE VARIANTS ============================== */
+
+/* Success Notification */
+.success {
+  background: linear-gradient(135deg, #4caf50, #43a047);
+  color: white;
+}
+
+/* Error Notification */
+.error {
+  background: linear-gradient(135deg, #f44336, #e53935);
+  color: white;
+}
+
+/* Info Notification */
+.info {
+  background: linear-gradient(135deg, #2196f3, #1e88e5);
+  color: white;
+}
+
+/* ====================== POSITION VARIANTS ========================== */
+
+/* Right Position (default) */
+.right {
+  top: 50%;
+  left: calc(100% + 10px);
+  transform: translateY(-50%);
+  animation: popInRight 0.3s ease;
+}
+
+.right.fadeOut {
+  animation: fadeOutRight 0.5s ease forwards;
+}
+
+/* Top Position */
+.top {
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  animation: popInTop 0.3s ease;
+}
+
+.top.fadeOut {
+  animation: fadeOutTop 0.5s ease forwards;
+}
+
+/* Bottom Position */
+.bottom {
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  animation: popInBottom 0.3s ease;
+}
+
+.bottom.fadeOut {
+  animation: fadeOutBottom 0.5s ease forwards;
+}
+
+/* ====================== ANIMATIONS ================================= */
+
+/* Pop In Right */
+@keyframes popInRight {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-10px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1);
+  }
+}
+
+/* Fade Out Right */
+@keyframes fadeOutRight {
+  0% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50%) translateX(10px) scale(0.9);
+  }
+}
+
+/* Pop In Top */
+@keyframes popInTop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+/* Fade Out Top */
+@keyframes fadeOutTop {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px) scale(0.9);
+  }
+}
+
+/* Pop In Bottom */
+@keyframes popInBottom {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+/* Fade Out Bottom */
+@keyframes fadeOutBottom {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px) scale(0.9);
+  }
+}

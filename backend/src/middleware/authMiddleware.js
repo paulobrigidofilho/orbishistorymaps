@@ -29,7 +29,26 @@ const requireOwnership = (req, res, next) => {
   next();
 };
 
+// ===== requireOwnershipOrAdmin Middleware ===== //
+// Allows access if user owns the resource OR is an admin
+const requireOwnershipOrAdmin = (req, res, next) => {
+  const sessionUser = req.session?.user;
+  const targetUserId = req.params.userId;
+
+  if (!sessionUser) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+
+  // Allow if user is admin OR owns the resource
+  if (sessionUser.role === 'admin' || sessionUser.id === targetUserId) {
+    return next();
+  }
+
+  return res.status(403).json({ message: 'Forbidden: You can only access your own resources' });
+};
+
 module.exports = {
   requireAuth,
-  requireOwnership
+  requireOwnership,
+  requireOwnershipOrAdmin
 };

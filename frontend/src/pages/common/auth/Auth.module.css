@@ -490,3 +490,81 @@
   font-weight: 500;
   font-size: 14px; 
 }
+
+.loginModal .registerLink a:hover,
+.loginModal .registerLink NavLink:hover {
+  text-decoration: underline;
+}
+
+/****************************************************************
+ * 9. PASSWORD RESET STYLES
+ ****************************************************************/
+
+/* Forgot Password Link */
+.forgotPasswordLink {
+  text-align: right;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.forgotPasswordLink a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.forgotPasswordLink a:hover {
+  text-decoration: underline;
+}
+
+/* Password Requirements */
+.passwordRequirements {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 15px;
+  margin: 15px 0;
+}
+
+.requirementsTitle {
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.passwordRequirements ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.passwordRequirements li {
+  color: #555;
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+/* Development Info (for reset link display) */
+.devInfo {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+}
+
+.devInfo p {
+  margin: 0 0 10px 0;
+  color: #856404;
+}
+
+.resetLink {
+  color: #007bff;
+  text-decoration: underline;
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.resetLink:hover {
+  color: #0056b3;
+}

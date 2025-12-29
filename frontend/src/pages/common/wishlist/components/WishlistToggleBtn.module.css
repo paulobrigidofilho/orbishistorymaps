@@ -1,0 +1,197 @@
+/* =============================================== */
+/* ===== WISHLIST TOGGLE BUTTON STYLES ========= */
+/* =============================================== */
+
+/* Container */
+.wishlistToggleBtnContainer {
+  position: relative;
+  display: inline-block;
+}
+
+/* Wishlist Toggle Button */
+.wishlistToggleBtn {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wishlistToggleBtn:hover {
+  background-color: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.wishlistToggleBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Heart Icon */
+.wishlistToggleBtn i {
+  font-size: 24px;
+  color: #ff5757;
+  transition: all 0.2s ease;
+}
+
+/* Active State (in wishlist) */
+.wishlistToggleBtn.active i {
+  color: #ff5757;
+  text-shadow: 0 0 10px rgba(255, 87, 87, 0.5);
+}
+
+/* Inactive State (not in wishlist) */
+.wishlistToggleBtn:not(.active) i {
+  color: #ccc;
+}
+
+.wishlistToggleBtn:not(.active):hover i {
+  color: #ff5757;
+}
+
+/* Loading State */
+.wishlistToggleBtn.loading {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Message Styles */
+.message {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 1000;
+  animation: slideDown 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Success Message */
+.message.success {
+  background-color: #4caf50;
+  color: white;
+}
+
+/* Error Message */
+.message.error {
+  background-color: #f44336;
+  color: white;
+}
+
+/* ============================== */
+/* ===== NOTIFICATION POPUP ===== */
+/* ============================== */
+
+.notification {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 10px);
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  z-index: 1000;
+  animation: popIn 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
+.notification i {
+  font-size: 18px;
+}
+
+/* Success Notification */
+.notification.success {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+  color: white;
+}
+
+/* Error Notification */
+.notification.error {
+  background: linear-gradient(135deg, #555, #333);
+  color: white;
+}
+
+/* Fade Out Animation */
+.notification.fadeOut {
+  animation: fadeOut 0.5s ease forwards;
+}
+
+/* Pop In Animation */
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-10px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1);
+  }
+}
+
+/* Fade Out Animation */
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50%) translateX(10px) scale(0.9);
+  }
+}
+
+/* Animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .wishlistToggleBtn {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+  }
+
+  .wishlistToggleBtn i {
+    font-size: 20px;
+  }
+
+  .message {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}

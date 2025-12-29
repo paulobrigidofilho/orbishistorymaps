@@ -23,7 +23,7 @@ const avatarController = require("../controllers/avatarController");
 // Avatar Upload Route
 router.post(
   "/avatar/:userId",
-  auth.requireOwnership,
+  auth.requireOwnershipOrAdmin,
   upload.single("avatar"),
   validate.validateAvatarUpload,
   avatarController.uploadAvatar
@@ -32,7 +32,7 @@ router.post(
 // Avatar Deletion Route
 router.delete(
   "/avatar/:userId",
-  auth.requireOwnership,
+  auth.requireOwnershipOrAdmin,
   avatarController.deleteAvatar
 );
 

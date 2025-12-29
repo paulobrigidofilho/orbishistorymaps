@@ -1,0 +1,61 @@
+/* ============================================================ */
+/* ================ STAT CARD STYLES ========================== */
+/* ============================================================ */
+
+.statCard {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.statCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.statCard.clickable {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.statCard.clickable:hover {
+  background: #f9fafb;
+}
+
+.statIcon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.statContent {
+  flex: 1;
+}
+
+.statContent h3 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* ================ RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+  .statValue {
+    font-size: 1.5rem;
+  }
+}

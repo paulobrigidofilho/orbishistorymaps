@@ -14,6 +14,9 @@ import { AuthContext } from "../context/AuthContext.jsx";
 // =========== Component imports  ========== //
 import LoginModal from "../auth/LoginModal.jsx";
 
+// =========== Function imports  ========== //
+import getCart from "../../shop/functions/cartService/getCart";
+
 // =========== Asset imports  ========== //
 import OrbisLogo from "../../../assets/common/orbislogo.png";
 
@@ -26,6 +29,7 @@ const ProfileBtn = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
 
   // ========================= CONTEXT & NAVIGATION ========================= //
   const { user, logout } = useContext(AuthContext);
@@ -49,6 +53,34 @@ const ProfileBtn = () => {
   const toggleLoginDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const toggleProfileDropdown = () =>
     setIsProfileDropdownOpen(!isProfileDropdownOpen);
+
+  // ========================= FETCH CART COUNT ========================= //
+  useEffect(() => {
+    if (!user) {
+      setCartCount(0);
+      return;
+    }
+
+    const fetchCartCount = async () => {
+      try {
+        const response = await getCart();
+        const count = response.data?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
+        setCartCount(count);
+      } catch (error) {
+        setCartCount(0);
+      }
+    };
+
+    fetchCartCount();
+
+    // Listen for cart updates
+    const handleCartUpdate = () => fetchCartCount();
+    window.addEventListener("cartUpdated", handleCartUpdate);
+
+    return () => {
+      window.removeEventListener("cartUpdated", handleCartUpdate);
+    };
+  }, [user]);
 
   // ========================= CLICK OUTSIDE HANDLER ========================= //
   // Close dropdowns when clicking outside
@@ -117,7 +149,19 @@ const ProfileBtn = () => {
 
           {isProfileDropdownOpen && (
             <div className={styles.dropdownMenu}>
+              {user.role === "admin" && (
+                <NavLink to="/admin">Admin Dashboard</NavLink>
+              )}
               <NavLink to={`/profile/${user.id}`}>Edit Profile</NavLink>
+              <NavLink to="/wishlist">
+                <i className="material-icons">favorite</i> My Wishlist
+              </NavLink>
+              <NavLink to="/cart">
+                <i className="material-icons">shopping_cart</i> My Cart {cartCount > 0 && `(${cartCount})`}
+              </NavLink>
+              <NavLink to="/my-orders">
+                <i className="material-icons">receipt_long</i> My Orders
+              </NavLink>
               <button onClick={handleLogout}>Log Out</button>
             </div>
           )}

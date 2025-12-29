@@ -10,7 +10,8 @@ import styles from "./MainNavBar.module.css";
 
 //  ========== Component imports  ========== //
 import ProfileBtn from "./btn/ProfileBtn";
-import KartBtn from "./btn/KartBtn";
+import CartBtn from "./btn/CartBtn";
+import WishlistBtn from "./btn/WishlistBtn";
 
 //  ========== Images imports  ========== //
 import OrbisLogo from "../../assets/common/orbislogo.png";
@@ -41,8 +42,11 @@ export default function MainNavBar() {
 
         {/* ========================= USER NAVIGATION ========================= */}
         <div className={styles.userNav}>
+          {/* Wishlist Button */}
+          <WishlistBtn />
+
           {/* Shopping Cart Button */}
-          <KartBtn />
+          <CartBtn />
 
           {/* User Profile / Authentication Button */}
           <ProfileBtn />

@@ -35,6 +35,7 @@ const { sessionMiddleware, getSessionStore, waitForStore, isStoreReady } =
 // ======= STATIC PATHS ======= //
 const staticPaths = {
   avatars: path.resolve(__dirname, "../../uploads/avatars"),
+  products: path.resolve(__dirname, "../../uploads/products"),
 };
 
 // ======= FINAL CONFIG EXPORT ======= //
