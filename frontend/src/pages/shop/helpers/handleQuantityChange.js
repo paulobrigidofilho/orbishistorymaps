@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////
-// =============== HANDLE QUANTITY CHANGE FUNCTION =================== //
+// =============== HANDLE QUANTITY CHANGE HELPER ===================== //
 ///////////////////////////////////////////////////////////////////////
 
-// This function handles quantity changes for product detail page
+// This helper function handles quantity changes with validation
 
 ///////////////////////////////////////////////////////////////////////
-// ================= HANDLE QUANTITY CHANGE ========================== //
+// ================= HANDLE QUANTITY CHANGE FUNCTION ================= //
 ///////////////////////////////////////////////////////////////////////
 
 /**

@@ -18,8 +18,10 @@ import fetchCart from "./functions/fetchCart";
 import handleUpdateQuantity from "./functions/handleUpdateQuantity";
 import handleRemoveItem from "./functions/handleRemoveItem";
 import handleClearCart from "./functions/handleClearCart";
-import showMessage from "./functions/showMessage";
-import { calculateCartTotal } from "./functions/calculateCartTotal";
+
+//  ========== Helper imports  ========== //
+import showMessage from "./helpers/showMessage";
+import { calculateCartTotal } from "./helpers/calculateCartTotal";
 
 //  ========== Validator imports  ========== //
 import { validateCartForCheckout } from "./validators/cartValidator";

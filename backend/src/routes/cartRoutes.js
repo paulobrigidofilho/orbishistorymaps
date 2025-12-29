@@ -30,4 +30,7 @@ router.delete("/cart/items/:cartItemId", cartController.removeItem);
 // Clear entire cart
 router.delete("/cart/:cartId", cartController.clearUserCart);
 
+// Merge guest cart with user cart after login
+router.post("/cart/merge", cartController.mergeCart);
+
 module.exports = router;

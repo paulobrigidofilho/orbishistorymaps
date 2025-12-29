@@ -23,6 +23,7 @@ import {
 } from "../validators/registrationValidator";
 import { REGISTRATION_ERRORS } from "../constants/authErrorMessages";
 import { API_BASE } from "../constants/authConstants";
+import mergeCart from "../../../shop/functions/cartService/mergeCart";
 
 ////////////////////////////////////////////////////////////////////////////////
 // ===== Handle Registration Submission (uses getPublicConfig) ============== //
@@ -121,6 +122,10 @@ const handleSubmitRegistration = async (e, formData, setters) => {
         zipCode: response.data.user.zipCode || "",
       };
       setters.setUser(newUser); // Set user in context
+
+      // Merge guest cart with user cart after successful registration
+      await mergeCart();
+      window.dispatchEvent(new Event("cartUpdated"));
 
       setters.setRegistrationSuccess(true); // Set registration success state
 

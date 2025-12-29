@@ -1,0 +1,60 @@
+/***********************************************************************
+ * ============== PROCEED TO CHECKOUT BUTTON STYLES ================== *
+ ***********************************************************************/
+
+/* ====================== BASE BUTTON ================================ */
+.proceedBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  background: #22c55e;
+  color: white;
+}
+
+.proceedBtn i {
+  font-size: inherit;
+}
+
+.proceedBtn:hover {
+  background: #16a34a;
+  transform: translateY(-1px);
+}
+
+/* ====================== SIZE VARIANTS ============================== */
+
+/* Small variant */
+.small {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+.small i {
+  font-size: 1rem;
+}
+
+/* Medium variant (default) */
+.medium {
+  padding: 10px 16px;
+  font-size: 0.95rem;
+}
+
+.medium i {
+  font-size: 1.1rem;
+}
+
+/* Large variant */
+.large {
+  padding: 14px 24px;
+  font-size: 1.05rem;
+}
+
+.large i {
+  font-size: 1.25rem;
+}

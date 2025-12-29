@@ -16,6 +16,7 @@ export const SHOP_ENDPOINTS = {
   UPDATE_CART_ITEM: (cartItemId) => `${API_BASE}/api/cart/items/${cartItemId}`,
   REMOVE_CART_ITEM: (cartItemId) => `${API_BASE}/api/cart/items/${cartItemId}`,
   CLEAR_CART: (cartId) => `${API_BASE}/api/cart/${cartId}`,
+  MERGE_CART: `${API_BASE}/api/cart/merge`,
 };
 
 // ===== Product Categories ===== //

@@ -1,8 +1,12 @@
 ///////////////////////////////////////////////////////////////////////
-// =================== CALCULATE CART TOTAL FUNCTION ================= //
+// =================== CALCULATE CART TOTAL HELPER =================== //
 ///////////////////////////////////////////////////////////////////////
 
-// This function calculates the total price of items in the cart
+// This helper contains pure functions for cart total calculations
+
+///////////////////////////////////////////////////////////////////////
+// ================== CALCULATE CART TOTAL FUNCTION ================== //
+///////////////////////////////////////////////////////////////////////
 
 /**
  * Calculates the total price of all items in the cart
@@ -20,6 +24,10 @@ export const calculateCartTotal = (cartItems) => {
     return total + (price * quantity);
   }, 0);
 };
+
+///////////////////////////////////////////////////////////////////////
+// ================ CALCULATE ITEM SUBTOTAL FUNCTION ================= //
+///////////////////////////////////////////////////////////////////////
 
 /**
  * Calculates the subtotal for a single cart item

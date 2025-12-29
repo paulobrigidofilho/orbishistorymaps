@@ -14,6 +14,7 @@ const {
   updateCartItem,
   removeFromCart,
   clearCart,
+  mergeGuestCart,
 } = require("../services/cartService");
 
 // ====== Get Cart Function ====== //
@@ -54,6 +55,12 @@ const addItemToCart = async (req, res) => {
 
     const userId = req.session?.user?.id || null;
     const sessionId = req.sessionID;
+
+    // For guests, mark session as initialized to ensure sessionID persists
+    // This is needed because saveUninitialized is false
+    if (!userId && !req.session.guestCartInitialized) {
+      req.session.guestCartInitialized = true;
+    }
 
     const result = await addToCart(userId, sessionId, productId, quantity);
 
@@ -163,10 +170,39 @@ const clearUserCart = async (req, res) => {
   }
 };
 
+// ====== Merge Guest Cart Function ====== //
+
+const mergeCart = async (req, res) => {
+  console.log("Merge guest cart request received");
+
+  try {
+    const userId = req.session?.user?.id;
+    const sessionId = req.sessionID;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User must be logged in to merge cart",
+      });
+    }
+
+    const result = await mergeGuestCart(sessionId, userId);
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    console.error("Merge cart error:", error);
+    return handleServerError(res, error, "mergeCart");
+  }
+};
+
 module.exports = {
   getUserCart,
   addItemToCart,
   updateItem,
   removeItem,
   clearUserCart,
+  mergeCart,
 };

@@ -9,6 +9,10 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./WishlistItem.module.css";
 
+//  ========== Component imports  ========== //
+import AddToCartBtn from "../../../shop/btn/AddToCartBtn";
+import FadeNotification from "../../components/FadeNotification";
+
 //  ========== Function imports  ========== //
 import addToCart from "../../../shop/functions/cartService/addToCart";
 import getCart from "../../../shop/functions/cartService/getCart";
@@ -24,7 +28,7 @@ const WishlistItem = ({ item, onRemove, updating }) => {
   const navigate = useNavigate();
   const [addingToCart, setAddingToCart] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
-  const [message, setMessage] = useState(null);
+  const [notification, setNotification] = useState(null);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -93,14 +97,17 @@ const WishlistItem = ({ item, onRemove, updating }) => {
       // Dispatch cart update event
       window.dispatchEvent(new Event("cartUpdated"));
       
-      setMessage({ text: "Added to cart!", type: "success" });
-      setTimeout(() => setMessage(null), 2000);
+      setNotification({ text: "Added to Cart!", type: "success", icon: "shopping_cart" });
     } catch (err) {
-      setMessage({ text: err.message || "Failed to add to cart", type: "error" });
-      setTimeout(() => setMessage(null), 3000);
+      setNotification({ text: err.message || "Failed to add to cart", type: "error", icon: "error" });
     } finally {
       setAddingToCart(false);
     }
+  };
+
+  // Clear notification
+  const clearNotification = () => {
+    setNotification(null);
   };
 
   ///////////////////////////////////////////////////////////////////////
@@ -149,34 +156,26 @@ const WishlistItem = ({ item, onRemove, updating }) => {
         )}
       </div>
 
-      {/* Message Display */}
-      {message && (
-        <div className={`${styles.itemMessage} ${styles[message.type]}`}>
-          {message.text}
-        </div>
-      )}
-
       {/* Action Buttons */}
       <div className={styles.actionButtons}>
-        <button
+        <AddToCartBtn
           onClick={handleAddToCart}
-          disabled={addingToCart || (!isInStock() && !isInCart)}
-          className={`${styles.addToCartButton} ${isInCart ? styles.inCartButton : ""}`}
-        >
-          {addingToCart ? (
-            "Adding..."
-          ) : isInCart ? (
-            <>
-              <i className="material-icons">check_circle</i>
-              Already in Cart
-            </>
-          ) : (
-            <>
-              <i className="material-icons">add_shopping_cart</i>
-              Add to Cart
-            </>
-          )}
-        </button>
+          loading={addingToCart}
+          isInCart={isInCart}
+          disabled={!isInStock() && !isInCart}
+          size="medium"
+        />
+        
+        {/* Notification Popup */}
+        {notification && (
+          <FadeNotification
+            type={notification.type}
+            text={notification.text}
+            icon={notification.icon}
+            position="top"
+            onComplete={clearNotification}
+          />
+        )}
       </div>
     </div>
   );

@@ -1,0 +1,90 @@
+/***********************************************************************
+ * =================== ADD TO CART BUTTON STYLES ===================== *
+ ***********************************************************************/
+
+/* ====================== BASE BUTTON ================================ */
+.addToCartBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.addToCartBtn i {
+  font-size: inherit;
+}
+
+.addToCartBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ====================== VARIANT - PRIMARY ========================== */
+.primary {
+  background: var(--primary-color, #2563eb);
+  color: white;
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--primary-dark, #1d4ed8);
+  transform: translateY(-1px);
+}
+
+/* ====================== VARIANT - SECONDARY ======================== */
+.secondary {
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #e0e0e0;
+}
+
+.secondary:hover:not(:disabled) {
+  background: #e8e8e8;
+}
+
+/* ====================== IN CART STATE ============================== */
+.inCart {
+  background: #22c55e !important;
+  color: white !important;
+}
+
+.inCart:hover:not(:disabled) {
+  background: #16a34a !important;
+}
+
+/* ====================== SIZE VARIANTS ============================== */
+
+/* Small variant */
+.small {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+.small i {
+  font-size: 1rem;
+}
+
+/* Medium variant (default) */
+.medium {
+  padding: 10px 16px;
+  font-size: 0.95rem;
+}
+
+.medium i {
+  font-size: 1.1rem;
+}
+
+/* Large variant */
+.large {
+  padding: 14px 24px;
+  font-size: 1.05rem;
+}
+
+.large i {
+  font-size: 1.25rem;
+}

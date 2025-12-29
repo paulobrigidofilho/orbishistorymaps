@@ -12,11 +12,17 @@ import styles from "./ProductDetail.module.css";
 //  ========== Component imports  ========== //
 import MainNavBar from "../common/MainNavBar";
 import WishlistToggleBtn from "../common/wishlist/components/WishlistToggleBtn";
+import QuantitySelector from "./btn/QuantitySelector";
+import AddToCartBtn from "./btn/AddToCartBtn";
+import ProceedToCheckoutBtn from "./btn/ProceedToCheckoutBtn";
+import FadeNotification from "../common/components/FadeNotification";
 
 //  ========== Function imports  ========== //
 import getProductDetails from "./functions/productService/getProductDetails";
-import handleAddToCart from "./functions/handleAddToCart";
-import handleQuantityChange from "./functions/handleQuantityChange";
+import addToCart from "./functions/cartService/addToCart";
+
+//  ========== Helper imports  ========== //
+import handleQuantityChange from "./helpers/handleQuantityChange";
 
 //  ========== Context imports  ========== //
 import { AuthContext } from "../common/context/AuthContext";
@@ -42,7 +48,8 @@ export default function ProductDetail() {
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
-  const [cartMessage, setCartMessage] = useState(null);
+  const [notification, setNotification] = useState(null);
+  const [showCheckoutBtn, setShowCheckoutBtn] = useState(false);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -72,8 +79,29 @@ export default function ProductDetail() {
   ///////////////////////////////////////////////////////////////////////
 
   // Handle add to cart
-  const addProductToCart = () => 
-    handleAddToCart(product.product_id, quantity, setAddingToCart, setCartMessage);
+  const addProductToCart = async () => {
+    try {
+      setAddingToCart(true);
+      await addToCart(product.product_id, quantity);
+      
+      // Dispatch cart update event
+      window.dispatchEvent(new Event("cartUpdated"));
+      
+      // Show success notification
+      setNotification({ type: "success", text: "Added to Cart!", icon: "shopping_cart" });
+      // Show proceed to checkout button on successful add
+      setShowCheckoutBtn(true);
+    } catch (err) {
+      setNotification({ type: "error", text: err.message || "Failed to add to cart", icon: "error" });
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
+  // Clear notification
+  const clearNotification = () => {
+    setNotification(null);
+  };
 
   // Handle quantity change
   const changeQuantity = (change) => 
@@ -254,41 +282,40 @@ export default function ProductDetail() {
             {product.quantity_available > 0 && (
               <div className={styles.purchaseSection}>
                 {/* Quantity Selector */}
-                <div className={styles.quantitySelector}>
-                  <button
-                    onClick={() => changeQuantity(-1)}
-                    disabled={quantity <= 1}
-                    className={styles.quantityButton}
-                  >
-                    −
-                  </button>
-                  <span className={styles.quantityDisplay}>{quantity}</span>
-                  <button
-                    onClick={() => changeQuantity(1)}
-                    disabled={quantity >= product.quantity_available}
-                    className={styles.quantityButton}
-                  >
-                    +
-                  </button>
-                </div>
+                <QuantitySelector
+                  quantity={quantity}
+                  onDecrease={() => changeQuantity(-1)}
+                  onIncrease={() => changeQuantity(1)}
+                  disableDecrease={quantity <= 1}
+                  disableIncrease={quantity >= product.quantity_available}
+                  size="medium"
+                />
 
                 {/* Add to Cart Button */}
-                <button
+                <AddToCartBtn
                   onClick={addProductToCart}
-                  disabled={addingToCart}
-                  className={styles.addToCartButton}
-                >
-                  {addingToCart ? "Adding..." : "Add to Cart"}
-                </button>
-              </div>
-            )}
+                  loading={addingToCart}
+                  showIcon={false}
+                  size="large"
+                />
 
-            {/* Cart Message */}
-            {cartMessage && (
-              <div
-                className={`${styles.cartMessage} ${styles[cartMessage.type]}`}
-              >
-                {cartMessage.text}
+                {/* Proceed to Checkout Button - shows after adding to cart */}
+                <ProceedToCheckoutBtn
+                  show={showCheckoutBtn}
+                  showIcon={true}
+                  size="large"
+                />
+
+                {/* Notification Popup */}
+                {notification && (
+                  <FadeNotification
+                    type={notification.type}
+                    text={notification.text}
+                    icon={notification.icon}
+                    position="right"
+                    onComplete={clearNotification}
+                  />
+                )}
               </div>
             )}
 

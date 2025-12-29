@@ -10,6 +10,7 @@ import { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import handleLogin from "../auth/functions/handleLogin";
 import handleLogout from "../auth/functions/handleLogout";
+import mergeCart from "../../shop/functions/cartService/mergeCart";
 import { API_BASE } from "../auth/constants/authConstants";
 
 // Singleton to prevent duplicate session requests (StrictMode double render)
@@ -97,6 +98,11 @@ const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const user = await handleLogin(email, password);
     setUser(user);
+    
+    // Merge guest cart with user cart after successful login
+    await mergeCart();
+    window.dispatchEvent(new Event("cartUpdated"));
+    
     return user;
   };
 

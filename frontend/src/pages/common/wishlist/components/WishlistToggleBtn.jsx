@@ -10,6 +10,9 @@ import { useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types";
 import styles from "./WishlistToggleBtn.module.css";
 
+//  ========== Component imports  ========== //
+import FadeNotification from "../../components/FadeNotification";
+
 //  ========== Function imports  ========== //
 import addToWishlist from "../functions/addToWishlist";
 import removeFromWishlist from "../functions/removeFromWishlist";
@@ -34,7 +37,6 @@ const WishlistToggleBtn = ({ productId, onStatusChange }) => {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [notification, setNotification] = useState(null);
-  const [isFadingOut, setIsFadingOut] = useState(false);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -66,20 +68,12 @@ const WishlistToggleBtn = ({ productId, onStatusChange }) => {
   // ========================= NOTIFICATION HANDLER ================== //
   ///////////////////////////////////////////////////////////////////////
 
-  const showNotification = (type, text) => {
-    setNotification({ type, text });
-    setIsFadingOut(false);
+  const showNotification = (type, text, icon) => {
+    setNotification({ type, text, icon });
+  };
 
-    // Start fade out after 2 seconds
-    setTimeout(() => {
-      setIsFadingOut(true);
-    }, 2000);
-
-    // Remove notification after fade completes
-    setTimeout(() => {
-      setNotification(null);
-      setIsFadingOut(false);
-    }, 2500);
+  const clearNotification = () => {
+    setNotification(null);
   };
 
   ///////////////////////////////////////////////////////////////////////
@@ -91,7 +85,7 @@ const WishlistToggleBtn = ({ productId, onStatusChange }) => {
     e.stopPropagation(); // Prevent event bubbling
 
     if (!user) {
-      showNotification("error", "Please login to use wishlist");
+      showNotification("error", "Please login to use wishlist", "error");
       return;
     }
 
@@ -104,7 +98,7 @@ const WishlistToggleBtn = ({ productId, onStatusChange }) => {
         // Remove from wishlist
         await removeFromWishlist(productId);
         setIsInWishlist(false);
-        showNotification("success", "Removed from Wishlist");
+        showNotification("success", "Removed from Wishlist", "favorite_border");
         
         // Dispatch wishlist update event immediately
         window.dispatchEvent(new Event("wishlistUpdated"));
@@ -117,7 +111,7 @@ const WishlistToggleBtn = ({ productId, onStatusChange }) => {
         // Add to wishlist
         await addToWishlist(productId);
         setIsInWishlist(true);
-        showNotification("success", "Added to Wishlist");
+        showNotification("success", "Added to Wishlist", "favorite");
         
         // Dispatch wishlist update event immediately
         window.dispatchEvent(new Event("wishlistUpdated"));
@@ -131,7 +125,7 @@ const WishlistToggleBtn = ({ productId, onStatusChange }) => {
       const errorMessage = error.message || 
         (isInWishlist ? WISHLIST_ERROR_MESSAGES.REMOVE_FAILED : WISHLIST_ERROR_MESSAGES.ADD_FAILED);
       
-      showNotification("error", errorMessage);
+      showNotification("error", errorMessage, "error");
     } finally {
       setIsLoading(false);
     }
@@ -157,12 +151,13 @@ const WishlistToggleBtn = ({ productId, onStatusChange }) => {
 
       {/* Notification Popup */}
       {notification && (
-        <div className={`${styles.notification} ${styles[notification.type]} ${isFadingOut ? styles.fadeOut : ""}`}>
-          <i className="material-icons">
-            {notification.type === "success" ? (isInWishlist ? "favorite" : "favorite_border") : "error"}
-          </i>
-          <span>{notification.text}</span>
-        </div>
+        <FadeNotification
+          type={notification.type}
+          text={notification.text}
+          icon={notification.icon}
+          position="right"
+          onComplete={clearNotification}
+        />
       )}
     </div>
   );

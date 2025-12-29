@@ -9,8 +9,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styles from "./CartItem.module.css";
 
-//  ========== Function imports  ========== //
-import { calculateItemSubtotal } from "../functions/calculateCartTotal";
+//  ========== Component imports  ========== //
+import QuantitySelector from "../btn/QuantitySelector";
+
+//  ========== Helper imports  ========== //
+import { calculateItemSubtotal } from "../helpers/calculateCartTotal";
 
 // Default product image path
 const DEFAULT_PRODUCT_IMAGE = "/assets/common/default-product-img.png";
@@ -69,23 +72,15 @@ const CartItem = ({ item, onUpdateQuantity, onRemove, updating }) => {
 
       {/* Quantity Controls */}
       <div className={styles.quantitySection}>
-        <div className={styles.quantityControls}>
-          <button
-            onClick={() => handleQuantityChange(-1)}
-            disabled={item.quantity <= 1 || updating}
-            className={styles.quantityButton}
-          >
-            −
-          </button>
-          <span className={styles.quantity}>{item.quantity}</span>
-          <button
-            onClick={() => handleQuantityChange(1)}
-            disabled={item.quantity >= maxStock || updating}
-            className={styles.quantityButton}
-          >
-            +
-          </button>
-        </div>
+        <QuantitySelector
+          quantity={item.quantity}
+          onDecrease={() => handleQuantityChange(-1)}
+          onIncrease={() => handleQuantityChange(1)}
+          disableDecrease={item.quantity <= 1}
+          disableIncrease={item.quantity >= maxStock}
+          disabled={updating}
+          size="small"
+        />
       </div>
 
       {/* Subtotal */}
