@@ -52,10 +52,21 @@ const PASSWORD_RESET_SUCCESS = {
     "Password updated successfully. You can now login with your new password.",
 };
 
+/////////////////////////////////////
+// ===== Wishlist Success ===== //
+/////////////////////////////////////
+
+const WISHLIST_SUCCESS = {
+  ITEM_ADDED: "Item added to wishlist",
+  ITEM_REMOVED: "Item removed from wishlist",
+  WISHLIST_RETRIEVED: "Wishlist retrieved successfully",
+};
+
 module.exports = {
   AUTH_SUCCESS,
   REGISTRATION_SUCCESS,
   PROFILE_SUCCESS,
   AVATAR_SUCCESS,
   PASSWORD_RESET_SUCCESS,
+  WISHLIST_SUCCESS,
 };

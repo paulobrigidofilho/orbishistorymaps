@@ -9,6 +9,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styles from "./ProductCard.module.css";
 
+//  ========== Component imports  ========== //
+import WishlistToggleBtn from "../../common/wishlist/components/WishlistToggleBtn";
+
 ///////////////////////////////////////////////////////////////////////
 // ========================= PRODUCT CARD ============================ //
 ///////////////////////////////////////////////////////////////////////
@@ -33,6 +36,11 @@ const ProductCard = ({ product }) => {
 
   return (
     <div className={styles.productCard}>
+      {/* Wishlist Button */}
+      <div className={styles.wishlistBtnWrapper}>
+        <WishlistToggleBtn productId={product.product_id} />
+      </div>
+
       <Link to={`/shop/product/${product.product_slug}`} className={styles.productLink}>
         {/* Product Image */}
         <div className={styles.imageContainer}>

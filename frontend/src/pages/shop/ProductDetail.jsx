@@ -11,6 +11,7 @@ import styles from "./ProductDetail.module.css";
 
 //  ========== Component imports  ========== //
 import MainNavBar from "../common/MainNavBar";
+import WishlistToggleBtn from "../common/wishlist/components/WishlistToggleBtn";
 
 //  ========== Function imports  ========== //
 import getProductDetails from "./functions/productService/getProductDetails";
@@ -168,12 +169,17 @@ export default function ProductDetail() {
 
           {/* Product Info Section */}
           <div className={styles.infoSection}>
-            {/* Category Badge */}
-            {product.category_name && (
-              <span className={styles.categoryBadge}>
-                {product.category_name}
-              </span>
-            )}
+            {/* Category Badge & Wishlist Button */}
+            <div className={styles.topSection}>
+              {product.category_name && (
+                <span className={styles.categoryBadge}>
+                  {product.category_name}
+                </span>
+              )}
+              <div className={styles.wishlistBtnWrapper}>
+                <WishlistToggleBtn productId={product.product_id} />
+              </div>
+            </div>
 
             {/* Product Name */}
             <h1 className={styles.productName}>{product.product_name}</h1>

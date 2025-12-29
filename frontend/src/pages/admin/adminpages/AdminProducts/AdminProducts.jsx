@@ -117,14 +117,28 @@ export default function AdminProducts() {
   useEffect(() => {
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.page, pagination.limit, filters.search, filters.category_id, filters.is_active, filters.is_featured, sortConfig.field, sortConfig.order]);
+  }, [
+    pagination.page,
+    pagination.limit,
+    filters.search,
+    filters.category_id,
+    filters.is_active,
+    filters.is_featured,
+    sortConfig.field,
+    sortConfig.order,
+  ]);
 
   ///////////////////////////////////////////////////////////////////////
   // ======================= EVENT HANDLERS ========================== //
   ///////////////////////////////////////////////////////////////////////
 
   const handleStatusChange = async (productId, newStatus) => {
-    if (!window.confirm(`Change product status to ${newStatus ? "Active" : "Inactive"}?`)) return;
+    if (
+      !window.confirm(
+        `Change product status to ${newStatus ? "Active" : "Inactive"}?`
+      )
+    )
+      return;
 
     try {
       await updateProduct(productId, { is_active: newStatus });
@@ -135,7 +149,10 @@ export default function AdminProducts() {
   };
 
   const handleFeaturedChange = async (productId, newFeatured) => {
-    if (!window.confirm(`${newFeatured ? "Feature" : "Unfeature"} this product?`)) return;
+    if (
+      !window.confirm(`${newFeatured ? "Feature" : "Unfeature"} this product?`)
+    )
+      return;
 
     try {
       await updateProduct(productId, { is_featured: newFeatured });
@@ -161,9 +178,10 @@ export default function AdminProducts() {
 
   const handleSort = (field) => {
     setSortConfig((prev) => {
-      const newOrder = prev.field === field && prev.order === "asc" ? "desc" : "asc";
+      const newOrder =
+        prev.field === field && prev.order === "asc" ? "desc" : "asc";
       return { field, order: newOrder };
-  });
+    });
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
@@ -239,9 +257,7 @@ export default function AdminProducts() {
       <div className={styles.productsPage}>
         <div className={styles.header}>
           <h1>Product Management</h1>
-          <AddBtn onClick={handleOpenAddModal}>
-            + Add Product
-          </AddBtn>
+          <AddBtn onClick={handleOpenAddModal}>+ Add Product</AddBtn>
         </div>
 
         {/* Filters */}
@@ -300,32 +316,80 @@ export default function AdminProducts() {
             <table className={styles.productsTable}>
               <thead>
                 <tr>
-                  <th className={styles.sortable} onClick={() => handleSort("product_id")}>
-                    ID <span className={styles.sortIcon}>{getSortIcon("product_id")}</span>
+                  <th
+                    className={styles.sortable}
+                    onClick={() => handleSort("product_id")}
+                  >
+                    ID{" "}
+                    <span className={styles.sortIcon}>
+                      {getSortIcon("product_id")}
+                    </span>
                   </th>
-                  <th className={styles.sortable} onClick={() => handleSort("product_name")}>
-                    Product <span className={styles.sortIcon}>{getSortIcon("product_name")}</span>
+                  <th
+                    className={styles.sortable}
+                    onClick={() => handleSort("product_name")}
+                  >
+                    Product{" "}
+                    <span className={styles.sortIcon}>
+                      {getSortIcon("product_name")}
+                    </span>
                   </th>
-                  <th className={styles.sortable} onClick={() => handleSort("sku")}>
-                    SKU <span className={styles.sortIcon}>{getSortIcon("sku")}</span>
+                  <th
+                    className={styles.sortable}
+                    onClick={() => handleSort("sku")}
+                  >
+                    SKU{" "}
+                    <span className={styles.sortIcon}>
+                      {getSortIcon("sku")}
+                    </span>
                   </th>
                   <th>Category</th>
-                  <th className={styles.sortable} onClick={() => handleSort("price")}>
-                    Price <span className={styles.sortIcon}>{getSortIcon("price")}</span>
+                  <th
+                    className={styles.sortable}
+                    onClick={() => handleSort("price")}
+                  >
+                    Price{" "}
+                    <span className={styles.sortIcon}>
+                      {getSortIcon("price")}
+                    </span>
                   </th>
-                  <th className={styles.sortable} onClick={() => handleSort("quantity_available")}>
-                    Stock <span className={styles.sortIcon}>{getSortIcon("quantity_available")}</span>
+                  <th
+                    className={styles.sortable}
+                    onClick={() => handleSort("quantity_available")}
+                  >
+                    Stock{" "}
+                    <span className={styles.sortIcon}>
+                      {getSortIcon("quantity_available")}
+                    </span>
                   </th>
-                  <th className={styles.sortable} onClick={() => handleSort("view_count")}>
-                    Views <span className={styles.sortIcon}>{getSortIcon("view_count")}</span>
+                  <th
+                    className={styles.sortable}
+                    onClick={() => handleSort("view_count")}
+                  >
+                    Views{" "}
+                    <span className={styles.sortIcon}>
+                      {getSortIcon("view_count")}
+                    </span>
                   </th>
-                  <th className={styles.sortable} onClick={() => handleSort("rating_average")}>
-                    Rating <span className={styles.sortIcon}>{getSortIcon("rating_average")}</span>
+                  <th
+                    className={styles.sortable}
+                    onClick={() => handleSort("rating_average")}
+                  >
+                    Rating{" "}
+                    <span className={styles.sortIcon}>
+                      {getSortIcon("rating_average")}
+                    </span>
                   </th>
                   <th>Status</th>
                   <th>Featured</th>
-                  <th className={styles.sortable} onClick={() => handleSort("created_at")}>
-                    Created <span className={styles.sortIcon}>{getSortIcon("created_at")}</span>
+                  <th
+                    className={styles.sortable}
+                    onClick={() => handleSort("created_at")}
+                  >
+                    Created{" "}
+                    <span className={styles.sortIcon}>
+                      {getSortIcon("created_at")}
+                    </span>
                   </th>
                   <th>Actions</th>
                 </tr>
@@ -337,7 +401,9 @@ export default function AdminProducts() {
                     <td>
                       <div className={styles.productInfo}>
                         <strong>{product.product_name}</strong>
-                        {product.brand && <span className={styles.brand}>{product.brand}</span>}
+                        {product.brand && (
+                          <span className={styles.brand}>{product.brand}</span>
+                        )}
                       </div>
                     </td>
                     <td>{product.sku || "N/A"}</td>
@@ -348,7 +414,11 @@ export default function AdminProducts() {
                     </td>
                     <td>
                       <div className={styles.priceCell}>
-                        <span className={product.sale_price ? styles.originalPrice : ""}>
+                        <span
+                          className={
+                            product.sale_price ? styles.originalPrice : ""
+                          }
+                        >
                           ${parseFloat(product.price).toFixed(2)}
                         </span>
                         {product.sale_price && (
@@ -360,7 +430,11 @@ export default function AdminProducts() {
                     </td>
                     <td>
                       <span
-                        className={`${styles.stock} ${styles[getStockLevelClass(product.quantity_available || 0)]}`}
+                        className={`${styles.stock} ${
+                          styles[
+                            getStockLevelClass(product.quantity_available || 0)
+                          ]
+                        }`}
                       >
                         {product.quantity_available || 0}
                       </span>
@@ -371,7 +445,8 @@ export default function AdminProducts() {
                     <td>
                       <div className={styles.ratingCell}>
                         <span className={styles.ratingAvg}>
-                          ⭐ {parseFloat(product.rating_average || 0).toFixed(1)}
+                          ⭐{" "}
+                          {parseFloat(product.rating_average || 0).toFixed(1)}
                         </span>
                         <span className={styles.ratingCount}>
                           ({product.rating_count || 0})
@@ -381,8 +456,17 @@ export default function AdminProducts() {
                     <td>
                       <select
                         value={product.is_active ? "true" : "false"}
-                        onChange={(e) => handleStatusChange(product.product_id, e.target.value === "true")}
-                        className={`${styles.inlineSelect} ${product.is_active ? styles.selectActive : styles.selectInactive}`}
+                        onChange={(e) =>
+                          handleStatusChange(
+                            product.product_id,
+                            e.target.value === "true"
+                          )
+                        }
+                        className={`${styles.inlineSelect} ${
+                          product.is_active
+                            ? styles.selectActive
+                            : styles.selectInactive
+                        }`}
                       >
                         <option value="true">Active</option>
                         <option value="false">Inactive</option>
@@ -391,8 +475,17 @@ export default function AdminProducts() {
                     <td>
                       <select
                         value={product.is_featured ? "true" : "false"}
-                        onChange={(e) => handleFeaturedChange(product.product_id, e.target.value === "true")}
-                        className={`${styles.inlineSelect} ${product.is_featured ? styles.selectFeatured : styles.selectNotFeatured}`}
+                        onChange={(e) =>
+                          handleFeaturedChange(
+                            product.product_id,
+                            e.target.value === "true"
+                          )
+                        }
+                        className={`${styles.inlineSelect} ${
+                          product.is_featured
+                            ? styles.selectFeatured
+                            : styles.selectNotFeatured
+                        }`}
                       >
                         <option value="true">Yes</option>
                         <option value="false">No</option>
@@ -422,9 +515,7 @@ export default function AdminProducts() {
         {!loading && products.length === 0 && (
           <div className={styles.emptyState}>
             <p>No products found</p>
-            <AddBtn onClick={handleOpenAddModal}>
-              Add Your First Product
-            </AddBtn>
+            <AddBtn onClick={handleOpenAddModal}>Add Your First Product</AddBtn>
           </div>
         )}
 

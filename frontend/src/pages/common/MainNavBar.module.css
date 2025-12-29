@@ -102,6 +102,41 @@ nav > a:hover {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+/* ================================== */
+/* ===== WISHLIST BUTTON STYLES ===== */
+/* ================================== */
+
+.wishlistButton {
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  color: darkkhaki;
+  text-decoration: none;
+}
+
+.wishlistButton:hover {
+  color: #ff5757;
+}
+
+.wishlistBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ff5757;
+  color: white;
+  border-radius: 50%;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 .material-icons {
   margin-right: 5px;
 }

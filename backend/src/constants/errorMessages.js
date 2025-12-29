@@ -136,6 +136,19 @@ const ORDER_ERRORS = {
   PAYMENT_FAILED: "Payment processing failed",
 };
 
+//////////////////////////////////
+// ===== Wishlist Errors ===== //
+//////////////////////////////////
+
+const WISHLIST_ERRORS = {
+  FETCH_FAILED: "Failed to fetch wishlist",
+  ADD_FAILED: "Failed to add item to wishlist",
+  REMOVE_FAILED: "Failed to remove item from wishlist",
+  ITEM_NOT_FOUND: "Item not found in wishlist",
+  PRODUCT_NOT_FOUND: "Product not found",
+  ALREADY_EXISTS: "Item already exists in wishlist",
+};
+
 module.exports = {
   AUTH_ERRORS,
   REGISTRATION_ERRORS,
@@ -146,5 +159,6 @@ module.exports = {
   PASSWORD_RESET_ERRORS,
   PRODUCT_ERRORS,
   CART_ERRORS,
+  WISHLIST_ERRORS,
   ORDER_ERRORS,
 };

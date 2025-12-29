@@ -5,14 +5,27 @@
 .productCard {
   background: white;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .productCard:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================== */
+/* ===== WISHLIST BUTTON ===== */
+/* ============================== */
+
+.wishlistBtnWrapper {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  overflow: visible;
 }
 
 .productLink {
@@ -31,6 +44,7 @@
   padding-top: 100%; /* 1:1 aspect ratio */
   background: #f5f5f5;
   overflow: hidden;
+  border-radius: 8px 8px 0 0;
 }
 
 .productImage {

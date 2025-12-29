@@ -97,6 +97,17 @@
   gap: 1.5rem;
 }
 
+/* ============================== */
+/* ===== TOP SECTION (Category + Wishlist) ===== */
+/* ============================== */
+
+.topSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
 .categoryBadge {
   display: inline-block;
   width: fit-content;
@@ -108,6 +119,10 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.wishlistBtnWrapper {
+  margin-left: auto;
 }
 
 .productName {
