@@ -72,8 +72,8 @@ const getAllUsers = async (filters = {}) => {
       "user_lastname",
       "user_role",
       "user_status",
-      "user_created_at",
-      "user_updated_at",
+      "created_at",
+      "updated_at",
     ];
     const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : "user_id";
     const validSortOrder = sortOrder.toLowerCase() === "asc" ? "ASC" : "DESC";
@@ -105,8 +105,8 @@ const getAllUsers = async (filters = {}) => {
           user_role,
           user_status,
           user_password,
-          user_created_at,
-          user_updated_at
+          created_at AS user_created_at,
+          updated_at AS user_updated_at
         FROM users
         ${whereClause}
         ORDER BY ${validSortBy} ${validSortOrder}

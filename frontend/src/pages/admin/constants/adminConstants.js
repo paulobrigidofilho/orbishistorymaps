@@ -25,6 +25,12 @@ export const STAT_CARDS = [
     to: "/admin/orders",
   },
   {
+    icon: "⭐",
+    label: "Total Reviews",
+    key: "totalReviews",
+    to: "/admin/reviews",
+  },
+  {
     icon: "💰",
     label: "Total Revenue",
     key: "totalRevenue",
@@ -52,6 +58,12 @@ export const ACTION_CARDS = [
     title: "View Orders",
     description: "Track and manage orders",
     to: "/admin/orders",
+  },
+  {
+    icon: "⭐",
+    title: "Manage Reviews",
+    description: "View, approve, or delete reviews",
+    to: "/admin/reviews",
   },
   {
     icon: "⚙️",

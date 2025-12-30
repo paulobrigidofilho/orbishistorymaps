@@ -131,6 +131,15 @@ export default function AdminNavBar() {
           Orders
         </NavLink>
 
+        {/* Review Modal Button */}
+        <NavLink
+          to="/admin/adminpages/AdminReviews"
+          className={`${styles.navLink} ${isActive("/admin/adminpages/AdminReviews") ? styles.active : ""}`}
+        >
+          <span className={styles.navIcon}>⭐</span>
+          Reviews
+        </NavLink>
+
         <NavLink
           to="/admin/settings"
           className={`${styles.navLink} ${isActive("/admin/settings") ? styles.active : ""}`}

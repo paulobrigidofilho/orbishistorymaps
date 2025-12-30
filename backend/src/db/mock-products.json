@@ -1,0 +1,41 @@
+[
+  {
+    "product_name": "Wireless Bluetooth Headphones",
+    "product_description": "High-quality wireless headphones with noise cancellation and 30-hour battery life.",
+    "category_name": "Electronics",
+    "brand": "SoundMax",
+    "price": 149.99,
+    "images": [
+      "https://example.com/images/headphones1.jpg",
+      "https://example.com/images/headphones2.jpg"
+    ],
+    "tags": ["wireless", "bluetooth", "noise-cancelling"],
+    "quantity_available": 50
+  },
+  {
+    "product_name": "Cotton T-Shirt",
+    "product_description": "Comfortable 100% cotton t-shirt available in multiple colors.",
+    "category_name": "Clothing",
+    "brand": "ComfortWear",
+    "price": 19.99,
+    "images": [
+      "https://example.com/images/tshirt1.jpg"
+    ],
+    "tags": ["cotton", "casual", "clothing"],
+    "quantity_available": 200
+  },
+  {
+    "product_name": "JavaScript Programming Book",
+    "product_description": "Comprehensive guide to modern JavaScript development.",
+    "category_name": "Books",
+    "brand": "TechPress",
+    "price": 39.99,
+    "images": [
+      "https://example.com/images/book1.jpg",
+      "https://example.com/images/book2.jpg",
+      "https://example.com/images/book3.jpg"
+    ],
+    "tags": ["javascript", "programming", "book"],
+    "quantity_available": 75
+  }
+]

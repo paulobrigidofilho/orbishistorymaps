@@ -36,6 +36,7 @@ export default function AdminDashboard() {
     totalRevenue: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [reviewStats, setReviewStats] = useState({ total: 0, recent: 0, pending: 0 });
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -43,6 +44,17 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchStats(setStats, setLoading);
+  }, []);
+  useEffect(() => {
+    fetch("/api/reviews")
+      .then((res) => res.json())
+      .then((data) => {
+        setReviewStats({
+          total: data.length,
+          recent: data.slice(0, 5).length,
+          pending: data.filter((r) => !r.approved).length,
+        });
+      });
   }, []);
 
   ///////////////////////////////////////////////////////////////////////
@@ -61,11 +73,7 @@ export default function AdminDashboard() {
               key={card.key}
               icon={card.icon}
               label={card.label}
-              value={
-                card.formatter
-                  ? card.formatter(stats[card.key])
-                  : stats[card.key]
-              }
+              value={card.key === 'totalReviews' ? reviewStats.total : (card.formatter ? card.formatter(stats[card.key]) : stats[card.key])}
               isLoading={loading}
               to={card.to}
             />

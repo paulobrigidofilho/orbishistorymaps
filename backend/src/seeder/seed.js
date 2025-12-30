@@ -8,6 +8,9 @@
 
 // ======= Package Imports ======== //
 const mysql = require("mysql2/promise");
+const fs = require("fs");
+const path = require("path");
+const { v4: uuidv4 } = require("uuid");
 require("dotenv").config({
   path: process.env.NODE_ENV === "production" ? ".env.prod" : ".env.dev",
 });
@@ -363,29 +366,132 @@ require("dotenv").config({
     `);
     console.log("✓ Wishlist table ensured.");
 
-    const [rows] = await connection.execute(
-      "SELECT user_id FROM users WHERE user_email = ?",
-      ["admin@orbis.local"]
-    );
-    if (rows.length === 0) {
-      const adminPassword = process.env.ADMIN_DEV_PASSWORD;
-      if (!adminPassword) {
-        console.warn(
-          "ADMIN_DEV_PASSWORD not set. Skipping admin user creation."
-        );
-      } else {
-        const bcrypt = require("bcrypt");
-        const { v4: uuidv4 } = require("uuid");
-        const hashed = await bcrypt.hash(adminPassword, 10);
-        await connection.execute(
-          `INSERT INTO users (user_id, user_firstname, user_lastname, user_email, user_password, user_nickname, user_role)
-           VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          [uuidv4(), "Admin", "User", "admin@orbis.local", hashed, "admin", "admin"]
-        );
-        console.log("Admin user seeded with 'admin' role.");
+    // ===== Seed Users from mock-users.json ===== //
+    const mockUsersPath = path.join(__dirname, '..', 'db', 'mock-users.json');
+    if (fs.existsSync(mockUsersPath)) {
+      try {
+        const fileContent = fs.readFileSync(mockUsersPath, 'utf8').trim();
+        if (!fileContent) {
+          console.log("mock-users.json is empty, skipping user seeding.");
+        } else {
+          const mockUsers = JSON.parse(fileContent);
+          for (const user of mockUsers) {
+            // Check if user already exists
+            const [existing] = await connection.execute(
+              'SELECT user_id FROM users WHERE user_email = ?',
+              [user.user_email]
+            );
+            if (existing.length === 0) {
+              await connection.execute(
+                `INSERT INTO users (user_id, user_firstname, user_lastname, user_email, user_password, user_nickname, user_avatar, user_address, user_address_line_2, user_city, user_state, user_zipcode, user_role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                  user.user_id,
+                  user.user_firstname,
+                  user.user_lastname,
+                  user.user_email,
+                  user.user_password,
+                  user.user_nickname || null,
+                  user.user_avatar || null,
+                  user.user_address || null,
+                  user.user_address_line_2 || null,
+                  user.user_city || null,
+                  user.user_state || null,
+                  user.user_zipcode || null,
+                  user.user_role || 'user'
+                ]
+              );
+              console.log(`User ${user.user_email} seeded.`);
+            } else {
+              console.log(`User ${user.user_email} already exists.`);
+            }
+          }
+        }
+      } catch (err) {
+        console.log("Error parsing mock-users.json, skipping user seeding:", err.message);
       }
     } else {
-      console.log("Admin user already exists.");
+      console.log("mock-users.json not found, skipping user seeding.");
+    }
+
+    // ===== Seed Products from mock-products.json ===== //
+    const mockProductsPath = path.join(__dirname, '..', 'db', 'mock-products.json');
+    if (fs.existsSync(mockProductsPath)) {
+      try {
+        const fileContent = fs.readFileSync(mockProductsPath, 'utf8').trim();
+        if (!fileContent) {
+          console.log("mock-products.json is empty, skipping product seeding.");
+        } else {
+          const mockProducts = JSON.parse(fileContent);
+          for (const product of mockProducts) {
+            const slug = (product.product_name || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            // Check if product already exists
+            const [existing] = await connection.execute(
+              'SELECT product_id FROM products WHERE product_slug = ?',
+              [slug]
+            );
+            if (existing.length > 0) {
+              console.log(`Product ${product.product_name} already exists, skipping.`);
+              continue;
+            }
+            let categoryId = null;
+            if (product.category_name) {
+              const [catRows] = await connection.execute(
+                'SELECT category_id FROM product_categories WHERE category_name = ?',
+                [product.category_name]
+              );
+              if (catRows.length > 0) {
+                categoryId = catRows[0].category_id;
+              } else {
+                const slug = product.category_name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                const result = await connection.execute(
+                  'INSERT INTO product_categories (category_name, category_slug) VALUES (?, ?)',
+                  [product.category_name, slug]
+                );
+                categoryId = result[0].insertId;
+              }
+            }
+
+            // Insert product
+            const productId = uuidv4();
+            await connection.execute(
+              `INSERT INTO products (product_id, product_name, product_description, product_slug, category_id, brand, price, currency, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, 'USD', TRUE)`,
+              [productId, product.product_name, product.product_description || '', slug, categoryId, product.brand || '', product.price || 0]
+            );
+
+            // Insert images
+            if (product.images && Array.isArray(product.images)) {
+              for (let i = 0; i < product.images.length; i++) {
+                await connection.execute(
+                  'INSERT INTO product_images (product_id, image_url, is_primary, display_order) VALUES (?, ?, ?, ?)',
+                  [productId, product.images[i], i === 0, i]
+                );
+              }
+            }
+
+            // Insert tags
+            if (product.tags && Array.isArray(product.tags)) {
+              for (const tag of product.tags) {
+                await connection.execute(
+                  'INSERT INTO product_tags (product_id, tag_name) VALUES (?, ?)',
+                  [productId, tag]
+                );
+              }
+            }
+
+            // Insert inventory
+            const qty = product.quantity_available || 0;
+            await connection.execute(
+              'INSERT INTO inventory (product_id, quantity_available) VALUES (?, ?)',
+              [productId, qty]
+            );
+          }
+          console.log("✓ Products seeded from mock-products.json.");
+        }
+      } catch (err) {
+        console.log("Error parsing mock-products.json, skipping product seeding:", err.message);
+      }
+    } else {
+      console.log("mock-products.json not found, skipping product seeding.");
     }
 
     console.log("\n✓ Seeding completed successfully!");

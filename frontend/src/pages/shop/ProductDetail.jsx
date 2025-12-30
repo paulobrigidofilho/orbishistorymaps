@@ -14,6 +14,7 @@ import MainNavBar from "../common/MainNavBar";
 import WishlistToggleBtn from "../common/wishlist/components/WishlistToggleBtn";
 import { QuantitySelector, AddToCartBtn, ProceedToCheckoutBtn } from "./btn";
 import FadeNotification from "../common/components/FadeNotification";
+import ProductReviewsSection from "./components/ProductReviewsSection";
 
 //  ========== Function imports  ========== //
 import getProductDetails from "./functions/productService/getProductDetails";
@@ -337,6 +338,11 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
+
+        {/* Product Reviews Section - below product info */}
+        {product && (
+          <ProductReviewsSection productId={product.product_id} userId={user?._id} />
+        )}
       </div>
     </div>
   );

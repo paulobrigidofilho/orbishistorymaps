@@ -1,0 +1,52 @@
+/* =================== PRODUCT REVIEWS SECTION STYLES =============== */
+.reviewsSection {
+  margin-top: 32px;
+  padding: 24px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+.reviewList {
+  margin-bottom: 16px;
+}
+.reviewItem {
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+}
+.reviewHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.1rem;
+}
+.stars {
+  color: #ffa41c;
+  font-size: 1.2rem;
+}
+.user {
+  font-weight: bold;
+}
+.date {
+  color: #888;
+  font-size: 0.95rem;
+}
+.comment {
+  margin-top: 4px;
+  font-size: 1rem;
+}
+.noReviews {
+  color: #888;
+  font-style: italic;
+  margin-bottom: 16px;
+}
+.userReviewActions {
+  margin-top: 16px;
+}
+.userReviewActions button {
+  background: #ffa41c;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+}

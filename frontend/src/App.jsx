@@ -21,6 +21,7 @@ import ForgotPassword from "./pages/common/auth/ForgotPassword.jsx";
 import SetNewPassword from "./pages/common/auth/SetNewPassword.jsx";
 import WishlistPage from "./pages/common/wishlist/WishlistPage.jsx";
 import MyOrders from "./pages/common/myorders/MyOrders.jsx";
+import MyReviews from "./pages/common/myreviews/MyReviews.jsx";
 
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import AdminUsers from "./pages/admin/adminpages/AdminUsers/AdminUsers.jsx";
@@ -28,6 +29,8 @@ import AdminProducts from "./pages/admin/adminpages/AdminProducts/AdminProducts.
 import AdminProductForm from "./pages/admin/adminpages/AdminProducts/AdminProductForm.jsx";
 import AdminOrders from "./pages/admin/adminpages/AdminOrders/AdminOrders.jsx";
 import AdminSettings from "./pages/admin/adminpages/AdminSettings/AdminSettings.jsx";
+import AdminReviews from "./pages/admin/adminpages/AdminReviews/AdminReviews.jsx";
+
 function App() {
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
@@ -52,6 +55,7 @@ function App() {
           <Route path="/reset-password" element={<SetNewPassword />} />
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/my-reviews" element={<MyReviews />} />
           
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminDashboard />} />
@@ -61,6 +65,7 @@ function App() {
           <Route path="/admin/products/edit/:productId" element={<AdminProductForm />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/reviews" element={<AdminReviews />} />
         </Routes>
       </AuthProvider>
     </>

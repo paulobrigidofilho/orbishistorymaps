@@ -1,0 +1,8 @@
+///////////////////////////////////////////////////////////////////////
+// =================== GET USER REVIEWS ============================= //
+///////////////////////////////////////////////////////////////////////
+
+export default async function getUserReviews(userId) {
+  const res = await fetch(`/api/reviews/user/${userId}`);
+  return res.json();
+}

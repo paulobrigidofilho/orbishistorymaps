@@ -1,0 +1,58 @@
+/* ======================= ADMIN REVIEWS STYLES ===================== */
+.adminReviewsPage {
+  padding: 32px;
+  background: #fff;
+  border-radius: 8px;
+}
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.filters input, .filters select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+}
+.reviewList {
+  margin-top: 16px;
+}
+.reviewItem {
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+}
+.reviewHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.1rem;
+}
+.stars {
+  color: #ffa41c;
+  font-size: 1.2rem;
+}
+.user {
+  font-weight: bold;
+}
+.product {
+  color: #333;
+}
+.date {
+  color: #888;
+  font-size: 0.95rem;
+}
+.comment {
+  margin-top: 4px;
+  font-size: 1rem;
+}
+button {
+  background: #ffa41c;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-right: 8px;
+}
