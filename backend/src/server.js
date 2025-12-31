@@ -53,6 +53,7 @@ const orderRoutes = require("./routes/orderRoutes.js");
 const adminUserRoutes = require("./routes/adminUserRoutes.js");
 const adminProductRoutes = require("./routes/adminProductRoutes.js");
 const adminStatsRoutes = require("./routes/adminStatsRoutes.js");
+const adminOrderRoutes = require("./routes/adminOrderRoutes.js");
 const reviewRoutes = require("./routes/reviewRoutes.js");
 
 // ====================== Routes Setup ============================= //
@@ -69,6 +70,7 @@ app.use("/api", adminUserRoutes);
 app.use("/api", adminProductRoutes);
 app.use("/api", adminStatsRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api", adminOrderRoutes);
 app.use("/health", healthRoutes);
 
 ///////////////////////////////////////////////////////////////////////

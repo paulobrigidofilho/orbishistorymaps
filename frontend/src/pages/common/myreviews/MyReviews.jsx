@@ -6,26 +6,46 @@
 // Allows editing/deleting reviews
 
 import React, { useEffect, useState, useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import styles from "./MyReviews.module.css";
+import MainNavBar from "../MainNavBar";
 import ReviewModal from "./components/ReviewModal";
 import { REVIEW_MESSAGES } from "./constants/reviewConstants";
 import getUserReviews from "./functions/getUserReviews";
 import deleteReview from "./functions/deleteReview";
 import { formatReviewDate } from "./helpers/formatReviewDate";
 import { EditReviewBtn, DeleteReviewBtn } from "./btn";
+import { AuthContext } from "../context/AuthContext.jsx";
 
 export default function MyReviews() {
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const userId = user?.user_id;
   const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [editReview, setEditReview] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    if (!userId) return;
-    getUserReviews(userId).then(setReviews);
-  }, [userId, showModal]);
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    loadReviews();
+  }, [user, showModal]);
+
+  const loadReviews = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getUserReviews(user.id);
+      setReviews(data || []);
+    } catch (err) {
+      setError(err.message || REVIEW_MESSAGES.FETCH_FAILED);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleEdit = (review) => {
     setEditReview(review);
@@ -40,16 +60,86 @@ export default function MyReviews() {
     setShowModal(false);
   };
 
-  if (!userId) {
-    return <div className={styles.noReviews}>Please log in to view your reviews.</div>;
+  // Not logged in state
+  if (!user) {
+    return (
+      <div className={styles.myReviewsPage}>
+        <MainNavBar />
+        <div className={styles.emptyContainer}>
+          <i className="material-icons" style={{ fontSize: "4rem", color: "#f39c12" }}>
+            rate_review
+          </i>
+          <h2>Please Log In</h2>
+          <p>You need to be logged in to view your reviews.</p>
+          <button onClick={() => navigate("/register")} className={styles.actionButton}>
+            Sign Up / Login
+          </button>
+        </div>
+      </div>
+    );
   }
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className={styles.myReviewsPage}>
+        <MainNavBar />
+        <div className={styles.loadingContainer}>
+          <p>Loading reviews...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className={styles.myReviewsPage}>
+        <MainNavBar />
+        <div className={styles.errorContainer}>
+          <h2>Error Loading Reviews</h2>
+          <p>{error}</p>
+          <button onClick={loadReviews} className={styles.retryButton}>
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (!reviews || reviews.length === 0) {
+    return (
+      <div className={styles.myReviewsPage}>
+        <MainNavBar />
+        <div className={styles.emptyContainer}>
+          <i className="material-icons" style={{ fontSize: "4rem", color: "#bdc3c7" }}>
+            rate_review
+          </i>
+          <h2>No Reviews Yet</h2>
+          <p>You haven't submitted any reviews yet.</p>
+          <button onClick={() => navigate("/shop")} className={styles.actionButton}>
+            Browse Products
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Main content
   return (
     <div className={styles.myReviewsPage}>
-      <h2>My Reviews</h2>
-      {reviews.length === 0 ? (
-        <div className={styles.noReviews}>{REVIEW_MESSAGES.NO_USER_REVIEWS}</div>
-      ) : (
+      <MainNavBar />
+      <div className={styles.reviewsContainer}>
+        <div className={styles.reviewsHeader}>
+          <h1>
+            <i className="material-icons" style={{ color: "#f39c12", verticalAlign: "middle", marginRight: "0.5rem" }}>
+              rate_review
+            </i>
+            My Reviews
+          </h1>
+          <p>{reviews.length} {reviews.length === 1 ? "review" : "reviews"}</p>
+        </div>
         <div className={styles.reviewList}>
           {reviews.map(r => (
             <div key={r._id} className={styles.reviewItem}>
@@ -64,12 +154,20 @@ export default function MyReviews() {
             </div>
           ))}
         </div>
-      )}
+        <div className={styles.actionsContainer}>
+          <button
+            onClick={() => navigate("/shop")}
+            className={styles.continueShoppingButton}
+          >
+            Continue Shopping
+          </button>
+        </div>
+      </div>
       <ReviewModal
         open={showModal}
         onClose={handleModalClose}
         productId={editReview ? editReview.productId._id : null}
-        userId={userId}
+        userId={user.id}
         review={editReview}
         onSuccess={handleModalClose}
       />

@@ -154,13 +154,16 @@ const ProfileBtn = () => {
               )}
               <NavLink to={`/profile/${user.id}`}>Edit Profile</NavLink>
               <NavLink to="/wishlist">
-                <i className="material-icons">favorite</i> My Wishlist
+                <i className="material-icons">favorite</i> Wishlist
               </NavLink>
               <NavLink to="/cart">
-                <i className="material-icons">shopping_cart</i> My Cart {cartCount > 0 && `(${cartCount})`}
+                <i className="material-icons">shopping_cart</i> Cart {cartCount > 0 && `(${cartCount})`}
               </NavLink>
               <NavLink to="/my-orders">
-                <i className="material-icons">receipt_long</i> My Orders
+                <i className="material-icons">receipt_long</i> Orders
+              </NavLink>
+              <NavLink to="/my-reviews">
+                <i className="material-icons">rate_review</i> Reviews
               </NavLink>
               <button onClick={handleLogout}>Log Out</button>
             </div>
