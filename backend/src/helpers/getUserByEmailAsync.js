@@ -2,26 +2,29 @@
 // ===== GET USER BY EMAIL ASYNC HELPER ===== //
 ////////////////////////////////////////////////
 
-// This helper promisifies the callback-based userModel.getUserByEmail
+// This helper retrieves a user by email using the Sequelize User model
 // for use in async/await service functions.
 
 // ======= Model Imports ======= //
-const userModel = require("../model/userModel");
+const { User } = require("../models");
 
 ///////////////////////////////////
 // ===== HELPER FUNCTION ======= //
 ///////////////////////////////////
 
 // ===== getUserByEmailAsync Function ===== //
-// Promisified wrapper around userModel.getUserByEmail
+// Retrieves a user by email using Sequelize User model
 
-const getUserByEmailAsync = (email) => {
-  return new Promise((resolve, reject) => {
-    userModel.getUserByEmail(email, (err, user) => {
-      if (err) return reject(err);
-      resolve(user);
+const getUserByEmailAsync = async (email) => {
+  try {
+    const user = await User.findOne({
+      where: { user_email: email },
+      raw: true,
     });
-  });
+    return user;
+  } catch (error) {
+    throw error;
+  }
 };
 
 module.exports = { getUserByEmailAsync };

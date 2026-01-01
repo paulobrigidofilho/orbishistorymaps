@@ -87,7 +87,7 @@ export default function AdminReviews() {
       }
       const data = await res.json();
       
-      setReviews(data.data || data || []);
+      setReviews(data.reviews || data.data || data || []);
       if (data.pagination) {
         setPagination((prev) => ({ ...prev, ...data.pagination }));
       }
@@ -220,8 +220,8 @@ export default function AdminReviews() {
   // Render function for table rows
   const renderRow = (review) => (
     <tr key={review.review_id || review._id}>
-      <td>{review.product_name || review.productId?.name || "N/A"}</td>
-      <td>{review.user_nickname || review.userId?.name || "N/A"}</td>
+      <td>{review.product?.product_name || review.product_name || "N/A"}</td>
+      <td>{review.user?.user_nickname || review.user_nickname || "N/A"}</td>
       <td>
         <span className={viewStyles.stars}>
           {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}

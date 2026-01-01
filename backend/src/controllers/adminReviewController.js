@@ -5,56 +5,78 @@
 const adminReviewService = require("../services/adminReviewService");
 
 // Get all reviews (with filters)
-exports.getAllReviews = (req, res) => {
-	const filters = {
-		productId: req.query.productId,
-		userId: req.query.userId,
-		rating: req.query.rating,
-	};
-	adminReviewService.getAllReviews(filters, (err, reviews) => {
-		if (err) return res.status(500).json({ error: err.message });
-		res.json(reviews);
-	});
+exports.getAllReviews = async (req, res) => {
+	try {
+		const filters = {
+			page: parseInt(req.query.page) || 1,
+			limit: parseInt(req.query.limit) || 20,
+			status: req.query.status || "all",
+			sortBy: req.query.sortBy || "created_at",
+			sortOrder: req.query.sortOrder || "desc",
+		};
+		const result = await adminReviewService.getAllReviews(filters);
+		res.json(result);
+	} catch (err) {
+		console.error("Error getting all reviews:", err);
+		res.status(500).json({ error: err.message });
+	}
 };
 
 // Get a single review by ID
-exports.getReviewById = (req, res) => {
-	adminReviewService.getReviewById(req.params.reviewId, (err, review) => {
-		if (err) return res.status(500).json({ error: err.message });
-		if (!review) return res.status(404).json({ error: "Review not found" });
+exports.getReviewById = async (req, res) => {
+	try {
+		const review = await adminReviewService.getReviewById(req.params.reviewId);
 		res.json(review);
-	});
+	} catch (err) {
+		if (err.message === "Review not found") {
+			return res.status(404).json({ error: "Review not found" });
+		}
+		console.error("Error getting review:", err);
+		res.status(500).json({ error: err.message });
+	}
 };
 
 // Update a review
-exports.updateReview = (req, res) => {
-	adminReviewService.updateReview(req.params.reviewId, req.body, (err, result) => {
-		if (err) return res.status(500).json({ error: err.message });
-		res.json({ success: true });
-	});
+exports.updateReview = async (req, res) => {
+	try {
+		const result = await adminReviewService.updateReview(req.params.reviewId, req.body);
+		res.json({ success: true, review: result });
+	} catch (err) {
+		console.error("Error updating review:", err);
+		res.status(500).json({ error: err.message });
+	}
 };
 
 // Approve/unapprove a review
-exports.approveReview = (req, res) => {
-	const isApproved = req.body.is_approved;
-	adminReviewService.approveReview(req.params.reviewId, isApproved, (err, result) => {
-		if (err) return res.status(500).json({ error: err.message });
-		res.json({ success: true });
-	});
+exports.approveReview = async (req, res) => {
+	try {
+		const isApproved = req.body.is_approved;
+		const result = await adminReviewService.approveReview(req.params.reviewId, isApproved);
+		res.json({ success: true, review: result });
+	} catch (err) {
+		console.error("Error approving review:", err);
+		res.status(500).json({ error: err.message });
+	}
 };
 
 // Delete a review
-exports.deleteReview = (req, res) => {
-	adminReviewService.deleteReview(req.params.reviewId, (err, result) => {
-		if (err) return res.status(500).json({ error: err.message });
+exports.deleteReview = async (req, res) => {
+	try {
+		await adminReviewService.deleteReview(req.params.reviewId);
 		res.json({ success: true });
-	});
+	} catch (err) {
+		console.error("Error deleting review:", err);
+		res.status(500).json({ error: err.message });
+	}
 };
 
 // Get rating breakdown by product
-exports.getRatingBreakdown = (req, res) => {
-	adminReviewService.getRatingBreakdown(req.params.productId, (err, breakdown) => {
-		if (err) return res.status(500).json({ error: err.message });
+exports.getRatingBreakdown = async (req, res) => {
+	try {
+		const breakdown = await adminReviewService.getRatingBreakdown(req.params.productId);
 		res.json(breakdown);
-	});
+	} catch (err) {
+		console.error("Error getting rating breakdown:", err);
+		res.status(500).json({ error: err.message });
+	}
 };

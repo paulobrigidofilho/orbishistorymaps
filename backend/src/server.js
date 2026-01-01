@@ -99,21 +99,41 @@ app.use("/uploads/products", express.static(config.staticPaths.products));
     console.log("Session store initialization complete.");
   }
 
-  // Ensure DB is reachable before accepting requests
-  await new Promise((resolve) => {
-    const checkDb = () => {
-      config.db.query("SELECT 1", (err) => {
-        if (err) {
-          console.log("Database not ready yet, retrying in 1000ms...");
-          setTimeout(checkDb, 1000);
-        } else {
-          console.log("Database is ready.");
-          resolve();
-        }
-      });
-    };
-    checkDb();
-  });
+  // Initialize Sequelize and ensure DB is reachable before accepting requests
+  const { testConnection } = require("./config/sequelizeConfig");
+  const { syncDatabase } = require("./models");
+
+  try {
+    // Test Sequelize connection
+    console.log("Testing Sequelize database connection...");
+    await testConnection();
+    console.log("Sequelize database connection successful.");
+
+    // Sync models (in development, this ensures tables exist)
+    // In production, use migrations instead
+    if (process.env.NODE_ENV !== "production") {
+      console.log("Syncing Sequelize models...");
+      await syncDatabase();
+      console.log("Sequelize models synced.");
+    }
+  } catch (error) {
+    console.error("Failed to initialize Sequelize:", error);
+    // Fall back to raw MySQL check for backward compatibility
+    await new Promise((resolve) => {
+      const checkDb = () => {
+        config.db.query("SELECT 1", (err) => {
+          if (err) {
+            console.log("Database not ready yet, retrying in 1000ms...");
+            setTimeout(checkDb, 1000);
+          } else {
+            console.log("Database is ready (fallback check).");
+            resolve();
+          }
+        });
+      };
+      checkDb();
+    });
+  }
 
   app.listen(port, () => {
     const env =

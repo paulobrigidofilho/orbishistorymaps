@@ -1,6 +1,6 @@
-/////////////////////////////////////////////////////
-// ============= REGISTER USER SERVICE =========== //
-/////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ================ REGISTER USER SERVICE (SEQUELIZE) ============== //
+///////////////////////////////////////////////////////////////////////
 
 // This service handles the registration logic for new users
 // including validation, password hashing, and user creation in the database
@@ -10,20 +10,21 @@ const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 const config = require("../config/config");
 
+// ======= Model Imports ======= //
+const { User } = require("../models");
+
 // ======= Constants Imports ======= //
 const { REGISTRATION_ERRORS } = require("../constants/errorMessages");
 
 // ======= Helper Imports ======= //
 const { createUserProfile } = require("../helpers/createUserProfile");
-const { getUserByEmailAsync } = require("../helpers/getUserByEmailAsync");
-const { createUserAsync } = require("../helpers/createUserAsync");
 
 // ======= Bcrypt Configuration ======= //
 const saltRounds = config.authConfig.bcrypt.saltRounds;
 
-///////////////////////////////////
-// ===== SERVICE FUNCTIONS ===== //
-///////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ================ SERVICE FUNCTIONS ============================== //
+///////////////////////////////////////////////////////////////////////
 
 // ===== registerUser Function ===== //
 // Registers a new user with the provided data
@@ -48,8 +49,11 @@ const registerUser = async (userData) => {
     throw new Error(REGISTRATION_ERRORS.MISSING_FIELDS);
   }
 
-  // Check if email already exists
-  const existingUser = await getUserByEmailAsync(email);
+  // Check if email already exists using Sequelize
+  const existingUser = await User.findOne({
+    where: { user_email: email },
+  });
+
   if (existingUser) {
     throw new Error(REGISTRATION_ERRORS.EMAIL_IN_USE);
   }
@@ -58,7 +62,8 @@ const registerUser = async (userData) => {
   const hashedPassword = await bcrypt.hash(password, saltRounds);
   const userId = uuidv4();
 
-  const newUser = {
+  // Create user in database using Sequelize
+  const newUser = await User.create({
     user_id: userId,
     user_firstname: firstName,
     user_lastname: lastName,
@@ -71,32 +76,24 @@ const registerUser = async (userData) => {
     user_city: city || "",
     user_state: state || "",
     user_zipcode: zipCode || "",
-  };
+    user_role: "user",
+    user_status: "active",
+  });
 
-  // Create user in database
-  const createResult = await createUserAsync(newUser);
+  console.log(`User created successfully with ID: ${userId}`);
 
-  // Verify the insert actually happened
-  if (!createResult || createResult.affectedRows === 0) {
-    throw new Error("Failed to create user in database");
-  }
-
-  console.log(
-    `User created successfully. Affected rows: ${createResult.affectedRows}`
-  );
-
-  // Fetch the complete user profile from the database
-  const user = await getUserByEmailAsync(email);
-  if (!user) {
-    throw new Error("User registered but not found");
-  }
-
-  const userProfile = createUserProfile(user);
+  // Create user profile from Sequelize model
+  const userProfile = createUserProfile(newUser.toJSON());
   console.log("Registration complete. User profile:", {
     ...userProfile,
     id: userProfile.id,
   });
+
   return userProfile;
 };
+
+///////////////////////////////////////////////////////////////////////
+// ================ EXPORTS ======================================== //
+///////////////////////////////////////////////////////////////////////
 
 module.exports = { registerUser };

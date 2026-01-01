@@ -1,26 +1,26 @@
-/////////////////////////////////////////////////
-// ============== AVATAR SERVICE ============= //
-/////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ================ AVATAR SERVICE (SEQUELIZE) ===================== //
+///////////////////////////////////////////////////////////////////////
 
 // This service manages avatar storage, retrieval, and deletion,
-// interacting with the file system and user model.
+// interacting with the file system and user model via Sequelize
 
 // ======= Module Imports ======= //
 const path = require("path");
 const fs = require("fs").promises; // Use promises API for async operations
 const fsSync = require("fs"); // Keep sync API only for existsSync check
 
+// ======= Model Imports ======= //
+const { User } = require("../models");
+
 // ======= Helper Imports ======= //
-const { getUserByIdAsync } = require("../helpers/getUserByIdAsync");
 const { sanitizeFilename } = require("../helpers/sanitizePath");
 const { compressAvatar } = require("../helpers/compressAvatar");
+const { createUserProfile } = require("../helpers/createUserProfile");
 
-// ======= Service Imports ======= //
-const { getUserProfile, updateUserProfile } = require("./profileService");
-
-///////////////////////////////////
-// ===== SERVICE FUNCTIONS ===== //
-///////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ================ SERVICE FUNCTIONS ============================== //
+///////////////////////////////////////////////////////////////////////
 
 // ===== toRelativeAvatarPath Function ===== //
 // Converts absolute avatar URL to relative path for file system operations
@@ -77,7 +77,8 @@ const saveAvatarUrl = async (filename) => {
 // Deletes avatar file from disk and clears avatar URL in user profile
 
 const deleteUserAvatar = async (userId) => {
-  const user = await getUserByIdAsync(userId);
+  // Find user using Sequelize
+  const user = await User.findByPk(userId);
   if (!user) throw new Error("User not found");
 
   const rel = toRelativeAvatarPath(user.user_avatar);
@@ -102,10 +103,16 @@ const deleteUserAvatar = async (userId) => {
     }
   }
 
-  // Clear avatar in DB and return updated profile
-  await updateUserProfile(userId, { avatar: "" });
-  const updated = await getUserProfile(userId);
-  return updated;
+  // Clear avatar in DB using Sequelize
+  await user.update({ user_avatar: "" });
+
+  // Return updated profile
+  const userProfile = createUserProfile(user.toJSON());
+  return userProfile;
 };
+
+///////////////////////////////////////////////////////////////////////
+// ================ EXPORTS ======================================== //
+///////////////////////////////////////////////////////////////////////
 
 module.exports = { saveAvatarUrl, deleteUserAvatar };

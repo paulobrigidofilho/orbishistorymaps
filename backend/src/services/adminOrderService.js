@@ -1,84 +1,152 @@
 ///////////////////////////////////////////////////////////////////////
-// ===================== ADMIN ORDER SERVICE ======================== //
+// ================ ADMIN ORDER SERVICE (SEQUELIZE) ================ //
 ///////////////////////////////////////////////////////////////////////
 
 // This service handles admin order-related business logic
-const orderModel = require("../model/orderModel");
+
+// ======= Module Imports ======= //
+const { Op } = require("sequelize");
+const { sequelize } = require("../config/sequelizeConfig");
+
+// ======= Model Imports ======= //
+const { Order, OrderItem, Product, ProductImage, User, Address } = require("../models");
+
+///////////////////////////////////////////////////////////////////////
+// ================ SERVICE FUNCTIONS ============================== //
+///////////////////////////////////////////////////////////////////////
 
 const adminOrderService = {
-	// Get all orders (optionally filtered by status, user, etc)
-	getAllOrders: (filters = {}, limit = 50, offset = 0) => {
-		return new Promise((resolve, reject) => {
-			let query = `SELECT * FROM orders`;
-			const where = [];
-			const params = [];
-			if (filters.status) {
-				where.push("order_status = ?");
-				params.push(filters.status);
-			}
-			if (filters.userId) {
-				where.push("user_id = ?");
-				params.push(filters.userId);
-			}
-			if (where.length) {
-				query += " WHERE " + where.join(" AND ");
-			}
-			query += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
-			params.push(limit, offset);
-			orderModel.db.query(query, params, (err, results) => {
-				if (err) return reject(err);
-				resolve(results);
-			});
-		});
-	},
+  // Get all orders (optionally filtered by status, user, etc)
+  getAllOrders: async (filters = {}, limit = 50, offset = 0) => {
+    const whereConditions = {};
 
-	// Get order details by id (admin, no user restriction)
-	getOrderById: (orderId) => {
-		return new Promise((resolve, reject) => {
-			orderModel.getOrderById(orderId, null, (err, order) => {
-				if (err) return reject(err);
-				if (!order) return reject(new Error("Order not found"));
-				orderModel.getOrderItems(orderId, (itemErr, items) => {
-					if (itemErr) return reject(itemErr);
-					resolve({ ...order, items: items || [] });
-				});
-			});
-		});
-	},
+    if (filters.status) {
+      whereConditions.order_status = filters.status;
+    }
+    if (filters.userId) {
+      whereConditions.user_id = filters.userId;
+    }
 
-	// Update order status
-	updateOrderStatus: (orderId, status) => {
-		return new Promise((resolve, reject) => {
-			orderModel.updateOrderStatus(orderId, status, (err, result) => {
-				if (err) return reject(err);
-				resolve(result);
-			});
-		});
-	},
+    const orders = await Order.findAll({
+      where: whereConditions,
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["user_id", "user_email", "user_firstname", "user_lastname"],
+        },
+      ],
+      order: [["created_at", "DESC"]],
+      limit: limit,
+      offset: offset,
+    });
 
-	// Update payment status
-	updatePaymentStatus: (orderId, status) => {
-		return new Promise((resolve, reject) => {
-			orderModel.updatePaymentStatus(orderId, status, (err, result) => {
-				if (err) return reject(err);
-				resolve(result);
-			});
-		});
-	},
+    return orders.map((order) => order.toJSON());
+  },
 
-	// Delete order
-	deleteOrder: (orderId) => {
-		return new Promise((resolve, reject) => {
-			// Delete order items first
-			orderModel.db.query("DELETE FROM order_items WHERE order_id = ?", [orderId], (err) => {
-				if (err) return reject(err);
-				orderModel.db.query("DELETE FROM orders WHERE order_id = ?", [orderId], (err2, result) => {
-					if (err2) return reject(err2);
-					resolve(result);
-				});
-			});
-		});
-	},
+  // Get order details by id (admin, no user restriction)
+  getOrderById: async (orderId) => {
+    const order = await Order.findByPk(orderId, {
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["user_id", "user_email", "user_firstname", "user_lastname"],
+        },
+        {
+          model: Address,
+          as: "shippingAddress",
+        },
+        {
+          model: OrderItem,
+          as: "items",
+          include: [
+            {
+              model: Product,
+              as: "product",
+              attributes: ["product_id", "product_name", "product_slug"],
+              include: [
+                {
+                  model: ProductImage,
+                  as: "images",
+                  where: { is_primary: true },
+                  required: false,
+                  attributes: ["image_url"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    return order.toJSON();
+  },
+
+  // Update order status
+  updateOrderStatus: async (orderId, status) => {
+    const [updated] = await Order.update(
+      { order_status: status },
+      { where: { order_id: orderId } }
+    );
+
+    if (updated === 0) {
+      throw new Error("Order not found");
+    }
+
+    return { orderId, status, updated: true };
+  },
+
+  // Update payment status
+  updatePaymentStatus: async (orderId, status) => {
+    const [updated] = await Order.update(
+      { payment_status: status },
+      { where: { order_id: orderId } }
+    );
+
+    if (updated === 0) {
+      throw new Error("Order not found");
+    }
+
+    return { orderId, paymentStatus: status, updated: true };
+  },
+
+  // Delete order
+  deleteOrder: async (orderId) => {
+    const transaction = await sequelize.transaction();
+
+    try {
+      // Delete order items first
+      await OrderItem.destroy({
+        where: { order_id: orderId },
+        transaction,
+      });
+
+      // Delete the order
+      const deleted = await Order.destroy({
+        where: { order_id: orderId },
+        transaction,
+      });
+
+      if (deleted === 0) {
+        throw new Error("Order not found");
+      }
+
+      await transaction.commit();
+      return { orderId, deleted: true };
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  },
 };
+
+///////////////////////////////////////////////////////////////////////
+// ================ EXPORTS ======================================== //
+///////////////////////////////////////////////////////////////////////
 
 module.exports = adminOrderService;
