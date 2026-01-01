@@ -9,10 +9,12 @@ import React, { useState, useEffect } from "react";
 import styles from "./AdminOrders.module.css";
 
 //  ========== Component imports  ========== //
-import AdminLayout from "../../components/AdminLayout";
+import AdminManagementView from "../../components/AdminManagementView";
+import viewStyles from "../../components/AdminManagementView.module.css";
 
 //  ========== Constants imports  ========== //
 import { ERROR_MESSAGES } from "../../constants/adminErrorMessages";
+import { ADMIN_PAGE_TYPES } from "../../constants/adminSearchBarConstants";
 
 ///////////////////////////////////////////////////////////////////////
 // ======================== ADMIN ORDERS PAGE ======================== //
@@ -36,6 +38,10 @@ export default function AdminOrders() {
     search: "",
     status: "",
   });
+  const [sortConfig, setSortConfig] = useState({
+    field: "created_at",
+    order: "desc",
+  });
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -43,7 +49,7 @@ export default function AdminOrders() {
 
   useEffect(() => {
     fetchOrders();
-  }, [pagination.page, filters]);
+  }, [pagination.page, filters, sortConfig]);
 
   ///////////////////////////////////////////////////////////////////////
   // ======================= HELPER FUNCTIONS ======================== //
@@ -58,6 +64,8 @@ export default function AdminOrders() {
       //   page: pagination.page,
       //   limit: pagination.limit,
       //   ...filters,
+      //   sortBy: sortConfig.field,
+      //   sortOrder: sortConfig.order,
       // });
       // setOrders(data.data || []);
       // setPagination((prev) => ({ ...prev, ...data.pagination }));
@@ -87,118 +95,82 @@ export default function AdminOrders() {
     setPagination((prev) => ({ ...prev, page: newPage }));
   };
 
+  const handleSort = (field) => {
+    setSortConfig((prev) => {
+      const newOrder = prev.field === field && prev.order === "asc" ? "desc" : "asc";
+      return { field, order: newOrder };
+    });
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
+
+  ///////////////////////////////////////////////////////////////////////
+  // ====================== TABLE CONFIGURATION ====================== //
+  ///////////////////////////////////////////////////////////////////////
+
+  // Column definitions for the orders table
+  const columns = [
+    { key: "id", label: "Order ID", sortable: true, sortField: "order_id" },
+    { key: "customer", label: "Customer", sortable: true, sortField: "customer_name" },
+    { key: "date", label: "Date", sortable: true, sortField: "created_at" },
+    { key: "total", label: "Total", sortable: true, sortField: "total_amount" },
+    { key: "status", label: "Status", sortable: true, sortField: "status" },
+    { key: "actions", label: "Actions", sortable: false },
+  ];
+
+  // Render function for table rows
+  const renderRow = (order) => (
+    <tr key={order.order_id}>
+      <td>#{order.order_id}</td>
+      <td>{order.customer_name}</td>
+      <td>{new Date(order.created_at).toLocaleDateString()}</td>
+      <td>${order.total_amount}</td>
+      <td>
+        <span className={`${viewStyles.badge} ${viewStyles[order.status]}`}>
+          {order.status}
+        </span>
+      </td>
+      <td>
+        <div className={viewStyles.actions}>
+          <button className={styles.viewButton}>View</button>
+        </div>
+      </td>
+    </tr>
+  );
+
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
   ///////////////////////////////////////////////////////////////////////
 
   return (
-    <AdminLayout>
-      <div className={styles.ordersPage}>
-        <div className={styles.header}>
-          <h1>Order Management</h1>
-        </div>
-
-        {/* Filters */}
-        <div className={styles.filters}>
-          <input
-            type="text"
-            placeholder="Search by order ID or customer..."
-            value={filters.search}
-            onChange={handleSearchChange}
-            className={styles.searchInput}
-          />
-
-          <select
-            value={filters.status}
-            onChange={(e) => handleFilterChange("status", e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="processing">Processing</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-        </div>
-
-        {/* Error Message */}
-        {error && <div className={styles.error}>{error}</div>}
-
-        {/* Loading State */}
-        {loading && <div className={styles.loading}>Loading orders...</div>}
-
-        {/* Orders Table */}
-        {!loading && orders.length > 0 && (
-          <div className={styles.tableContainer}>
-            <table className={styles.ordersTable}>
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Customer</th>
-                  <th>Date</th>
-                  <th>Total</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr key={order.order_id}>
-                    <td>#{order.order_id}</td>
-                    <td>{order.customer_name}</td>
-                    <td>{new Date(order.created_at).toLocaleDateString()}</td>
-                    <td>${order.total_amount}</td>
-                    <td>
-                      <span className={`${styles.badge} ${styles[order.status]}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td>
-                      <div className={styles.actions}>
-                        <button className={styles.viewButton}>View</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && orders.length === 0 && (
-          <div className={styles.emptyState}>
-            <p>No orders found</p>
-            <p className={styles.emptyHint}>
-              Orders will appear here once customers start purchasing
-            </p>
-          </div>
-        )}
-
-        {/* Pagination */}
-        {pagination.totalPages > 1 && (
-          <div className={styles.pagination}>
-            <button
-              onClick={() => handlePageChange(pagination.page - 1)}
-              disabled={pagination.page === 1}
-              className={styles.pageButton}
-            >
-              Previous
-            </button>
-            <span className={styles.pageInfo}>
-              Page {pagination.page} of {pagination.totalPages}
-            </span>
-            <button
-              onClick={() => handlePageChange(pagination.page + 1)}
-              disabled={pagination.page === pagination.totalPages}
-              className={styles.pageButton}
-            >
-              Next
-            </button>
-          </div>
-        )}
-      </div>
-    </AdminLayout>
+    <AdminManagementView
+      // Page configuration
+      pageType={ADMIN_PAGE_TYPES.ORDERS}
+      title="Order Management"
+      // Search and filter props
+      searchValue={filters.search}
+      onSearchChange={(value) => {
+        setFilters((prev) => ({ ...prev, search: value }));
+        setPagination((prev) => ({ ...prev, page: 1 }));
+      }}
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      // Loading and error states
+      loading={loading}
+      error={error}
+      loadingText="Loading orders..."
+      // Data and pagination
+      data={orders}
+      pagination={pagination}
+      onPageChange={handlePageChange}
+      // Empty state
+      emptyMessage="No orders found"
+      emptyHint="Orders will appear here once customers start purchasing"
+      // Table configuration
+      columns={columns}
+      renderRow={renderRow}
+      // Sorting
+      sortConfig={sortConfig}
+      onSort={handleSort}
+    />
   );
 }

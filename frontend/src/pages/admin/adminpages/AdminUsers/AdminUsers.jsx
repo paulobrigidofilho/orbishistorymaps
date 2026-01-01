@@ -9,10 +9,14 @@ import React, { useState, useEffect } from "react";
 import styles from "./AdminUsers.module.css";
 
 //  ========== Component imports  ========== //
-import AdminLayout from "../../components/AdminLayout";
+import AdminManagementView from "../../components/AdminManagementView";
 import UserEditModal from "./subcomponents/UserEditModal";
 import DeleteUserModal from "./subcomponents/DeleteUserModal";
-import { EditBtn, DeleteBtn, PageBtn } from "../../btn";
+import { EditBtn, DeleteBtn } from "../../btn";
+import viewStyles from "../../components/AdminManagementView.module.css";
+
+//  ========== Constants imports (Search)  ========== //
+import { ADMIN_PAGE_TYPES } from "../../constants/adminSearchBarConstants";
 
 //  ========== Function imports  ========== //
 import getAllUsers from "../../functions/getAllUsers";
@@ -195,170 +199,104 @@ export default function AdminUsers() {
     setPagination((prev) => ({ ...prev, page: 1 })); // Reset to first page
   };
 
-  const getSortIcon = (field) => {
-    if (sortConfig.field !== field) return "↕";
-    return sortConfig.order === "asc" ? "↑" : "↓";
-  };
+  ///////////////////////////////////////////////////////////////////////
+  // ====================== TABLE CONFIGURATION ====================== //
+  ///////////////////////////////////////////////////////////////////////
+
+  // Column definitions for the users table
+  const columns = [
+    { key: "id", label: "ID", sortable: true, sortField: "user_id" },
+    { key: "firstName", label: "First Name", sortable: true, sortField: "user_firstname" },
+    { key: "lastName", label: "Last Name", sortable: true, sortField: "user_lastname" },
+    { key: "email", label: "Email", sortable: true, sortField: "user_email" },
+    { key: "role", label: "Role", sortable: true, sortField: "user_role" },
+    { key: "status", label: "Status", sortable: true, sortField: "user_status" },
+    { key: "createdAt", label: "Created", sortable: true, sortField: "user_created_at" },
+    { key: "updatedAt", label: "Updated", sortable: true, sortField: "user_updated_at" },
+    { key: "actions", label: "Actions", sortable: false },
+  ];
+
+  // Render function for table rows
+  const renderRow = (user) => (
+    <tr key={user.id}>
+      <td>{user.id}</td>
+      <td>{user.firstName}</td>
+      <td>{user.lastName}</td>
+      <td>{user.email}</td>
+      <td>
+        <select
+          value={user.role}
+          onChange={(e) => handleRoleChange(user.id, e.target.value)}
+          className={`${viewStyles.inlineSelect} ${viewStyles[user.role]}`}
+        >
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </td>
+      <td>
+        <select
+          value={user.status}
+          onChange={(e) => handleStatusChange(user.id, e.target.value)}
+          className={`${viewStyles.inlineSelect} ${viewStyles[user.status]}`}
+        >
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="suspended">Suspended</option>
+        </select>
+      </td>
+      <td>{formatDateDMY(user.createdAt)}</td>
+      <td>{formatDateDMY(user.updatedAt)}</td>
+      <td>
+        <div className={viewStyles.actions}>
+          <EditBtn
+            onClick={() => handleEditUser(user)}
+            title="Edit user profile"
+          />
+          <DeleteBtn
+            onClick={() => handleDeleteUser(user)}
+            disabled={user.role === "admin"}
+            title={user.role === "admin" ? "Admin accounts cannot be deleted" : "Delete user"}
+          />
+        </div>
+      </td>
+    </tr>
+  );
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
   ///////////////////////////////////////////////////////////////////////
 
   return (
-    <AdminLayout>
-      <div className={styles.usersPage}>
-        <div className={styles.header}>
-          <h1>User Management</h1>
-        </div>
-
-        {/* Filters */}
-        <div className={styles.filters}>
-          <input
-            type="text"
-            placeholder="Search by name or email..."
-            value={filters.search}
-            onChange={handleSearchChange}
-            className={styles.searchInput}
-          />
-
-          <select
-            value={filters.role}
-            onChange={(e) => handleFilterChange("role", e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="">All Roles</option>
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-          </select>
-
-          <select
-            value={filters.status}
-            onChange={(e) => handleFilterChange("status", e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="suspended">Suspended</option>
-          </select>
-        </div>
-
-        {/* Error Message */}
-        {error && <div className={styles.error}>{error}</div>}
-
-        {/* Loading State */}
-        {loading && <div className={styles.loading}>Loading users...</div>}
-
-        {/* Users Table */}
-        {!loading && users.length > 0 && (
-          <div className={styles.tableContainer}>
-            <table className={styles.usersTable}>
-              <thead>
-                <tr>
-                  <th className={styles.sortable} onClick={() => handleSort("user_id")}>
-                    ID <span className={styles.sortIcon}>{getSortIcon("user_id")}</span>
-                  </th>
-                  <th className={styles.sortable} onClick={() => handleSort("user_firstname")}>
-                    First Name <span className={styles.sortIcon}>{getSortIcon("user_firstname")}</span>
-                  </th>
-                  <th className={styles.sortable} onClick={() => handleSort("user_lastname")}>
-                    Last Name <span className={styles.sortIcon}>{getSortIcon("user_lastname")}</span>
-                  </th>
-                  <th className={styles.sortable} onClick={() => handleSort("user_email")}>
-                    Email <span className={styles.sortIcon}>{getSortIcon("user_email")}</span>
-                  </th>
-                  <th className={styles.sortable} onClick={() => handleSort("user_role")}>
-                    Role <span className={styles.sortIcon}>{getSortIcon("user_role")}</span>
-                  </th>
-                  <th className={styles.sortable} onClick={() => handleSort("user_status")}>
-                    Status <span className={styles.sortIcon}>{getSortIcon("user_status")}</span>
-                  </th>
-                  <th className={styles.sortable} onClick={() => handleSort("user_created_at")}>
-                    Created <span className={styles.sortIcon}>{getSortIcon("user_created_at")}</span>
-                  </th>
-                  <th className={styles.sortable} onClick={() => handleSort("user_updated_at")}>
-                    Updated <span className={styles.sortIcon}>{getSortIcon("user_updated_at")}</span>
-                  </th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id}>
-                    <td>{user.id}</td>
-                    <td>{user.firstName}</td>
-                    <td>{user.lastName}</td>
-                    <td>{user.email}</td>
-                    <td>
-                      <select
-                        value={user.role}
-                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                        className={`${styles.inlineSelect} ${styles[user.role]}`}
-                      >
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    </td>
-                    <td>
-                      <select
-                        value={user.status}
-                        onChange={(e) => handleStatusChange(user.id, e.target.value)}
-                        className={`${styles.inlineSelect} ${styles[user.status]}`}
-                      >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="suspended">Suspended</option>
-                      </select>
-                    </td>
-                    <td>{formatDateDMY(user.createdAt)}</td>
-                    <td>{formatDateDMY(user.updatedAt)}</td>
-                    <td>
-                      <div className={styles.actionButtons}>
-                        <EditBtn
-                          onClick={() => handleEditUser(user)}
-                          title="Edit user profile"
-                        />
-                        <DeleteBtn
-                          onClick={() => handleDeleteUser(user)}
-                          disabled={user.role === 'admin'}
-                          title={user.role === 'admin' ? "Admin accounts cannot be deleted" : "Delete user"}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && users.length === 0 && (
-          <div className={styles.emptyState}>No users found</div>
-        )}
-
-        {/* Pagination */}
-        {pagination.totalPages > 1 && (
-          <div className={styles.pagination}>
-            <PageBtn
-              onClick={() => handlePageChange(pagination.page - 1)}
-              disabled={pagination.page === 1}
-            >
-              Previous
-            </PageBtn>
-            <span className={styles.pageInfo}>
-              Page {pagination.page} of {pagination.totalPages}
-            </span>
-            <PageBtn
-              onClick={() => handlePageChange(pagination.page + 1)}
-              disabled={pagination.page === pagination.totalPages}
-            >
-              Next
-            </PageBtn>
-          </div>
-        )}
-      </div>
-
+    <AdminManagementView
+      // Page configuration
+      pageType={ADMIN_PAGE_TYPES.USERS}
+      title="User Management"
+      // Search and filter props
+      searchValue={filters.search}
+      onSearchChange={(value) => {
+        setFilters((prev) => ({ ...prev, search: value }));
+        setPagination((prev) => ({ ...prev, page: 1 }));
+      }}
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      // Loading and error states
+      loading={loading}
+      error={error}
+      loadingText="Loading users..."
+      // Data and pagination
+      data={users}
+      pagination={pagination}
+      onPageChange={handlePageChange}
+      // Empty state
+      emptyMessage="No users found"
+      emptyHint="Try adjusting your search or filters"
+      // Table configuration
+      columns={columns}
+      renderRow={renderRow}
+      // Sorting
+      sortConfig={sortConfig}
+      onSort={handleSort}
+    >
       {/* User Edit Modal */}
       <UserEditModal
         user={selectedUser}
@@ -375,6 +313,6 @@ export default function AdminUsers() {
         onConfirm={handleConfirmDelete}
         isDeleting={isDeleting}
       />
-    </AdminLayout>
+    </AdminManagementView>
   );
 }

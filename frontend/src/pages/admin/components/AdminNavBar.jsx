@@ -6,15 +6,14 @@
 // with profile dropdown and admin-specific navigation options
 
 //  ========== Module imports  ========== //
-import React from "react";
+
 import { Link } from "react-router-dom";
 import styles from "./AdminNavBar.module.css";
 // ======= Button/Constants Imports ======= //
+
 import { adminNavBarButtons } from "../constants/adminNavBarConstants";
 import NavBarBtn from "../btn/NavBarBtn";
 import NavBarProfileBtn from "../btn/NavBarProfileBtn";
-//  ========== Images imports  ========== //
-import OrbisLogo from "../../../assets/common/orbislogo.png";
 
 ///////////////////////////////////////////////////////////////////////
 // ===================== ADMIN NAVBAR COMPONENT ====================== //
