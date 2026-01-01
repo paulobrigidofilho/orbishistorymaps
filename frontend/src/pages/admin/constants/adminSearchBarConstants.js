@@ -14,6 +14,7 @@ export const ADMIN_PAGE_TYPES = {
   PRODUCTS: "products",
   ORDERS: "orders",
   REVIEWS: "reviews",
+  WISHLISTS: "wishlists",
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -25,6 +26,7 @@ export const SEARCH_PLACEHOLDERS = {
   [ADMIN_PAGE_TYPES.PRODUCTS]: "Search by name or SKU...",
   [ADMIN_PAGE_TYPES.ORDERS]: "Search by order ID or customer...",
   [ADMIN_PAGE_TYPES.REVIEWS]: "Search by product or user...",
+  [ADMIN_PAGE_TYPES.WISHLISTS]: "Search by product name or SKU...",
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -127,11 +129,19 @@ export const REVIEW_FILTERS = [
 // ====================== FILTER MAP BY PAGE ========================= //
 ///////////////////////////////////////////////////////////////////////
 
+// Wishlists page filters (no filters needed, search only)
+export const WISHLIST_FILTERS = [];
+
+///////////////////////////////////////////////////////////////////////
+// ====================== FILTER MAP BY PAGE ========================= //
+///////////////////////////////////////////////////////////////////////
+
 export const FILTERS_BY_PAGE = {
   [ADMIN_PAGE_TYPES.USERS]: USER_FILTERS,
   [ADMIN_PAGE_TYPES.PRODUCTS]: PRODUCT_FILTERS,
   [ADMIN_PAGE_TYPES.ORDERS]: ORDER_FILTERS,
   [ADMIN_PAGE_TYPES.REVIEWS]: REVIEW_FILTERS,
+  [ADMIN_PAGE_TYPES.WISHLISTS]: WISHLIST_FILTERS,
 };
 
 ///////////////////////////////////////////////////////////////////////

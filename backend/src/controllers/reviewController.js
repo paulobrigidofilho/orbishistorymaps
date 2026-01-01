@@ -34,6 +34,15 @@ exports.getProductReviews = (req, res) => {
   });
 };
 
+// Get rating breakdown for a product (public)
+exports.getRatingBreakdown = (req, res) => {
+  const { productId } = req.params;
+  reviewModel.getRatingBreakdown(productId, (err, breakdown) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(breakdown);
+  });
+};
+
 // Get all reviews by a user
 exports.getUserReviews = (req, res) => {
   const { userId } = req.params;
@@ -47,22 +56,45 @@ exports.getUserReviews = (req, res) => {
 exports.editReview = (req, res) => {
   const { reviewId } = req.params;
   const { rating, review_title, review_text } = req.body;
-  reviewModel.updateReview(
-    reviewId,
-    { rating, review_title, review_text },
-    (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ success: true });
-    }
-  );
+  
+  // First get the review to know the product_id for stats update
+  reviewModel.getReviewById(reviewId, (err, review) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!review) return res.status(404).json({ error: "Review not found" });
+    
+    reviewModel.updateReview(
+      reviewId,
+      { rating, review_title, review_text, is_approved: review.is_approved },
+      (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        // Update product rating stats
+        reviewModel.updateProductRatingStats(review.product_id, (err2) => {
+          if (err2) console.error("Error updating product rating stats:", err2);
+          res.json({ success: true });
+        });
+      }
+    );
+  });
 };
 
 // Delete a review
 exports.deleteReview = (req, res) => {
   const { reviewId } = req.params;
-  reviewModel.deleteReview(reviewId, (err, result) => {
+  
+  // First get the review to know the product_id for stats update
+  reviewModel.getReviewById(reviewId, (err, review) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json({ success: true });
+    if (!review) return res.status(404).json({ error: "Review not found" });
+    
+    const productId = review.product_id;
+    reviewModel.deleteReview(reviewId, (err, result) => {
+      if (err) return res.status(500).json({ error: err.message });
+      // Update product rating stats
+      reviewModel.updateProductRatingStats(productId, (err2) => {
+        if (err2) console.error("Error updating product rating stats:", err2);
+        res.json({ success: true });
+      });
+    });
   });
 };
 

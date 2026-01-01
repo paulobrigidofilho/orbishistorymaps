@@ -34,9 +34,10 @@ exports.updateReview = (req, res) => {
 	});
 };
 
-// Approve a review
+// Approve/unapprove a review
 exports.approveReview = (req, res) => {
-	adminReviewService.approveReview(req.params.reviewId, (err, result) => {
+	const isApproved = req.body.is_approved;
+	adminReviewService.approveReview(req.params.reviewId, isApproved, (err, result) => {
 		if (err) return res.status(500).json({ error: err.message });
 		res.json({ success: true });
 	});
@@ -47,5 +48,13 @@ exports.deleteReview = (req, res) => {
 	adminReviewService.deleteReview(req.params.reviewId, (err, result) => {
 		if (err) return res.status(500).json({ error: err.message });
 		res.json({ success: true });
+	});
+};
+
+// Get rating breakdown by product
+exports.getRatingBreakdown = (req, res) => {
+	adminReviewService.getRatingBreakdown(req.params.productId, (err, breakdown) => {
+		if (err) return res.status(500).json({ error: err.message });
+		res.json(breakdown);
 	});
 };

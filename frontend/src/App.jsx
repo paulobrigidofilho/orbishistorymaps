@@ -30,6 +30,7 @@ import AdminProductForm from "./pages/admin/adminpages/AdminProducts/AdminProduc
 import AdminOrders from "./pages/admin/adminpages/AdminOrders/AdminOrders.jsx";
 import AdminSettings from "./pages/admin/adminpages/AdminSettings/AdminSettings.jsx";
 import AdminReviews from "./pages/admin/adminpages/AdminReviews/AdminReviews.jsx";
+import AdminWishlists from "./pages/admin/adminpages/AdminWishlists/AdminWishlists.jsx";
 
 function App() {
   ///////////////////////////////////////////////////////////////////////
@@ -66,6 +67,7 @@ function App() {
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />
+          <Route path="/admin/wishlists" element={<AdminWishlists />} />
         </Routes>
       </AuthProvider>
     </>

@@ -1,0 +1,17 @@
+///////////////////////////////////////////////////////////////////////
+// =================== REVIEW VALIDATORS INDEX ====================== //
+///////////////////////////////////////////////////////////////////////
+
+// This file exports all review validation functions for easy importing
+// Usage: import { validateReviewData, validateRating, validateReviewText } from "./validators"
+
+///////////////////////////////////////////////////////////////////////
+// =================== EXPORTS ====================================== //
+///////////////////////////////////////////////////////////////////////
+
+export {
+  validateRating,
+  validateReviewText,
+  validateReviewData,
+  validateReview,
+} from "./reviewValidator";

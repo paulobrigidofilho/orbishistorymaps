@@ -1,0 +1,284 @@
+/* ============================== */
+/* ===== MY REVIEWS PAGE STYLES ===== */
+/* ============================== */
+
+.myReviewsPage {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.reviewsContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* ============================== */
+/* ===== REVIEWS HEADER ===== */
+/* ============================== */
+
+.reviewsHeader {
+  margin-bottom: 2rem;
+}
+
+.reviewsHeader h1 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.reviewsHeader p {
+  color: #7f8c8d;
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* ============================== */
+/* ===== REVIEWS LIST ===== */
+/* ============================== */
+
+.reviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ============================== */
+/* ===== REVIEW ITEM CARD ===== */
+/* ============================== */
+
+.reviewItem {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.reviewItem:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* ============================== */
+/* ===== REVIEW HEADER ===== */
+/* ============================== */
+
+.reviewHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.stars {
+  color: #f39c12;
+  font-size: 1.25rem;
+  letter-spacing: 2px;
+}
+
+.product {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  flex: 1;
+}
+
+.date {
+  color: #95a5a6;
+  font-size: 0.9rem;
+}
+
+/* ============================== */
+/* ===== REVIEW CONTENT ===== */
+/* ============================== */
+
+.reviewTitle {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.comment {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+/* ============================== */
+/* ===== REVIEW ACTIONS ===== */
+/* ============================== */
+
+.reviewActions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+/* ============================== */
+/* ===== ACTIONS CONTAINER ===== */
+/* ============================== */
+
+.actionsContainer {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.continueShoppingButton {
+  padding: 0.75rem 2rem;
+  background: white;
+  color: #f39c12;
+  border: 2px solid #f39c12;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.continueShoppingButton:hover {
+  background: #f39c12;
+  color: white;
+}
+
+/* ============================== */
+/* ===== STATE CONTAINERS ===== */
+/* ============================== */
+
+.loadingContainer,
+.errorContainer,
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.errorContainer h2,
+.emptyContainer h2 {
+  margin: 1rem 0;
+  color: #2c3e50;
+}
+
+.errorContainer p,
+.emptyContainer p {
+  color: #7f8c8d;
+  margin-bottom: 1.5rem;
+}
+
+.retryButton,
+.actionButton {
+  padding: 0.75rem 2rem;
+  background: #f39c12;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retryButton:hover,
+.actionButton:hover {
+  background: #e67e22;
+}
+
+/* ============================== */
+/* ===== LOADING SPINNER ===== */
+/* ============================== */
+
+.loadingSpinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e0e0e0;
+  border-top-color: #f39c12;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================== */
+/* ===== EMPTY STATE ICON ===== */
+/* ============================== */
+
+.emptyIcon {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================== */
+/* ===== RESPONSIVE DESIGN ===== */
+/* ============================== */
+
+@media (max-width: 768px) {
+  .reviewsContainer {
+    padding: 1rem;
+  }
+
+  .reviewsHeader h1 {
+    font-size: 1.5rem;
+  }
+
+  .reviewItem {
+    padding: 1rem;
+  }
+
+  .reviewHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .product {
+    width: 100%;
+  }
+
+  .reviewActions {
+    flex-direction: column;
+  }
+
+  .reviewActions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .stars {
+    font-size: 1rem;
+  }
+
+  .product {
+    font-size: 1rem;
+  }
+
+  .date {
+    font-size: 0.85rem;
+  }
+}

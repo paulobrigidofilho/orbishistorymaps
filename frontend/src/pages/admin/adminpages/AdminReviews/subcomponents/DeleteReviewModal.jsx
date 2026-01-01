@@ -26,13 +26,13 @@ export default function DeleteReviewModal({ review, isOpen, onClose, onConfirm, 
             Do you really want to delete this review?
           </p>
           <p className={styles.reviewInfo}>
-            <strong>User:</strong> {review.userId?.name || review.userId}
+            <strong>User:</strong> {review.user_nickname || review.userId?.name || review.userId}
             <br />
-            <strong>Product:</strong> {review.productId?.name || review.productId}
+            <strong>Product:</strong> {review.product_name || review.productId?.name || review.productId}
             <br />
             <strong>Rating:</strong> {review.rating} star{review.rating > 1 ? "s" : ""}
             <br />
-            <strong>Comment:</strong> {review.comment}
+            <strong>Comment:</strong> {review.review_text || review.comment}
           </p>
           <p className={styles.irreversibleWarning}>
             This action cannot be undone.
@@ -42,7 +42,7 @@ export default function DeleteReviewModal({ review, isOpen, onClose, onConfirm, 
         <div className={styles.modalFooter}>
           <CancelBtn onClick={onClose} disabled={isDeleting} />
           <ConfirmBtn
-            onClick={() => onConfirm(review._id)}
+            onClick={() => onConfirm(review.review_id || review._id)}
             disabled={isDeleting}
             loading={isDeleting}
             loadingText="Deleting..."

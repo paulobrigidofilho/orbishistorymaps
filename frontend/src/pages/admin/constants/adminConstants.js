@@ -31,6 +31,12 @@ export const STAT_CARDS = [
     to: "/admin/reviews",
   },
   {
+    icon: "❤️",
+    label: "Wishlisted Products",
+    key: "productsWishlisted",
+    to: "/admin/wishlists",
+  },
+  {
     icon: "💰",
     label: "Total Revenue",
     key: "totalRevenue",
@@ -64,6 +70,12 @@ export const ACTION_CARDS = [
     title: "Manage Reviews",
     description: "View, approve, or delete reviews",
     to: "/admin/reviews",
+  },
+  {
+    icon: "❤️",
+    title: "View Wishlists",
+    description: "Track product wishlist popularity",
+    to: "/admin/wishlists",
   },
   {
     icon: "⚙️",

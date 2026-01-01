@@ -39,6 +39,14 @@
   color: #ffa41c;
   cursor: pointer;
 }
+.titleInput {
+  width: 100%;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  padding: 8px;
+  margin-bottom: 12px;
+  font-size: 1rem;
+}
 .commentBox {
   width: 100%;
   border-radius: 4px;

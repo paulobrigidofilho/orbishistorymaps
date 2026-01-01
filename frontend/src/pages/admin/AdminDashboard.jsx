@@ -47,13 +47,22 @@ export default function AdminDashboard() {
   }, []);
   useEffect(() => {
     fetch("/api/reviews")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch reviews");
+        return res.json();
+      })
       .then((data) => {
-        setReviewStats({
-          total: data.length,
-          recent: data.slice(0, 5).length,
-          pending: data.filter((r) => !r.approved).length,
-        });
+        if (Array.isArray(data)) {
+          setReviewStats({
+            total: data.length,
+            recent: data.slice(0, 5).length,
+            pending: data.filter((r) => !r.is_approved).length,
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching review stats:", err);
+        // Keep default values
       });
   }, []);
 

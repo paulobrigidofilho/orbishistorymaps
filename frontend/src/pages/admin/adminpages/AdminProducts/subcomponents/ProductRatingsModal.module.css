@@ -1,0 +1,190 @@
+/* ============================================================ */
+/* ================ PRODUCT RATINGS MODAL STYLES ============== */
+/* ============================================================ */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* ================ HEADER ==================== */
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modalHeader h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* ================ PRODUCT INFO ==================== */
+
+.productInfo {
+  padding: 1rem 1.5rem;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.productInfo h3 {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ================ LOADING ==================== */
+
+.loading {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* ================ AVERAGE RATING ==================== */
+
+.averageRating {
+  padding: 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.ratingStars {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.starFilled {
+  color: #f59e0b;
+}
+
+.starEmpty {
+  color: #d1d5db;
+}
+
+.ratingValue {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.25rem;
+}
+
+.totalReviews {
+  display: block;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* ================ RATING BARS ==================== */
+
+.ratingBars {
+  padding: 1.5rem;
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.ratingRow:last-child {
+  margin-bottom: 0;
+}
+
+.starLabel {
+  font-size: 0.875rem;
+  color: #0066c0;
+  width: 50px;
+  cursor: pointer;
+}
+
+.starLabel:hover {
+  text-decoration: underline;
+  color: #c45500;
+}
+
+.barContainer {
+  flex: 1;
+  height: 20px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: #f59e0b;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.percentage {
+  font-size: 0.875rem;
+  color: #0066c0;
+  width: 40px;
+  text-align: right;
+}
+
+/* ================ ACTIONS ==================== */
+
+.modalActions {
+  padding: 1rem 1.5rem 1.5rem;
+  text-align: center;
+}
+
+.viewReviewsBtn {
+  background: none;
+  border: none;
+  color: #0066c0;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  transition: color 0.2s;
+}
+
+.viewReviewsBtn:hover {
+  color: #c45500;
+  text-decoration: underline;
+}
+
+/* ================ RESPONSIVE ==================== */
+
+@media (max-width: 480px) {
+  .modalContent {
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+  
+  .ratingStars {
+    font-size: 1.5rem;
+  }
+}

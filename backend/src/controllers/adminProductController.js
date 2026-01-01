@@ -38,7 +38,7 @@ const getProducts = async (req, res) => {
     const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : "created_at";
     const safeSortOrder = allowedSortOrders.includes(sortOrder.toLowerCase()) ? sortOrder.toLowerCase() : "desc";
 
-    // Build query with JOIN to inventory table
+    // Build query with JOIN to inventory table and wishlist count subquery
     let query = `
       SELECT 
         p.product_id, p.product_name, p.product_description, p.sku, p.brand,
@@ -46,7 +46,8 @@ const getProducts = async (req, res) => {
         p.view_count, p.rating_average, p.rating_count,
         p.created_at, p.updated_at,
         COALESCE(i.quantity_available, 0) as quantity_available,
-        c.category_name
+        c.category_name,
+        (SELECT COUNT(*) FROM wishlist w WHERE w.product_id = p.product_id) as wishlist_count
       FROM products p
       LEFT JOIN inventory i ON p.product_id = i.product_id
       LEFT JOIN product_categories c ON p.category_id = c.category_id

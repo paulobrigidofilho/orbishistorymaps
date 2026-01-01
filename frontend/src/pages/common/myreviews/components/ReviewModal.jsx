@@ -5,7 +5,7 @@
 // Modal for submitting/editing a review
 // Used in ProductReviewsSection and MyReviews
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./ReviewModal.module.css";
 import { REVIEW_MESSAGES } from "../constants/reviewConstants";
 import createReview from "../functions/createReview";
@@ -14,25 +14,47 @@ import { validateReview } from "../validators/reviewValidator";
 import { SubmitReviewBtn } from "../btn";
 
 export default function ReviewModal({ open, onClose, productId, userId, review, onSuccess }) {
-  const [rating, setRating] = useState(review ? review.rating : 0);
-  const [comment, setComment] = useState(review ? review.comment : "");
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Reset form when modal opens or review changes
+  useEffect(() => {
+    if (open) {
+      setRating(review ? review.rating : 0);
+      setComment(review ? (review.review_text || review.comment || "") : "");
+      setTitle(review ? (review.review_title || "") : "");
+      setError(null);
+    }
+  }, [open, review]);
 
   if (!open) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (review) {
-      await updateReview(review._id, rating, comment);
-    } else {
-      await createReview(productId, rating, comment);
+    setError(null);
+    const isUpdate = !!(review && review.review_id);
+    try {
+      if (isUpdate) {
+        // updateReview(reviewId, rating, reviewText, reviewTitle)
+        await updateReview(review.review_id, rating, comment, title);
+      } else {
+        // createReview(productId, rating, reviewText, reviewTitle)
+        await createReview(productId, rating, comment, title);
+      }
+      onSuccess(isUpdate);
+    } catch (err) {
+      console.error("Error saving review:", err);
+      setError(err.message || "Failed to save review");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-    onSuccess();
   };
 
-  const errorMsg = validateReview(rating, comment);
+  const validationError = validateReview(rating, comment);
 
   return (
     <div className={styles.overlay}>
@@ -49,6 +71,13 @@ export default function ReviewModal({ open, onClose, productId, userId, review, 
               >★</span>
             ))}
           </div>
+          <input
+            type="text"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            placeholder="Review title (optional)"
+            className={styles.titleInput}
+          />
           <textarea
             value={comment}
             onChange={e => setComment(e.target.value)}
@@ -57,10 +86,11 @@ export default function ReviewModal({ open, onClose, productId, userId, review, 
             className={styles.commentBox}
             required
           />
-          <SubmitReviewBtn onClick={handleSubmit} disabled={loading || rating === 0 || !!errorMsg}>
+          <SubmitReviewBtn onClick={handleSubmit} disabled={loading || rating === 0 || !!validationError}>
             {loading ? "Saving..." : review ? "Update Review" : "Submit Review"}
           </SubmitReviewBtn>
-          {errorMsg && <div style={{ color: 'red', marginTop: 8 }}>{errorMsg}</div>}
+          {validationError && <div style={{ color: 'red', marginTop: 8 }}>{validationError}</div>}
+          {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
         </form>
       </div>
     </div>

@@ -6,6 +6,7 @@
 // Usage: import { EditBtn, DeleteBtn, SaveBtn } from "../../btn";
 
 export { default as EditBtn } from "./EditBtn";
+export { default as ViewBtn } from "./ViewBtn";
 export { default as DeleteBtn } from "./DeleteBtn";
 export { default as SaveBtn } from "./SaveBtn";
 export { default as CancelBtn } from "./CancelBtn";

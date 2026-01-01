@@ -54,9 +54,15 @@ const adminUserRoutes = require("./routes/adminUserRoutes.js");
 const adminProductRoutes = require("./routes/adminProductRoutes.js");
 const adminStatsRoutes = require("./routes/adminStatsRoutes.js");
 const adminOrderRoutes = require("./routes/adminOrderRoutes.js");
+const adminWishlistRoutes = require("./routes/adminWishlistRoutes.js");
+const adminReviewRoutes = require("./routes/adminReviewRoutes.js");
 const reviewRoutes = require("./routes/reviewRoutes.js");
 
 // ====================== Routes Setup ============================= //
+
+// Review routes - mounted early to ensure public product reviews route works
+app.use("/api/reviews", reviewRoutes);
+
 app.use("/api", registerUserRoutes);
 app.use("/api", loginUserRoutes);
 app.use("/api", profileRoutes);
@@ -69,7 +75,8 @@ app.use("/api/orders", orderRoutes);
 app.use("/api", adminUserRoutes);
 app.use("/api", adminProductRoutes);
 app.use("/api", adminStatsRoutes);
-app.use("/api/reviews", reviewRoutes);
+app.use("/api", adminWishlistRoutes);
+app.use("/api", adminReviewRoutes);
 app.use("/api", adminOrderRoutes);
 app.use("/health", healthRoutes);
 

@@ -54,6 +54,17 @@
   background: #bfdbfe;
 }
 
+/* ================ VIEW BUTTON ==================== */
+
+.viewBtn {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.viewBtn:hover:not(:disabled) {
+  background: #c7d2fe;
+}
+
 /* ================ DELETE BUTTON ==================== */
 
 .deleteBtn {

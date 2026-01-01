@@ -13,6 +13,8 @@ import styles from "./WishlistPage.module.css";
 //  ========== Component imports  ========== //
 import MainNavBar from "../MainNavBar";
 import WishlistItem from "./components/WishlistItem";
+import LoginRequired from "../components/LoginRequired";
+import LoginModal from "../auth/LoginModal";
 
 //  ========== Function imports  ========== //
 import getUserWishlist from "./functions/getUserWishlist";
@@ -44,6 +46,7 @@ export default function WishlistPage() {
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
   const [message, setMessage] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -110,16 +113,14 @@ export default function WishlistPage() {
     return (
       <div className={styles.wishlistPage}>
         <MainNavBar />
-        <div className={styles.emptyWishlistContainer}>
-          <i className="material-icons" style={{ fontSize: "4rem", color: "#e74c3c" }}>
-            favorite_border
-          </i>
-          <h2>Please Log In</h2>
-          <p>You need to be logged in to view your wishlist.</p>
-          <button onClick={() => navigate("/register")} className={styles.shopButton}>
-            Sign Up / Login
-          </button>
-        </div>
+        <LoginRequired
+          icon="favorite_border"
+          title="Please Log In"
+          message="You need to be logged in to view your wishlist."
+          iconColor="#e74c3c"
+          onLoginClick={() => setShowLoginModal(true)}
+        />
+        {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
       </div>
     );
   }

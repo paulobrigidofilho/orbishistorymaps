@@ -6,6 +6,7 @@
 
 //  ========== Module imports  ========== //
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./AdminProducts.module.css";
 
 //  ========== Component imports  ========== //
@@ -14,6 +15,7 @@ import viewStyles from "../../components/AdminManagementView.module.css";
 import ProductEditModal from "./subcomponents/ProductEditModal";
 import AddProductModal from "./subcomponents/AddProductModal";
 import DeleteProductModal from "./subcomponents/DeleteProductModal";
+import ProductRatingsModal from "./subcomponents/ProductRatingsModal";
 import { EditBtn, DeleteBtn, AddBtn } from "../../btn";
 
 //  ========== Constants imports (Search)  ========== //
@@ -36,6 +38,12 @@ import { getStockLevelClass } from "../../constants/adminConstants";
 ///////////////////////////////////////////////////////////////////////
 
 export default function AdminProducts() {
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= HOOKS ================================= //
+  ///////////////////////////////////////////////////////////////////////
+
+  const navigate = useNavigate();
+
   ///////////////////////////////////////////////////////////////////////
   // ========================= STATE VARIABLES ======================= //
   ///////////////////////////////////////////////////////////////////////
@@ -68,6 +76,8 @@ export default function AdminProducts() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isRatingsModalOpen, setIsRatingsModalOpen] = useState(false);
+  const [selectedProductForRatings, setSelectedProductForRatings] = useState(null);
 
   ///////////////////////////////////////////////////////////////////////
   // ======================= HELPER FUNCTIONS ======================== //
@@ -247,6 +257,17 @@ export default function AdminProducts() {
     }
   };
 
+  // Ratings Modal handlers
+  const handleOpenRatingsModal = (product) => {
+    setSelectedProductForRatings(product);
+    setIsRatingsModalOpen(true);
+  };
+
+  const handleCloseRatingsModal = () => {
+    setIsRatingsModalOpen(false);
+    setSelectedProductForRatings(null);
+  };
+
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
   ///////////////////////////////////////////////////////////////////////
@@ -267,6 +288,7 @@ export default function AdminProducts() {
     { key: "stock", label: "Stock", sortable: true, sortField: "quantity_available" },
     { key: "views", label: "Views", sortable: true, sortField: "view_count" },
     { key: "rating", label: "Rating", sortable: true, sortField: "rating_average" },
+    { key: "wishlists", label: "Wishlists", sortable: false },
     { key: "status", label: "Status", sortable: false },
     { key: "featured", label: "Featured", sortable: false },
     { key: "created", label: "Created", sortable: true, sortField: "created_at" },
@@ -310,12 +332,25 @@ export default function AdminProducts() {
       </td>
       <td className={styles.viewsCell}>{product.view_count || 0}</td>
       <td>
-        <div className={styles.ratingCell}>
+        <button
+          className={styles.ratingCellBtn}
+          onClick={() => handleOpenRatingsModal(product)}
+          title="View rating breakdown"
+        >
           <span className={styles.ratingAvg}>
             ⭐ {parseFloat(product.rating_average || 0).toFixed(1)}
           </span>
           <span className={styles.ratingCount}>({product.rating_count || 0})</span>
-        </div>
+        </button>
+      </td>
+      <td>
+        <button
+          className={styles.wishlistCountBtn}
+          onClick={() => navigate(`/admin/wishlists?search=${encodeURIComponent(product.product_name)}`)}
+          title="View wishlist details"
+        >
+          ❤️ {product.wishlist_count || 0}
+        </button>
       </td>
       <td>
         <select
@@ -414,6 +449,13 @@ export default function AdminProducts() {
         onClose={handleCloseDeleteModal}
         onConfirm={handleConfirmDelete}
         isDeleting={isDeleting}
+      />
+
+      {/* Product Ratings Modal */}
+      <ProductRatingsModal
+        product={selectedProductForRatings}
+        isOpen={isRatingsModalOpen}
+        onClose={handleCloseRatingsModal}
       />
     </AdminManagementView>
   );

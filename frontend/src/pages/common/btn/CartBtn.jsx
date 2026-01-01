@@ -21,19 +21,15 @@ const CartBtn = () => {
   // ========================= USE EFFECT HOOK ======================= //
   ///////////////////////////////////////////////////////////////////////
 
-  // Fetch cart data on mount and set up periodic refresh
+  // Fetch cart data on mount and listen for cart update events
   useEffect(() => {
     fetchCartCount();
 
-    // Refresh cart count every 5 seconds
-    const interval = setInterval(fetchCartCount, 5000);
-
-    // Listen for cart update events
+    // Listen for cart update events (event-based, no polling)
     const handleCartUpdate = () => fetchCartCount();
     window.addEventListener("cartUpdated", handleCartUpdate);
 
     return () => {
-      clearInterval(interval);
       window.removeEventListener("cartUpdated", handleCartUpdate);
     };
   }, []);

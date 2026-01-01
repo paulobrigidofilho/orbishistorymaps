@@ -14,7 +14,7 @@ import AdminManagementView from "../../components/AdminManagementView";
 import viewStyles from "../../components/AdminManagementView.module.css";
 import ReviewEditModal from "./subcomponents/ReviewEditModal";
 import DeleteReviewModal from "./subcomponents/DeleteReviewModal";
-import { EditBtn, DeleteBtn } from "../../btn";
+import { ViewBtn, DeleteBtn } from "../../btn";
 
 //  ========== Constants imports  ========== //
 import { ADMIN_PAGE_TYPES } from "../../constants/adminSearchBarConstants";
@@ -68,8 +68,23 @@ export default function AdminReviews() {
       params.append("limit", pagination.limit);
       const query = params.toString() ? `?${params.toString()}` : "";
       
-      const res = await fetch(`/api/admin/reviews${query}`);
-      if (!res.ok) throw new Error("Failed to fetch reviews");
+      const res = await fetch(`/api/admin/reviews${query}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) {
+        let errorMessage = "Failed to fetch reviews";
+        try {
+          const error = await res.json();
+          errorMessage = error.message || errorMessage;
+        } catch {
+          // Response body is not JSON or empty
+        }
+        throw new Error(errorMessage);
+      }
       const data = await res.json();
       
       setReviews(data.data || data || []);
@@ -119,16 +134,18 @@ export default function AdminReviews() {
   // Save handler for admin review edit modal
   const handleSave = async (reviewId, data) => {
     try {
-      // PATCH approve if approved changed, else PUT update
-      const method = "approved" in data ? "PATCH" : "PUT";
-      const url = method === "PATCH"
-        ? `/api/admin/reviews/${reviewId}/approve`
-        : `/api/admin/reviews/${reviewId}`;
-      const body = method === "PATCH" ? { approved: data.approved } : data;
+      // Use is_approved instead of approved for backend
+      const url = `/api/admin/reviews/${reviewId}`;
       const res = await fetch(url, {
-        method,
+        method: "PUT",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          rating: data.rating,
+          review_title: data.review_title,
+          review_text: data.review_text,
+          is_approved: data.is_approved,
+        }),
       });
       if (!res.ok) throw new Error("Failed to update review");
       setShowModal(false);
@@ -136,6 +153,24 @@ export default function AdminReviews() {
       fetchReviews(); // Refresh reviews
     } catch (err) {
       throw err;
+    }
+  };
+
+  // Toggle approval status directly
+  const handleToggleApproval = async (review) => {
+    try {
+      const newStatus = !review.is_approved;
+      const res = await fetch(`/api/admin/reviews/${review.review_id}/approve`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_approved: newStatus }),
+      });
+      if (!res.ok) throw new Error("Failed to update approval status");
+      fetchReviews(); // Refresh reviews
+    } catch (err) {
+      console.error("Error toggling approval:", err);
+      alert(`Error: ${err.message}`);
     }
   };
 
@@ -152,7 +187,11 @@ export default function AdminReviews() {
   const handleConfirmDelete = async (reviewId) => {
     setIsDeleting(true);
     try {
-      await fetch(`/api/admin/reviews/${reviewId}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/reviews/${reviewId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to delete review");
       setShowDeleteModal(false);
       setDeleteReview(null);
       fetchReviews(); // Refresh list
@@ -190,14 +229,18 @@ export default function AdminReviews() {
       </td>
       <td>{review.review_title || review.title || "No title"}</td>
       <td>
-        <span className={`${viewStyles.badge} ${review.is_approved ? viewStyles.approved : viewStyles.pending}`}>
+        <button
+          className={`${viewStyles.badge} ${viewStyles.clickable} ${review.is_approved ? viewStyles.approved : viewStyles.pending}`}
+          onClick={() => handleToggleApproval(review)}
+          title={`Click to ${review.is_approved ? "unapprove" : "approve"}`}
+        >
           {review.is_approved ? "Approved" : "Pending"}
-        </span>
+        </button>
       </td>
       <td>{new Date(review.created_at || review.createdAt).toLocaleDateString()}</td>
       <td>
         <div className={viewStyles.actions}>
-          <EditBtn onClick={() => handleEdit(review)} />
+          <ViewBtn onClick={() => handleEdit(review)} />
           <DeleteBtn onClick={() => handleDelete(review)} />
         </div>
       </td>

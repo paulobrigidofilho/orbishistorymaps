@@ -163,6 +163,19 @@
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: capitalize;
+  border: none;
+  background: #f3f4f6;
+}
+
+/* Clickable badge button */
+.badge.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.badge.clickable:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Status badges */

@@ -13,8 +13,9 @@ import { ERROR_MESSAGES } from "../../../constants/adminErrorMessages";
 export default function ReviewEditModal({ review, isOpen, onClose, onSave }) {
   const [formData, setFormData] = useState({
     rating: 5,
-    comment: "",
-    approved: false,
+    review_text: "",
+    review_title: "",
+    is_approved: false,
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -24,8 +25,9 @@ export default function ReviewEditModal({ review, isOpen, onClose, onSave }) {
     if (review) {
       setFormData({
         rating: review.rating || 5,
-        comment: review.comment || "",
-        approved: review.approved || false,
+        review_text: review.review_text || "",
+        review_title: review.review_title || "",
+        is_approved: review.is_approved || false,
       });
       setErrors({});
       setSuccessMessage("");
@@ -48,8 +50,8 @@ export default function ReviewEditModal({ review, isOpen, onClose, onSave }) {
     if (!formData.rating || formData.rating < 1 || formData.rating > 5) {
       newErrors.rating = "Rating must be between 1 and 5.";
     }
-    if (!formData.comment || formData.comment.trim().length < 3) {
-      newErrors.comment = "Comment must be at least 3 characters.";
+    if (!formData.review_text || formData.review_text.trim().length < 3) {
+      newErrors.review_text = "Review text must be at least 3 characters.";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -62,7 +64,7 @@ export default function ReviewEditModal({ review, isOpen, onClose, onSave }) {
     setErrors({});
     setSuccessMessage("");
     try {
-      await onSave(review._id, formData);
+      await onSave(review.review_id, formData);
       setSuccessMessage(SUCCESS_MESSAGES.USER_UPDATED || "Review updated successfully");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error) {
@@ -73,7 +75,7 @@ export default function ReviewEditModal({ review, isOpen, onClose, onSave }) {
   };
 
   const handleClose = () => {
-    setFormData({ rating: 5, comment: "", approved: false });
+    setFormData({ rating: 5, review_text: "", review_title: "", is_approved: false });
     setErrors({});
     setSuccessMessage("");
     onClose();
@@ -105,27 +107,39 @@ export default function ReviewEditModal({ review, isOpen, onClose, onSave }) {
             {errors.rating && <span className={styles.errorText}>{errors.rating}</span>}
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="comment">Comment</label>
-            <textarea
-              id="comment"
-              name="comment"
-              value={formData.comment}
+            <label htmlFor="review_title">Title</label>
+            <input
+              type="text"
+              id="review_title"
+              name="review_title"
+              value={formData.review_title}
               onChange={handleInputChange}
-              className={errors.comment ? styles.inputError : ""}
+              placeholder="Review title (optional)"
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="review_text">Review Text</label>
+            <textarea
+              id="review_text"
+              name="review_text"
+              value={formData.review_text}
+              onChange={handleInputChange}
+              className={errors.review_text ? styles.inputError : ""}
               rows={4}
             />
-            {errors.comment && <span className={styles.errorText}>{errors.comment}</span>}
+            {errors.review_text && <span className={styles.errorText}>{errors.review_text}</span>}
           </div>
-          <div className={styles.formGroupCheckbox}>
-            <label>
-              <input
-                type="checkbox"
-                name="approved"
-                checked={formData.approved}
-                onChange={handleInputChange}
-              />
-              Approved
-            </label>
+          <div className={styles.formGroup}>
+            <label htmlFor="is_approved">Status</label>
+            <select
+              id="is_approved"
+              name="is_approved"
+              value={formData.is_approved ? "true" : "false"}
+              onChange={(e) => setFormData(prev => ({ ...prev, is_approved: e.target.value === "true" }))}
+            >
+              <option value="false">Pending</option>
+              <option value="true">Approved</option>
+            </select>
           </div>
           {successMessage && <div className={styles.successMessage}>{successMessage}</div>}
           {errors.submit && <div className={styles.submitError}>{errors.submit}</div>}

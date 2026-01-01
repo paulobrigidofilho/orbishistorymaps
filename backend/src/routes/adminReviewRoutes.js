@@ -10,6 +10,9 @@ const { requireAdmin } = require("../middleware/adminMiddleware");
 // GET all reviews (with filters)
 router.get("/admin/reviews", requireAdmin, adminReviewController.getAllReviews);
 
+// GET rating breakdown by product
+router.get("/admin/reviews/product/:productId/breakdown", requireAdmin, adminReviewController.getRatingBreakdown);
+
 // GET a single review by ID
 router.get("/admin/reviews/:reviewId", requireAdmin, adminReviewController.getReviewById);
 

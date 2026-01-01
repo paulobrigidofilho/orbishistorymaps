@@ -43,6 +43,13 @@ export const adminNavBarButtons = [
     show: () => true,
   },
   {
+    key: "wishlists",
+    to: "/admin/wishlists",
+    icon: "❤️",
+    label: "Wishlists",
+    show: () => true,
+  },
+  {
     key: "settings",
     to: "/admin/settings",
     icon: "⚙️",

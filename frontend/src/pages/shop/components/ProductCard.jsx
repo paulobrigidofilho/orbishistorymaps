@@ -5,7 +5,7 @@
 // This component displays a single product in the product grid
 
 //  ========== Module imports  ========== //
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./ProductCard.module.css";
 
@@ -22,6 +22,8 @@ const DEFAULT_PRODUCT_IMAGE = "/assets/common/default-product-img.png";
 
 const ProductCard = ({ product }) => {
   const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingBreakdown, setRatingBreakdown] = useState({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+  const [totalRatings, setTotalRatings] = useState(0);
   const navigate = useNavigate();
 
   // Calculate if product is on sale
@@ -34,8 +36,36 @@ const ProductCard = ({ product }) => {
   // Get product image with fallback to default
   const productImage = product.primary_image || DEFAULT_PRODUCT_IMAGE;
 
-  // Dummy breakdown, replace with real data
-  const ratingBreakdown = product.rating_breakdown || { 5: 80, 4: 10, 3: 5, 2: 3, 1: 2 };
+  // Fetch rating breakdown when modal opens
+  useEffect(() => {
+    if (showRatingModal && product.product_id) {
+      const fetchBreakdown = async () => {
+        try {
+          const res = await fetch(`/api/reviews/product/${product.product_id}/breakdown`);
+          if (res.ok) {
+            const data = await res.json();
+            setTotalRatings(data.totalReviews || 0);
+            // Convert counts to percentages
+            const total = data.totalReviews || 0;
+            if (total > 0) {
+              setRatingBreakdown({
+                5: Math.round((data.breakdown[5] / total) * 100),
+                4: Math.round((data.breakdown[4] / total) * 100),
+                3: Math.round((data.breakdown[3] / total) * 100),
+                2: Math.round((data.breakdown[2] / total) * 100),
+                1: Math.round((data.breakdown[1] / total) * 100),
+              });
+            } else {
+              setRatingBreakdown({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching rating breakdown:", error);
+        }
+      };
+      fetchBreakdown();
+    }
+  }, [showRatingModal, product.product_id]);
 
   const handleSeeAllComments = (e) => {
     e.stopPropagation();
@@ -109,7 +139,7 @@ const ProductCard = ({ product }) => {
         open={showRatingModal}
         onClose={() => setShowRatingModal(false)}
         average={parseFloat(product.rating_average) || 0}
-        total={product.rating_count || 0}
+        total={totalRatings}
         breakdown={ratingBreakdown}
         onSeeAllComments={handleSeeAllComments}
       />
