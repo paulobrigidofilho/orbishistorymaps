@@ -13,7 +13,7 @@ import updateReview from "../functions/updateReview";
 import { validateReview } from "../validators/reviewValidator";
 import { SubmitReviewBtn } from "../btn";
 
-export default function ReviewModal({ open, onClose, productId, userId, review, onSuccess }) {
+export default function ReviewModal({ open, onClose, productId, userId, review, onSuccess, onError }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [title, setTitle] = useState("");
@@ -34,6 +34,17 @@ export default function ReviewModal({ open, onClose, productId, userId, review, 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate before submission
+    const validationError = validateReview(rating, comment);
+    if (validationError) {
+      setError(validationError);
+      if (onError) {
+        onError(validationError);
+      }
+      return;
+    }
+    
     setLoading(true);
     setError(null);
     const isUpdate = !!(review && review.review_id);
@@ -48,13 +59,18 @@ export default function ReviewModal({ open, onClose, productId, userId, review, 
       onSuccess(isUpdate);
     } catch (err) {
       console.error("Error saving review:", err);
-      setError(err.message || "Failed to save review");
+      const errorMsg = err.message || "Failed to save review";
+      setError(errorMsg);
+      if (onError) {
+        onError(errorMsg);
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const validationError = validateReview(rating, comment);
+  // Real-time validation for UI feedback (not for blocking)
+  const currentValidationError = validateReview(rating, comment);
 
   return (
     <div className={styles.overlay}>
@@ -84,12 +100,11 @@ export default function ReviewModal({ open, onClose, productId, userId, review, 
             placeholder="Write your comment..."
             rows={4}
             className={styles.commentBox}
-            required
           />
-          <SubmitReviewBtn onClick={handleSubmit} disabled={loading || rating === 0 || !!validationError}>
+          <SubmitReviewBtn onClick={handleSubmit} disabled={loading}>
             {loading ? "Saving..." : review ? "Update Review" : "Submit Review"}
           </SubmitReviewBtn>
-          {validationError && <div style={{ color: 'red', marginTop: 8 }}>{validationError}</div>}
+          {currentValidationError && <div style={{ color: '#888', marginTop: 8, fontSize: '0.9em' }}>{currentValidationError}</div>}
           {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
         </form>
       </div>

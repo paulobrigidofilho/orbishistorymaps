@@ -12,6 +12,7 @@ import ReviewModal from "../../common/myreviews/components/ReviewModal";
 import { AuthContext } from "../../common/context/AuthContext";
 import LoginModal from "../../common/auth/LoginModal";
 import FadeNotification from "../../common/components/FadeNotification";
+import { REVIEW_SUCCESS_MESSAGES, REVIEW_ERROR_MESSAGES, REVIEW_INFO_MESSAGES } from "../constants/reviewConstants";
 
 export default function ProductReviewsSection({ productId, userId }) {
   const { user } = useContext(AuthContext);
@@ -84,8 +85,9 @@ export default function ProductReviewsSection({ productId, userId }) {
     } else if (userReview) {
       // User already has a review for this product
       setNotification({
+        key: Date.now(),
         type: "info",
-        text: "You have already reviewed this product. Only one review per product is allowed.",
+        text: REVIEW_INFO_MESSAGES.ONE_REVIEW_ONLY,
       });
     } else {
       setShowModal(true);
@@ -102,10 +104,19 @@ export default function ProductReviewsSection({ productId, userId }) {
   const handleReviewSuccess = (isUpdate) => {
     setShowModal(false);
     setNotification({
+      key: Date.now(),
       type: "success",
-      text: isUpdate ? "Review updated successfully!" : "Review submitted successfully!",
+      text: isUpdate ? REVIEW_SUCCESS_MESSAGES.UPDATED : REVIEW_SUCCESS_MESSAGES.SUBMITTED,
     });
     setRefreshKey(prev => prev + 1); // Trigger refetch
+  };
+
+  const handleReviewError = (errorMessage) => {
+    setNotification({
+      key: Date.now(),
+      type: "error",
+      text: errorMessage,
+    });
   };
 
   return (
@@ -149,6 +160,7 @@ export default function ProductReviewsSection({ productId, userId }) {
       </div>
       {notification && (
         <FadeNotification
+          key={notification.key}
           type={notification.type}
           text={notification.text}
           duration={4000}
@@ -163,6 +175,7 @@ export default function ProductReviewsSection({ productId, userId }) {
         userId={userId}
         review={userReview}
         onSuccess={handleReviewSuccess}
+        onError={handleReviewError}
       />
       {showLoginModal && <LoginModal onClose={handleLoginModalClose} />}
     </div>
