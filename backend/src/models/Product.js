@@ -66,7 +66,7 @@ const Product = sequelize.define(
     },
     currency: {
       type: DataTypes.STRING(3),
-      defaultValue: "USD",
+      defaultValue: "NZD",
     },
     sku: {
       type: DataTypes.STRING(100),

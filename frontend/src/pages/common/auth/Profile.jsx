@@ -53,25 +53,25 @@ function Profile() {
   const [city, setCity] = useState("");
   const [stateName, setStateName] = useState("");
   const [zipCode, setZipCode] = useState("");
+  const [country, setCountry] = useState("New Zealand");
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [avatarError, setAvatarError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // --- Component State ---
-  const [error, setError] = useState("");
-  const [avatarError, setAvatarError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [currentUserId, setCurrentUserId] = useState("");
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
-
-  // --- Context and Routing ---
-  const { user, setUser } = useContext(AuthContext);
+  // Get profile ID from URL params or use logged-in user's ID
   const { userId: profileId } = useParams();
+  const { user, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   ///////////////////////////////////////////////////////////////////////
-  // ========================= USE EFFECT HOOK ======================= //
+  // ========================= USE EFFECTS =========================== //
   ///////////////////////////////////////////////////////////////////////
+
   useEffect(() => {
     const loadProfile = async () => {
-      if (profileId && profileId !== "undefined") {
+      if (profileId) {
         setIsLoading(true);
 
         const setters = {
@@ -87,6 +87,7 @@ function Profile() {
           setCity,
           setStateName,
           setZipCode,
+          setCountry,
           setCurrentUserId,
           setError,
         };
@@ -164,6 +165,7 @@ function Profile() {
       city,
       stateName,
       zipCode,
+      country,
       currentUserId,
     };
 
@@ -262,6 +264,8 @@ function Profile() {
         setStateName={setStateName}
         zipCode={zipCode}
         setZipCode={setZipCode}
+        country={country}
+        setCountry={setCountry}
         capitalizeWords={capitalizeWords}
         readOnly={!isOwnProfile}
       />

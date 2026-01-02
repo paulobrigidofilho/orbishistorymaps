@@ -56,7 +56,9 @@ const adminStatsRoutes = require("./routes/adminStatsRoutes.js");
 const adminOrderRoutes = require("./routes/adminOrderRoutes.js");
 const adminWishlistRoutes = require("./routes/adminWishlistRoutes.js");
 const adminReviewRoutes = require("./routes/adminReviewRoutes.js");
+const adminSettingsRoutes = require("./routes/adminSettingsRoutes.js");
 const reviewRoutes = require("./routes/reviewRoutes.js");
+const freightRoutes = require("./routes/freightRoutes.js");
 
 // ====================== Routes Setup ============================= //
 
@@ -78,6 +80,8 @@ app.use("/api", adminStatsRoutes);
 app.use("/api", adminWishlistRoutes);
 app.use("/api", adminReviewRoutes);
 app.use("/api", adminOrderRoutes);
+app.use("/api", adminSettingsRoutes);
+app.use("/api", freightRoutes);
 app.use("/health", healthRoutes);
 
 ///////////////////////////////////////////////////////////////////////

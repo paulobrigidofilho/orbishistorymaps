@@ -24,6 +24,8 @@ const OrderItem = require("./OrderItem");
 const Payment = require("./Payment");
 const ProductReview = require("./ProductReview");
 const Wishlist = require("./Wishlist");
+const SiteSettings = require("./SiteSettings");
+const FreightConfig = require("./FreightConfig");
 
 ///////////////////////////////////////////////////////////////////////
 // ================ MODEL ASSOCIATIONS ============================= //
@@ -146,4 +148,6 @@ module.exports = {
   Payment,
   ProductReview,
   Wishlist,
+  SiteSettings,
+  FreightConfig,
 };

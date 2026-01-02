@@ -10,13 +10,6 @@ const router = express.Router();
 const wishlistController = require("../controllers/wishlistController");
 const { requireAuth } = require("../middleware/authMiddleware");
 
-//////////////////////////////////////////////
-// ===== Apply Auth Middleware ===== //
-//////////////////////////////////////////////
-
-// All wishlist routes require authentication
-router.use(requireAuth);
-
 ////////////////////////////////////////////////
 // ===== GET User's Wishlist Items ===== //
 ////////////////////////////////////////////////
@@ -26,7 +19,7 @@ router.use(requireAuth);
  * Retrieves all items in the user's wishlist with product details
  * Authentication required
  */
-router.get("/wishlist", wishlistController.getWishlist);
+router.get("/wishlist", requireAuth, wishlistController.getWishlist);
 
 //////////////////////////////////////////////////////////
 // ===== POST Add Product to User's Wishlist ===== //
@@ -38,7 +31,7 @@ router.get("/wishlist", wishlistController.getWishlist);
  * Body: { productId: string }
  * Authentication required
  */
-router.post("/wishlist/items", wishlistController.addItem);
+router.post("/wishlist/items", requireAuth, wishlistController.addItem);
 
 ////////////////////////////////////////////////////////////
 // ===== DELETE Remove Product from Wishlist ===== //
@@ -50,6 +43,6 @@ router.post("/wishlist/items", wishlistController.addItem);
  * Params: productId
  * Authentication required
  */
-router.delete("/wishlist/items/:productId", wishlistController.removeItem);
+router.delete("/wishlist/items/:productId", requireAuth, wishlistController.removeItem);
 
 module.exports = router;

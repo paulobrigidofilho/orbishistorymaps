@@ -59,6 +59,7 @@ const handleProfileSubmit = async (
     city: profileData.city,
     stateName: profileData.stateName,
     zipCode: profileData.zipCode,
+    country: profileData.country,
   });
 
   if (!profileValidation.success) {
@@ -77,6 +78,7 @@ const handleProfileSubmit = async (
     formData.append("city", profileData.city);
     formData.append("state", profileData.stateName);
     formData.append("zipCode", profileData.zipCode);
+    formData.append("country", profileData.country || "New Zealand");
 
     // Handle avatar: Append only if it's a new File object
     if (profileData.avatar instanceof File) {

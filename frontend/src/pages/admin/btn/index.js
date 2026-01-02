@@ -15,3 +15,4 @@ export { default as ConfirmBtn } from "./ConfirmBtn";
 export { default as UploadBtn } from "./UploadBtn";
 export { default as PageBtn } from "./PageBtn";
 export { default as CloseBtn } from "./CloseBtn";
+export { default as ToggleButton } from "./ToggleButton";

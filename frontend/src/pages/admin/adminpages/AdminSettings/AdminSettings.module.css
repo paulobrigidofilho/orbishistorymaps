@@ -137,16 +137,157 @@
   cursor: not-allowed;
 }
 
-/* ================ SUCCESS MESSAGE ==================== */
+/* ================ LOADING STATE ==================== */
 
-.success {
-  background: #d1fae5;
-  color: #065f46;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+/* ================ SECTION DESCRIPTION ==================== */
+
+.sectionDescription {
   font-size: 0.875rem;
-  font-weight: 500;
+  color: #6b7280;
+  margin: -0.5rem 0 1.5rem 0;
+}
+
+/* ================ MAINTENANCE MODE BUTTONS ==================== */
+
+.maintenanceOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.maintenanceButton {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.25rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.maintenanceButton:hover:not(.active) {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.maintenanceButton .material-icons {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.25rem;
+}
+
+.maintenanceLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.25rem;
+}
+
+.maintenanceDesc {
+  font-size: 0.8rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* Off mode - Green */
+.maintenanceButton.off.active {
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.maintenanceButton.off.active .maintenanceLabel {
+  color: #059669;
+}
+
+.maintenanceButton.off.active .material-icons {
+  color: #10b981;
+}
+
+/* Site-wide mode - Red */
+.maintenanceButton.sitewide.active {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.maintenanceButton.sitewide.active .maintenanceLabel {
+  color: #dc2626;
+}
+
+.maintenanceButton.sitewide.active .material-icons {
+  color: #ef4444;
+}
+
+/* Shop-only mode - Orange */
+.maintenanceButton.shoponly.active {
+  border-color: #f97316;
+  background: #fff7ed;
+}
+
+.maintenanceButton.shoponly.active .maintenanceLabel {
+  color: #ea580c;
+}
+
+.maintenanceButton.shoponly.active .material-icons {
+  color: #f97316;
+}
+
+/* Registration-only mode - Yellow */
+.maintenanceButton.registrationonly.active {
+  border-color: #eab308;
+  background: #fefce8;
+}
+
+.maintenanceButton.registrationonly.active .maintenanceLabel {
+  color: #ca8a04;
+}
+
+.maintenanceButton.registrationonly.active .material-icons {
+  color: #eab308;
+}
+
+/* Maintenance message input */
+.maintenanceMessageGroup {
+  margin-top: 1rem;
+}
+
+.maintenanceMessageGroup label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.2s;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
 }
 
 /* ================ RESPONSIVE ==================== */

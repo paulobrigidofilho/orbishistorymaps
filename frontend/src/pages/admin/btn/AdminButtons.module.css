@@ -174,3 +174,41 @@
 .closeBtn:hover:not(:disabled) {
   color: #374151;
 }
+
+/* ================ TOGGLE BUTTON GROUP ==================== */
+
+.toggleButtonGroup {
+  display: inline-flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+}
+
+.toggleButton {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggleButton:first-child {
+  border-right: 1px solid #e5e7eb;
+}
+
+.toggleButton:hover:not(:disabled):not(.toggleActive) {
+  background: #f3f4f6;
+}
+
+.toggleButton.toggleActive {
+  background: #3b82f6;
+  color: white;
+}
+
+.toggleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

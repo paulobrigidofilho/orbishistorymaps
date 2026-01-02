@@ -24,6 +24,8 @@ const {
   ProductImage,
   ProductTag,
   Inventory,
+  SiteSettings,
+  FreightConfig,
 } = require("../models");
 
 (async () => {
@@ -86,6 +88,11 @@ const {
                 user_city: userData.user_city || null,
                 user_state: userData.user_state || null,
                 user_zipcode: userData.user_zipcode || null,
+                user_country: userData.user_country || "New Zealand",
+                user_google_place_id: userData.user_google_place_id || null,
+                user_formatted_address: userData.user_formatted_address || null,
+                user_freight_zone: userData.user_freight_zone || null,
+                user_is_tauranga: userData.user_is_tauranga || false,
                 user_role: userData.user_role || "user",
                 user_status: userData.user_status || "active",
               });
@@ -221,6 +228,123 @@ const {
       }
     } else {
       console.log("mock-products.json not found, skipping product seeding.\n");
+    }
+
+    // ===== Seed Site Settings from sitesettings.json ===== //
+    const siteSettingsPath = path.join(__dirname, "..", "db", "sitesettings.json");
+    if (fs.existsSync(siteSettingsPath)) {
+      try {
+        const fileContent = fs.readFileSync(siteSettingsPath, "utf8").trim();
+        if (!fileContent) {
+          console.log("sitesettings.json is empty, skipping settings seeding.");
+        } else {
+          const settingsData = JSON.parse(fileContent);
+          console.log(`Found ${settingsData.length} settings in sitesettings.json`);
+
+          for (const setting of settingsData) {
+            // Check if setting already exists
+            const existing = await SiteSettings.findOne({
+              where: { setting_key: setting.setting_key },
+            });
+
+            if (!existing) {
+              await SiteSettings.create({
+                setting_key: setting.setting_key,
+                setting_value: setting.setting_value,
+                setting_type: setting.setting_type || "string",
+                setting_description: setting.setting_description || null,
+                setting_category: setting.setting_category || "general",
+              });
+              console.log(`  ✓ Setting "${setting.setting_key}" seeded.`);
+            } else {
+              console.log(`  - Setting "${setting.setting_key}" already exists.`);
+            }
+          }
+          console.log("✓ Site settings seeding completed.\n");
+        }
+      } catch (err) {
+        console.log(
+          "Error parsing sitesettings.json, skipping settings seeding:",
+          err.message
+        );
+      }
+    } else {
+      console.log("sitesettings.json not found, seeding default settings...");
+      
+      // Seed default maintenance settings
+      const defaultSettings = [
+        {
+          setting_key: "maintenance_mode",
+          setting_value: "off",
+          setting_type: "string",
+          setting_description: "Site maintenance mode: off, site-wide, shop-only, registration-only",
+          setting_category: "maintenance",
+        },
+        {
+          setting_key: "maintenance_message",
+          setting_value: "We are currently performing scheduled maintenance. Please check back soon.",
+          setting_type: "string",
+          setting_description: "Message displayed during maintenance",
+          setting_category: "maintenance",
+        },
+        {
+          setting_key: "default_currency",
+          setting_value: "NZD",
+          setting_type: "string",
+          setting_description: "Default currency for the store",
+          setting_category: "store",
+        },
+        {
+          setting_key: "default_nationality",
+          setting_value: "New Zealand",
+          setting_type: "string",
+          setting_description: "Default nationality for user registration",
+          setting_category: "general",
+        },
+      ];
+
+      for (const setting of defaultSettings) {
+        const existing = await SiteSettings.findOne({
+          where: { setting_key: setting.setting_key },
+        });
+
+        if (!existing) {
+          await SiteSettings.create(setting);
+          console.log(`  ✓ Default setting "${setting.setting_key}" seeded.`);
+        } else {
+          console.log(`  - Setting "${setting.setting_key}" already exists.`);
+        }
+      }
+      console.log("✓ Default site settings seeding completed.\n");
+    }
+
+    // ===== Seed Freight Configuration ===== //
+    console.log("Seeding freight configuration...");
+    try {
+      const existingFreight = await FreightConfig.findOne();
+      
+      if (!existingFreight) {
+        await FreightConfig.create({
+          local: 12.00,
+          north_island: 12.60,        // 1.05 * 12
+          south_island: 12.96,        // 1.08 * 12
+          intl_asia: 13.80,           // 1.15 * 12
+          intl_north_america: 15.00,  // 1.25 * 12
+          intl_europe: 15.00,         // 1.25 * 12
+          intl_africa: 15.00,         // 1.25 * 12
+          intl_latin_america: 15.00,  // 1.25 * 12
+          is_free_freight_enabled: false,
+          threshold_local: 200.00,
+          threshold_national: 300.00,
+          threshold_international: 500.00,
+        });
+        console.log("  ✓ Freight configuration seeded with default values.");
+      } else {
+        console.log("  - Freight configuration already exists.");
+      }
+      console.log("✓ Freight configuration seeding completed.\n");
+    } catch (err) {
+      console.log("Error seeding freight configuration:", err.message);
     }
 
     console.log("\n✓ Seeding completed successfully!");

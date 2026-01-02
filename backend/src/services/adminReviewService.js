@@ -193,8 +193,8 @@ const updateProductRatingStats = async (productId) => {
 
     await Product.update(
       {
-        average_rating: stats.avg_rating || 0,
-        review_count: stats.review_count || 0,
+        rating_average: stats.avg_rating || 0,
+        rating_count: stats.review_count || 0,
       },
       { where: { product_id: productId } }
     );
