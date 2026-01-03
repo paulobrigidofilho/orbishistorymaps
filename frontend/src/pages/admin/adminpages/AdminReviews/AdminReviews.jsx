@@ -6,7 +6,8 @@
 // Allows filtering, editing, deleting reviews
 
 //  ========== Module imports  ========== //
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./AdminReviews.module.css";
 
 //  ========== Component imports  ========== //
@@ -14,6 +15,7 @@ import AdminManagementView from "../../components/AdminManagementView";
 import viewStyles from "../../components/AdminManagementView.module.css";
 import ReviewEditModal from "./subcomponents/ReviewEditModal";
 import DeleteReviewModal from "./subcomponents/DeleteReviewModal";
+import ViewUserDetailsModal from "./subcomponents/ViewUserDetailsModal";
 import { ViewBtn, DeleteBtn } from "../../btn";
 
 //  ========== Constants imports  ========== //
@@ -26,10 +28,23 @@ import { ERROR_MESSAGES } from "../../constants/adminErrorMessages";
 
 export default function AdminReviews() {
   ///////////////////////////////////////////////////////////////////////
+  // ========================= HOOKS ================================= //
+  ///////////////////////////////////////////////////////////////////////
+
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const hoverTimeoutRef = useRef(null);
+
+  ///////////////////////////////////////////////////////////////////////
   // ========================= STATE VARIABLES ======================= //
   ///////////////////////////////////////////////////////////////////////
 
   const [reviews, setReviews] = useState([]);
+  
+  // User hover modal state
+  const [hoveredUser, setHoveredUser] = useState(null);
+  const [hoverModalVisible, setHoverModalVisible] = useState(false);
+  const [hoverModalPosition, setHoverModalPosition] = useState({ top: 0, left: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -39,7 +54,7 @@ export default function AdminReviews() {
     totalPages: 0,
   });
   const [filters, setFilters] = useState({
-    search: "",
+    search: searchParams.get("search") || "",
     rating: "",
     is_approved: "",
   });
@@ -203,6 +218,64 @@ export default function AdminReviews() {
   };
 
   ///////////////////////////////////////////////////////////////////////
+  // ================ USER HOVER MODAL HANDLERS ====================== //
+  ///////////////////////////////////////////////////////////////////////
+
+  const handleUserMouseEnter = (event, user) => {
+    // Clear any existing timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
+    // Calculate position relative to viewport
+    const rect = event.currentTarget.getBoundingClientRect();
+    setHoverModalPosition({
+      top: rect.bottom + 8,
+      left: Math.min(rect.left, window.innerWidth - 340), // Prevent overflow
+    });
+    setHoveredUser(user);
+
+    // Small delay before showing modal for better UX
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoverModalVisible(true);
+    }, 200);
+  };
+
+  const handleUserMouseLeave = () => {
+    // Clear the show timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
+    // Small delay before hiding to allow moving to modal
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoverModalVisible(false);
+      setHoveredUser(null);
+    }, 150);
+  };
+
+  const handleModalMouseEnter = () => {
+    // Cancel hide timeout when mouse enters modal
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+  };
+
+  const handleModalMouseLeave = () => {
+    // Hide modal when mouse leaves it
+    setHoverModalVisible(false);
+    setHoveredUser(null);
+  };
+
+  ///////////////////////////////////////////////////////////////////////
+  // ================ PRODUCT NAVIGATION HANDLER ===================== //
+  ///////////////////////////////////////////////////////////////////////
+
+  const handleProductClick = (productName) => {
+    navigate(`/admin/products?search=${encodeURIComponent(productName)}`);
+  };
+
+  ///////////////////////////////////////////////////////////////////////
   // ====================== TABLE CONFIGURATION ====================== //
   ///////////////////////////////////////////////////////////////////////
 
@@ -218,34 +291,63 @@ export default function AdminReviews() {
   ];
 
   // Render function for table rows
-  const renderRow = (review) => (
-    <tr key={review.review_id || review._id}>
-      <td>{review.product?.product_name || review.product_name || "N/A"}</td>
-      <td>{review.user?.user_nickname || review.user_nickname || "N/A"}</td>
-      <td>
-        <span className={viewStyles.stars}>
-          {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
-        </span>
-      </td>
-      <td>{review.review_title || review.title || "No title"}</td>
-      <td>
-        <button
-          className={`${viewStyles.badge} ${viewStyles.clickable} ${review.is_approved ? viewStyles.approved : viewStyles.pending}`}
-          onClick={() => handleToggleApproval(review)}
-          title={`Click to ${review.is_approved ? "unapprove" : "approve"}`}
-        >
-          {review.is_approved ? "Approved" : "Pending"}
-        </button>
-      </td>
-      <td>{new Date(review.created_at || review.createdAt).toLocaleDateString()}</td>
-      <td>
-        <div className={viewStyles.actions}>
-          <ViewBtn onClick={() => handleEdit(review)} />
-          <DeleteBtn onClick={() => handleDelete(review)} />
-        </div>
-      </td>
-    </tr>
-  );
+  const renderRow = (review) => {
+    const productName = review.product?.product_name || review.product_name || "N/A";
+    const user = review.user || {
+      user_nickname: review.user_nickname,
+      user_firstname: review.user_firstname,
+      user_lastname: review.user_lastname,
+      user_email: review.user_email,
+      user_avatar: review.user_avatar,
+    };
+
+    return (
+      <tr key={review.review_id || review._id}>
+        {/* Product Name - Clickable for navigation */}
+        <td>
+          <span
+            className={styles.clickableProduct}
+            onClick={() => handleProductClick(productName)}
+            title={`View ${productName} in Products`}
+          >
+            {productName}
+          </span>
+        </td>
+        {/* User - Hover for details modal */}
+        <td>
+          <span
+            className={styles.hoverableUser}
+            onMouseEnter={(e) => handleUserMouseEnter(e, user)}
+            onMouseLeave={handleUserMouseLeave}
+          >
+            {user.user_nickname || "N/A"}
+          </span>
+        </td>
+        <td>
+          <span className={viewStyles.stars}>
+            {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+          </span>
+        </td>
+        <td>{review.review_title || review.title || "No title"}</td>
+        <td>
+          <button
+            className={`${viewStyles.badge} ${viewStyles.clickable} ${review.is_approved ? viewStyles.approved : viewStyles.pending}`}
+            onClick={() => handleToggleApproval(review)}
+            title={`Click to ${review.is_approved ? "unapprove" : "approve"}`}
+          >
+            {review.is_approved ? "Approved" : "Pending"}
+          </button>
+        </td>
+        <td>{new Date(review.created_at || review.createdAt).toLocaleDateString()}</td>
+        <td>
+          <div className={viewStyles.actions}>
+            <ViewBtn onClick={() => handleEdit(review)} />
+            <DeleteBtn onClick={() => handleDelete(review)} />
+          </div>
+        </td>
+      </tr>
+    );
+  };
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
@@ -279,6 +381,15 @@ export default function AdminReviews() {
       columns={columns}
       renderRow={renderRow}
     >
+      {/* User Details Hover Modal */}
+      <ViewUserDetailsModal
+        user={hoveredUser}
+        isVisible={hoverModalVisible}
+        position={hoverModalPosition}
+        onMouseEnter={handleModalMouseEnter}
+        onMouseLeave={handleModalMouseLeave}
+      />
+
       {/* Edit Modal */}
       <ReviewEditModal
         review={editReview}

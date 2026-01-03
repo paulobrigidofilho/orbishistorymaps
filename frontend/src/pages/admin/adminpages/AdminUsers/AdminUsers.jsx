@@ -6,6 +6,7 @@
 
 //  ========== Module imports  ========== //
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import styles from "./AdminUsers.module.css";
 
 //  ========== Component imports  ========== //
@@ -37,6 +38,12 @@ import { SUCCESS_MESSAGES } from "../../constants/adminSuccessMessages";
 
 export default function AdminUsers() {
   ///////////////////////////////////////////////////////////////////////
+  // ========================= URL SEARCH PARAMS ===================== //
+  ///////////////////////////////////////////////////////////////////////
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  ///////////////////////////////////////////////////////////////////////
   // ========================= STATE VARIABLES ======================= //
   ///////////////////////////////////////////////////////////////////////
 
@@ -50,10 +57,10 @@ export default function AdminUsers() {
     totalPages: 0,
   });
   const [filters, setFilters] = useState({
-    search: "",
-    role: "",
-    status: "",
-    country: "",
+    search: searchParams.get("search") || "",
+    role: searchParams.get("role") || "",
+    status: searchParams.get("status") || "",
+    country: searchParams.get("country") || "",
   });
   const [sortConfig, setSortConfig] = useState({
     field: "user_id",

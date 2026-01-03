@@ -6,7 +6,7 @@
 
 //  ========== Module imports  ========== //
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./AdminProducts.module.css";
 
 //  ========== Component imports  ========== //
@@ -44,6 +44,7 @@ export default function AdminProducts() {
   ///////////////////////////////////////////////////////////////////////
 
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= STATE VARIABLES ======================= //
@@ -60,10 +61,10 @@ export default function AdminProducts() {
     totalPages: 0,
   });
   const [filters, setFilters] = useState({
-    search: "",
-    category_id: "",
-    is_active: "",
-    is_featured: "",
+    search: searchParams.get("search") || "",
+    category_id: searchParams.get("category_id") || "",
+    is_active: searchParams.get("is_active") || "",
+    is_featured: searchParams.get("is_featured") || "",
   });
   const [sortConfig, setSortConfig] = useState({
     field: "created_at",
