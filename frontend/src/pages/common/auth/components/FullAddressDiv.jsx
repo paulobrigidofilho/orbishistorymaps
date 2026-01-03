@@ -12,6 +12,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 //  ========== Component imports  ========== //
 import styles from "../Auth.module.css";
 import CountrySelect from "./CountrySelect";
+import SmartAddressInput from "./SmartAddressInput";
 
 //  ========== Constants imports  ========== //
 import {
@@ -27,6 +28,12 @@ import {
   formatCurrency, 
   calculateFreeFreightProgress 
 } from "../helpers/freightHelper";
+
+//  ========== Validator imports  ========== //
+import {
+  getZipCodeHint,
+  isStreetFirstCountry,
+} from "../validators/addressValidator";
 
 //  ========== Utils imports  ========== //
 import { loadGoogleMapsApi, isGoogleMapsLoaded } from "../../../../utils/googleMapsLoader";
@@ -74,7 +81,26 @@ function FullAddressDiv({
   ///////////////////////////////////////////////////////////////////////
 
   /**
-   * Initialize Google Places Autocomplete
+   * Handle place selection from SmartAddressInput
+   * Updates all address fields when a place is selected
+   */
+  const handlePlaceSelect = useCallback((parsed) => {
+    if (!parsed) return;
+
+    // Update all fields from the selected place
+    if (parsed.streetAddress) setAddress(parsed.streetAddress);
+    if (parsed.city) setCity(parsed.city);
+    if (parsed.state) setStateName(parsed.state);
+    if (parsed.postalCode) setZipCode(parsed.postalCode);
+    
+    if (parsed.country && setCountry) {
+      setCountry(parsed.country);
+      setLocalCountry(parsed.country);
+    }
+  }, [setAddress, setCity, setStateName, setZipCode, setCountry]);
+
+  /**
+   * Initialize Google Places Autocomplete (legacy - kept for fallback)
    * Industry standard: Autocomplete triggers after 3+ characters (Google's default)
    */
   const initializeAutocomplete = useCallback(() => {
@@ -92,16 +118,16 @@ function FullAddressDiv({
 
     autocomplete.addListener("place_changed", () => {
       const place = autocomplete.getPlace();
-      handlePlaceSelect(place);
+      handleLegacyPlaceSelect(place);
     });
 
     autocompleteRef.current = autocomplete;
   }, [localCountry]);
 
   /**
-   * Handle place selection from autocomplete
+   * Handle place selection from legacy autocomplete (fallback)
    */
-  const handlePlaceSelect = (place) => {
+  const handleLegacyPlaceSelect = (place) => {
     if (!place?.address_components) return;
 
     const parsed = parseAddressComponents(place.address_components);
@@ -119,6 +145,9 @@ function FullAddressDiv({
 
   /**
    * Parse Google address components
+   * Formats street address based on country conventions:
+   * - Brazil/Portugal: "Rua das Flores, 123" (street, number)
+   * - NZ/AU/US/UK: "123 Main Street" (number street)
    */
   const parseAddressComponents = (components) => {
     const result = {
@@ -147,6 +176,10 @@ function FullAddressDiv({
         case ADDRESS_COMPONENT_TYPES.SUBLOCALITY:
           if (!result.city) result.city = component.long_name;
           break;
+        case ADDRESS_COMPONENT_TYPES.ADMIN_AREA_2:
+          // Used in Brazil and other countries where city is admin_area_level_2
+          if (!result.city) result.city = component.long_name;
+          break;
         case ADDRESS_COMPONENT_TYPES.ADMIN_AREA_1:
           result.state = component.long_name;
           break;
@@ -159,7 +192,21 @@ function FullAddressDiv({
       }
     });
 
-    result.streetAddress = [result.streetNumber, result.route].filter(Boolean).join(" ");
+    // Format street address based on country conventions
+    if (result.route && result.streetNumber) {
+      if (isStreetFirstCountry(result.country)) {
+        // Brazil/Portugal: "Rua das Flores, 123"
+        result.streetAddress = `${result.route}, ${result.streetNumber}`;
+      } else {
+        // NZ/AU/US/UK: "123 Main Street"
+        result.streetAddress = `${result.streetNumber} ${result.route}`;
+      }
+    } else if (result.route) {
+      result.streetAddress = result.route;
+    } else if (result.streetNumber) {
+      result.streetAddress = result.streetNumber;
+    }
+    
     return result;
   };
 
@@ -303,7 +350,7 @@ function FullAddressDiv({
         disabled={readOnly}
       />
 
-      {/* Street Address with Autocomplete */}
+      {/* Street Address with Smart Autocomplete */}
       <p className={styles.inputLabel}>
         Street Address:
         {!readOnly && isGoogleLoaded && (
@@ -324,22 +371,46 @@ function FullAddressDiv({
           </button>
         )}
       </p>
-      <input
-        ref={inputRef}
-        type="text"
-        placeholder={!readOnly ? "Start typing your street address..." : ""}
-        value={address}
-        onChange={
-          !readOnly
-            ? (e) => setAddress(capitalizeWords ? capitalizeWords(e.target.value) : e.target.value)
-            : undefined
-        }
-        readOnly={readOnly}
-        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
-      />
+      {!readOnly && isGoogleLoaded && !isManualEntry ? (
+        <SmartAddressInput
+          fieldType="street"
+          value={address}
+          onChange={setAddress}
+          onPlaceSelect={handlePlaceSelect}
+          placeholder={isStreetFirstCountry(localCountry) 
+            ? "e.g., Rua das Flores, 123" 
+            : "e.g., 123 Main Street"}
+          readOnly={readOnly}
+          country={localCountry}
+          city={city}
+          state={stateName}
+          zipCode={zipCode}
+          capitalizeWords={capitalizeWords}
+        />
+      ) : (
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder={!readOnly 
+            ? (isStreetFirstCountry(localCountry) 
+              ? "e.g., Rua das Flores, 123" 
+              : "e.g., 123 Main Street")
+            : ""}
+          value={address}
+          onChange={
+            !readOnly
+              ? (e) => setAddress(capitalizeWords ? capitalizeWords(e.target.value) : e.target.value)
+              : undefined
+          }
+          readOnly={readOnly}
+          className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
+        />
+      )}
       {!readOnly && isGoogleLoaded && !isManualEntry && (
         <p style={{ fontSize: "0.7rem", color: "#666", marginTop: "2px", marginBottom: "8px" }}>
-          Select from suggestions or click "Enter Manually"
+          {isStreetFirstCountry(localCountry) 
+            ? "Format: Street Name, Number (e.g., Rua das Flores, 123)"
+            : "Format: Number Street Name (e.g., 123 Main Street)"}
         </p>
       )}
 
@@ -356,46 +427,98 @@ function FullAddressDiv({
         className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
       />
 
-      {/* City Input */}
+      {/* City Input with Smart Autocomplete */}
       <p className={styles.inputLabel}>City / Suburb:</p>
-      <input
-        type="text"
-        placeholder={!readOnly ? "City or Suburb" : ""}
-        value={city}
-        onChange={
-          !readOnly
-            ? (e) => setCity(capitalizeWords ? capitalizeWords(e.target.value) : e.target.value)
-            : undefined
-        }
-        readOnly={readOnly}
-        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
-      />
+      {!readOnly && isGoogleLoaded && !isManualEntry ? (
+        <SmartAddressInput
+          fieldType="city"
+          value={city}
+          onChange={setCity}
+          onPlaceSelect={handlePlaceSelect}
+          placeholder="City or Suburb"
+          readOnly={readOnly}
+          country={localCountry}
+          streetAddress={address}
+          state={stateName}
+          zipCode={zipCode}
+          capitalizeWords={capitalizeWords}
+        />
+      ) : (
+        <input
+          type="text"
+          placeholder={!readOnly ? "City or Suburb" : ""}
+          value={city}
+          onChange={
+            !readOnly
+              ? (e) => setCity(capitalizeWords ? capitalizeWords(e.target.value) : e.target.value)
+              : undefined
+          }
+          readOnly={readOnly}
+          className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
+        />
+      )}
 
-      {/* State/Region Input */}
+      {/* State/Region Input with Smart Autocomplete */}
       <p className={styles.inputLabel}>State / Region:</p>
-      <input
-        type="text"
-        placeholder={!readOnly ? "State or Region" : ""}
-        value={stateName}
-        onChange={
-          !readOnly
-            ? (e) => setStateName(capitalizeWords ? capitalizeWords(e.target.value) : e.target.value)
-            : undefined
-        }
-        readOnly={readOnly}
-        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
-      />
+      {!readOnly && isGoogleLoaded && !isManualEntry ? (
+        <SmartAddressInput
+          fieldType="state"
+          value={stateName}
+          onChange={setStateName}
+          onPlaceSelect={handlePlaceSelect}
+          placeholder="State or Region"
+          readOnly={readOnly}
+          country={localCountry}
+          streetAddress={address}
+          city={city}
+          zipCode={zipCode}
+          capitalizeWords={capitalizeWords}
+        />
+      ) : (
+        <input
+          type="text"
+          placeholder={!readOnly ? "State or Region" : ""}
+          value={stateName}
+          onChange={
+            !readOnly
+              ? (e) => setStateName(capitalizeWords ? capitalizeWords(e.target.value) : e.target.value)
+              : undefined
+          }
+          readOnly={readOnly}
+          className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
+        />
+      )}
 
-      {/* Postcode Input */}
+      {/* Postcode Input with Smart Autocomplete */}
       <p className={styles.inputLabel}>Zip Code:</p>
-      <input
-        type="text"
-        placeholder={!readOnly ? "Zip Code or Postcode" : ""}
-        value={zipCode}
-        onChange={!readOnly ? (e) => setZipCode(e.target.value) : undefined}
-        readOnly={readOnly}
-        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
-      />
+      {!readOnly && isGoogleLoaded && !isManualEntry ? (
+        <SmartAddressInput
+          fieldType="zipCode"
+          value={zipCode}
+          onChange={setZipCode}
+          onPlaceSelect={handlePlaceSelect}
+          placeholder={getZipCodeHint(localCountry)}
+          readOnly={readOnly}
+          country={localCountry}
+          streetAddress={address}
+          city={city}
+          state={stateName}
+        />
+      ) : (
+        <input
+          type="text"
+          placeholder={!readOnly ? getZipCodeHint(localCountry) : ""}
+          value={zipCode}
+          onChange={!readOnly ? (e) => setZipCode(e.target.value) : undefined}
+          readOnly={readOnly}
+          className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
+        />
+      )}
+      {!readOnly && (
+        <p style={{ fontSize: "0.7rem", color: "#666", marginTop: "2px", marginBottom: "8px" }}>
+          Format: {getZipCodeHint(localCountry)}
+        </p>
+      )}
 
       {/* Freight Zone Info */}
       {showFreightInfo && !readOnly && (

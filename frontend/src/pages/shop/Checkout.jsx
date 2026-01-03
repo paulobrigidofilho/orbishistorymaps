@@ -423,7 +423,7 @@ export default function Checkout() {
                     <p>
                       {user.city}, {user.state} {user.zipCode}
                     </p>
-                    <p>New Zealand</p>
+                    <p>{user.country || "New Zealand"}</p>
                   </div>
                   <button
                     type="button"
@@ -451,7 +451,7 @@ export default function Checkout() {
                     <p>
                       {user.city}, {user.state} {user.zipCode}
                     </p>
-                    <p>New Zealand</p>
+                    <p>{user.country || "New Zealand"}</p>
                   </div>
                   <button
                     type="button"

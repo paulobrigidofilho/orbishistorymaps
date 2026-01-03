@@ -33,6 +33,7 @@ const getAllUsers = async (filters = {}) => {
     search = "",
     role = "all",
     status = "all",
+    country = "all",
     sortBy = "user_id",
     sortOrder = "desc",
   } = filters;
@@ -59,6 +60,10 @@ const getAllUsers = async (filters = {}) => {
     whereConditions.user_status = status;
   }
 
+  if (country !== "all") {
+    whereConditions.user_country = country;
+  }
+
   // Validate and sanitize sort parameters
   const allowedSortFields = [
     "user_id",
@@ -67,6 +72,7 @@ const getAllUsers = async (filters = {}) => {
     "user_lastname",
     "user_role",
     "user_status",
+    "user_country",
     "created_at",
     "updated_at",
   ];
@@ -173,6 +179,7 @@ const updateUser = async (userId, updates, adminId) => {
     "user_city",
     "user_state",
     "user_zipcode",
+    "user_country",
     "user_password",
   ];
 
@@ -189,6 +196,7 @@ const updateUser = async (userId, updates, adminId) => {
     city: "user_city",
     state: "user_state",
     zipCode: "user_zipcode",
+    country: "user_country",
     password: "user_password",
   };
 

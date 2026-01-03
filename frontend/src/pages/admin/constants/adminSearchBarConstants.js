@@ -54,6 +54,21 @@ export const USER_FILTERS = [
       { value: "suspended", label: "Suspended" },
     ],
   },
+  {
+    key: "country",
+    label: "All Countries",
+    options: [
+      { value: "", label: "All Countries" },
+      { value: "New Zealand", label: "🇳🇿 New Zealand" },
+      { value: "Australia", label: "🇦🇺 Australia" },
+      { value: "Brazil", label: "🇧🇷 Brazil" },
+      { value: "Canada", label: "🇨🇦 Canada" },
+      { value: "China", label: "🇨🇳 China" },
+      { value: "Portugal", label: "🇵🇹 Portugal" },
+      { value: "United Kingdom", label: "🇬🇧 United Kingdom" },
+      { value: "United States", label: "🇺🇸 United States" },
+    ],
+  },
 ];
 
 // Products page filters

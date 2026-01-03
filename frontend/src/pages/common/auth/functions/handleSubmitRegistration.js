@@ -20,6 +20,7 @@ import axios from "axios";
 import {
   validatePersonalDetails,
   validateProfileDetails,
+  validateAddressDetails,
 } from "../validators/registrationValidator";
 import { REGISTRATION_ERRORS } from "../constants/authErrorMessages";
 import { API_BASE } from "../constants/authConstants";
@@ -56,6 +57,21 @@ const handleSubmitRegistration = async (e, formData, setters) => {
 
   if (!profileValidation.success) {
     setters.setError(profileValidation.error);
+    return;
+  }
+
+  // Validate address details (all-or-nothing rule)
+  const addressValidation = validateAddressDetails({
+    address: formData.address,
+    addressLine2: formData.addressLine2,
+    city: formData.city,
+    stateName: formData.stateName,
+    zipCode: formData.zipCode,
+    country: formData.country,
+  });
+
+  if (!addressValidation.success) {
+    setters.setError(addressValidation.error);
     return;
   }
 

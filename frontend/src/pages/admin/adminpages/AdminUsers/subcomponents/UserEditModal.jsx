@@ -275,7 +275,7 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay} onClick={handleClose}>
+    <div className={styles.modalOverlay}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>Edit User Profile</h2>
@@ -474,7 +474,7 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
 
           {/* Modal Actions */}
           <div className={styles.modalActions}>
-            <CancelBtn onClick={handleClose} disabled={loading} />
+            <CancelBtn onClick={handleClose} disabled={loading}>Close</CancelBtn>
             <SaveBtn loading={loading} />
           </div>
         </form>

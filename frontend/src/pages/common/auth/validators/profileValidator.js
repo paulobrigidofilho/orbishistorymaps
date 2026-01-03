@@ -7,6 +7,7 @@
 
 // ===== Module Imports ===== //
 import { z } from "zod";
+import { validateAddressSync } from "./addressValidator";
 
 // ===== Profile Update Schema ===== //
 export const profileUpdateSchema = z.object({
@@ -28,6 +29,7 @@ export const profileUpdateSchema = z.object({
   city: z.string().optional(),
   stateName: z.string().optional(),
   zipCode: z.string().optional(),
+  country: z.string().optional(),
 });
 
 // ===== Validation Functions ===== //
@@ -46,7 +48,23 @@ export const validateProfileAccess = (currentUserId, user) => {
 // ===== validateProfileUpdate Function ===== //
 export const validateProfileUpdate = (data) => {
   try {
+    // First validate basic schema
     profileUpdateSchema.parse(data);
+    
+    // Then validate address fields (all-or-nothing rule)
+    const addressValidation = validateAddressSync({
+      address: data.address,
+      addressLine2: data.addressLine2,
+      city: data.city,
+      stateName: data.stateName,
+      zipCode: data.zipCode,
+      country: data.country,
+    });
+    
+    if (!addressValidation.success) {
+      return { success: false, error: addressValidation.error };
+    }
+    
     return { success: true, error: null };
   } catch (error) {
     const errorMessage = error.errors?.[0]?.message || "Invalid profile data";

@@ -1,0 +1,63 @@
+/**************************************************************
+ * COUNTRY FLAG COMPONENT STYLES
+ **************************************************************/
+
+.flagWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.flag {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Size variants */
+.small {
+  width: 24px;
+  height: 16px;
+}
+
+.medium {
+  width: 32px;
+  height: 21px;
+}
+
+.large {
+  width: 48px;
+  height: 32px;
+}
+
+/* Placeholder for unknown countries */
+.placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  border-radius: 2px;
+  font-size: 12px;
+}
+
+.placeholder.small {
+  width: 24px;
+  height: 16px;
+  font-size: 10px;
+}
+
+.placeholder.medium {
+  width: 32px;
+  height: 21px;
+  font-size: 14px;
+}
+
+.placeholder.large {
+  width: 48px;
+  height: 32px;
+  font-size: 18px;
+}

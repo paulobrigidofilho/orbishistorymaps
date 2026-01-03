@@ -133,6 +133,7 @@ const handleProfileSubmit = async (
           city: updatedUserData.city || profileData.city,
           state: updatedUserData.state || profileData.stateName,
           zipCode: updatedUserData.zipCode || profileData.zipCode,
+          country: updatedUserData.country || profileData.country,
         });
       }
 

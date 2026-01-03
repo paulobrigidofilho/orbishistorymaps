@@ -10,6 +10,7 @@ import { z } from "zod";
 import { validateFirstName, validateLastName } from "./nameValidator";
 import { validateEmail } from "./emailValidator";
 import { validatePasswordWithConfirmation } from "./passwordValidator";
+import { validateAddressSync } from "./addressValidator";
 import { VALIDATION_ERRORS } from "../constants/authErrorMessages";
 
 // ===== Schema Definitions ===== //
@@ -29,6 +30,7 @@ export const addressDetailsSchema = z.object({
   city: z.string().optional(),
   stateName: z.string().optional(),
   zipCode: z.string().optional(),
+  country: z.string().optional(),
 });
 
 ///////////////////////////////////
@@ -84,4 +86,21 @@ export const validateProfileDetails = (data) => {
   }
 
   return { success: true };
+};
+
+// ===== validateAddressDetails Function ===== //
+export const validateAddressDetails = (data) => {
+  const { address, addressLine2, city, stateName, zipCode, country } = data;
+
+  // Use the address validator for all-or-nothing and format validation
+  const addressValidation = validateAddressSync({
+    address,
+    addressLine2,
+    city,
+    stateName,
+    zipCode,
+    country,
+  });
+
+  return addressValidation;
 };

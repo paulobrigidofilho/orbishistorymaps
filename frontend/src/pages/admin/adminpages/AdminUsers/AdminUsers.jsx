@@ -12,6 +12,7 @@ import styles from "./AdminUsers.module.css";
 import AdminManagementView from "../../components/AdminManagementView";
 import UserEditModal from "./subcomponents/UserEditModal";
 import DeleteUserModal from "./subcomponents/DeleteUserModal";
+import CountryFlag from "../../components/CountryFlag";
 import { EditBtn, DeleteBtn } from "../../btn";
 import viewStyles from "../../components/AdminManagementView.module.css";
 
@@ -52,6 +53,7 @@ export default function AdminUsers() {
     search: "",
     role: "",
     status: "",
+    country: "",
   });
   const [sortConfig, setSortConfig] = useState({
     field: "user_id",
@@ -82,6 +84,7 @@ export default function AdminUsers() {
         search: filters.search,
         role: filters.role,
         status: filters.status,
+        country: filters.country,
         sortBy: sortConfig.field,
         sortOrder: sortConfig.order,
       });
@@ -103,7 +106,7 @@ export default function AdminUsers() {
   useEffect(() => {
     fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.page, pagination.limit, filters.search, filters.role, filters.status, sortConfig.field, sortConfig.order]);
+  }, [pagination.page, pagination.limit, filters.search, filters.role, filters.status, filters.country, sortConfig.field, sortConfig.order]);
 
   const handleStatusChange = async (userId, newStatus) => {
     if (!window.confirm(`Change user status to ${newStatus}?`)) return;
@@ -206,6 +209,7 @@ export default function AdminUsers() {
   // Column definitions for the users table
   const columns = [
     { key: "id", label: "ID", sortable: true, sortField: "user_id" },
+    { key: "country", label: "Country", sortable: true, sortField: "user_country" },
     { key: "firstName", label: "First Name", sortable: true, sortField: "user_firstname" },
     { key: "lastName", label: "Last Name", sortable: true, sortField: "user_lastname" },
     { key: "email", label: "Email", sortable: true, sortField: "user_email" },
@@ -220,6 +224,9 @@ export default function AdminUsers() {
   const renderRow = (user) => (
     <tr key={user.id}>
       <td>{user.id}</td>
+      <td>
+        <CountryFlag country={user.country} size="small" />
+      </td>
       <td>{user.firstName}</td>
       <td>{user.lastName}</td>
       <td>{user.email}</td>

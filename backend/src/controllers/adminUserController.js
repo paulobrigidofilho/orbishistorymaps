@@ -39,6 +39,7 @@ const getUsers = async (req, res) => {
       search: req.query.search || "",
       role: req.query.role || "all",
       status: req.query.status || "all",
+      country: req.query.country || "all",
       sortBy: req.query.sortBy || "user_id",
       sortOrder: req.query.sortOrder || "desc",
     };
