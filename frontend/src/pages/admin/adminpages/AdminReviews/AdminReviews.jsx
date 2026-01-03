@@ -17,10 +17,12 @@ import ReviewEditModal from "./subcomponents/ReviewEditModal";
 import DeleteReviewModal from "./subcomponents/DeleteReviewModal";
 import ViewUserDetailsModal from "./subcomponents/ViewUserDetailsModal";
 import { ViewBtn, DeleteBtn } from "../../btn";
+import AdminAlertModal from "../../components/AdminAlertModal/AdminAlertModal";
 
 //  ========== Constants imports  ========== //
 import { ADMIN_PAGE_TYPES } from "../../constants/adminSearchBarConstants";
 import { ERROR_MESSAGES } from "../../constants/adminErrorMessages";
+import { ADMIN_ERROR_ALERT_MESSAGES } from "../../constants/adminAlertModalConstants";
 
 ///////////////////////////////////////////////////////////////////////
 // ======================== ADMIN REVIEWS PAGE ======================= //
@@ -65,6 +67,13 @@ export default function AdminReviews() {
   const [deleteReview, setDeleteReview] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // AdminAlertModal state for error messages
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    config: {},
+    onConfirm: null,
+  });
 
   ///////////////////////////////////////////////////////////////////////
   // ======================= HELPER FUNCTIONS ======================== //
@@ -171,6 +180,20 @@ export default function AdminReviews() {
     }
   };
 
+  // Close alert modal helper
+  const closeAlertModal = () => {
+    setAlertModal({ isOpen: false, config: {}, onConfirm: null });
+  };
+
+  // Show error alert helper
+  const showErrorAlert = (errorMessage) => {
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_ERROR_ALERT_MESSAGES.GENERIC_ERROR(errorMessage),
+      onConfirm: closeAlertModal,
+    });
+  };
+
   // Toggle approval status directly
   const handleToggleApproval = async (review) => {
     try {
@@ -185,7 +208,7 @@ export default function AdminReviews() {
       fetchReviews(); // Refresh reviews
     } catch (err) {
       console.error("Error toggling approval:", err);
-      alert(`Error: ${err.message}`);
+      showErrorAlert(err.message);
     }
   };
 
@@ -211,7 +234,7 @@ export default function AdminReviews() {
       setDeleteReview(null);
       fetchReviews(); // Refresh list
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showErrorAlert(err.message);
     } finally {
       setIsDeleting(false);
     }
@@ -405,6 +428,20 @@ export default function AdminReviews() {
         onClose={handleDeleteModalClose}
         onConfirm={handleConfirmDelete}
         isDeleting={isDeleting}
+      />
+
+      {/* Admin Alert Modal for Error Messages */}
+      <AdminAlertModal
+        isOpen={alertModal.isOpen}
+        onClose={closeAlertModal}
+        onConfirm={alertModal.onConfirm}
+        type={alertModal.config.type}
+        title={alertModal.config.title}
+        message={alertModal.config.message}
+        confirmText={alertModal.config.confirmText}
+        cancelText={alertModal.config.cancelText}
+        showCancel={alertModal.config.showCancel !== false}
+        icon={alertModal.config.icon}
       />
     </AdminManagementView>
   );

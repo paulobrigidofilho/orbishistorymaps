@@ -11,6 +11,7 @@ import styles from "./ProductEditModal.module.css";
 //  ========== Component imports  ========== //
 import TagInput from "./TagInput";
 import { CloseBtn, CancelBtn, SaveBtn, UploadBtn } from "../../../btn";
+import AdminAlertModal from "../../../components/AdminAlertModal/AdminAlertModal";
 
 //  ========== Function imports  ========== //
 import getProductById from "../../../functions/getProductById";
@@ -30,6 +31,7 @@ import validateEditProductImage from "../../../validators/validateEditProductIma
 import { SUCCESS_MESSAGES } from "../../../constants/adminSuccessMessages";
 import { ERROR_MESSAGES } from "../../../constants/adminErrorMessages";
 import { PRODUCT_IMAGE_LIMIT } from "../../../constants/adminConstants";
+import { ADMIN_PRODUCT_ALERT_MESSAGES } from "../../../constants/adminAlertModalConstants";
 
 ///////////////////////////////////////////////////////////////////////
 // =================== PRODUCT EDIT MODAL COMPONENT ================== //
@@ -68,6 +70,13 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
 
   // Tag-specific state
   const [tagError, setTagError] = useState("");
+
+  // Admin alert modal state for confirmations
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    config: {},
+    onConfirm: null,
+  });
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -202,13 +211,25 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
   };
 
   const handleImageDelete = async (imageId) => {
-    if (!window.confirm("Delete this image?")) return;
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_PRODUCT_ALERT_MESSAGES.DELETE_IMAGE,
+      onConfirm: () => confirmImageDelete(imageId),
+    });
+  };
+
+  const confirmImageDelete = async (imageId) => {
+    setAlertModal({ isOpen: false, config: {}, onConfirm: null });
     try {
       await deleteProductImage(imageId);
       await fetchProductDetails(); // Refresh images
     } catch (err) {
       setImageError(err.message || "Failed to delete image");
     }
+  };
+
+  const closeAlertModal = () => {
+    setAlertModal({ isOpen: false, config: {}, onConfirm: null });
   };
 
   const handleCancelImageSelection = () => {
@@ -602,6 +623,20 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
             <SaveBtn loading={loading} />
           </div>
         </form>
+
+        {/* Admin Alert Modal for Delete Confirmations */}
+        <AdminAlertModal
+          isOpen={alertModal.isOpen}
+          onClose={closeAlertModal}
+          onConfirm={alertModal.onConfirm}
+          type={alertModal.config.type}
+          title={alertModal.config.title}
+          message={alertModal.config.message}
+          confirmText={alertModal.config.confirmText}
+          cancelText={alertModal.config.cancelText}
+          showCancel={alertModal.config.showCancel !== false}
+          icon={alertModal.config.icon}
+        />
       </div>
     </div>
   );

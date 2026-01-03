@@ -18,6 +18,7 @@ import AddProductModal from "./subcomponents/AddProductModal";
 import DeleteProductModal from "./subcomponents/DeleteProductModal";
 import ProductRatingsModal from "./subcomponents/ProductRatingsModal";
 import { EditBtn, DeleteBtn, AddBtn } from "../../btn";
+import AdminAlertModal from "../../components/AdminAlertModal/AdminAlertModal";
 
 //  ========== Constants imports (Search)  ========== //
 import { ADMIN_PAGE_TYPES } from "../../constants/adminSearchBarConstants";
@@ -33,6 +34,10 @@ import formatDateDMY from "../../helpers/formatDateDMY";
 import { ERROR_MESSAGES } from "../../constants/adminErrorMessages";
 import { SUCCESS_MESSAGES } from "../../constants/adminSuccessMessages";
 import { getStockLevelClass } from "../../constants/adminConstants";
+import { 
+  ADMIN_PRODUCT_ALERT_MESSAGES, 
+  ADMIN_ERROR_ALERT_MESSAGES 
+} from "../../constants/adminAlertModalConstants";
 
 ///////////////////////////////////////////////////////////////////////
 // ====================== ADMIN PRODUCTS PAGE ======================== //
@@ -80,6 +85,14 @@ export default function AdminProducts() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRatingsModalOpen, setIsRatingsModalOpen] = useState(false);
   const [selectedProductForRatings, setSelectedProductForRatings] = useState(null);
+
+  // AdminAlertModal state for confirmations
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    config: {},
+    onConfirm: null,
+    isLoading: false,
+  });
 
   ///////////////////////////////////////////////////////////////////////
   // ======================= HELPER FUNCTIONS ======================== //
@@ -148,33 +161,64 @@ export default function AdminProducts() {
   // ======================= EVENT HANDLERS ========================== //
   ///////////////////////////////////////////////////////////////////////
 
-  const handleStatusChange = async (productId, newStatus) => {
-    if (
-      !window.confirm(
-        `Change product status to ${newStatus ? "Active" : "Inactive"}?`
-      )
-    )
-      return;
+  // Close alert modal helper
+  const closeAlertModal = () => {
+    setAlertModal({ isOpen: false, config: {}, onConfirm: null, isLoading: false });
+  };
 
+  // Show error alert helper
+  const showErrorAlert = (errorMessage) => {
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_ERROR_ALERT_MESSAGES.GENERIC_ERROR(errorMessage),
+      onConfirm: closeAlertModal,
+      isLoading: false,
+    });
+  };
+
+  // Request status change - opens confirmation modal
+  const handleStatusChange = async (productId, newStatus) => {
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_PRODUCT_ALERT_MESSAGES.CHANGE_STATUS(newStatus),
+      onConfirm: () => confirmStatusChange(productId, newStatus),
+      isLoading: false,
+    });
+  };
+
+  // Confirm status change
+  const confirmStatusChange = async (productId, newStatus) => {
+    setAlertModal(prev => ({ ...prev, isLoading: true }));
     try {
       await updateProduct(productId, { is_active: newStatus });
       fetchProducts();
+      closeAlertModal();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      closeAlertModal();
+      showErrorAlert(err.message);
     }
   };
 
+  // Request featured change - opens confirmation modal
   const handleFeaturedChange = async (productId, newFeatured) => {
-    if (
-      !window.confirm(`${newFeatured ? "Feature" : "Unfeature"} this product?`)
-    )
-      return;
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_PRODUCT_ALERT_MESSAGES.TOGGLE_FEATURED(newFeatured),
+      onConfirm: () => confirmFeaturedChange(productId, newFeatured),
+      isLoading: false,
+    });
+  };
 
+  // Confirm featured change
+  const confirmFeaturedChange = async (productId, newFeatured) => {
+    setAlertModal(prev => ({ ...prev, isLoading: true }));
     try {
       await updateProduct(productId, { is_featured: newFeatured });
       fetchProducts();
+      closeAlertModal();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      closeAlertModal();
+      showErrorAlert(err.message);
     }
   };
 
@@ -253,7 +297,7 @@ export default function AdminProducts() {
       setProductToDelete(null);
       fetchProducts();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showErrorAlert(err.message);
     } finally {
       setIsDeleting(false);
     }
@@ -453,6 +497,21 @@ export default function AdminProducts() {
         product={selectedProductForRatings}
         isOpen={isRatingsModalOpen}
         onClose={handleCloseRatingsModal}
+      />
+
+      {/* Admin Alert Modal for Confirmations */}
+      <AdminAlertModal
+        isOpen={alertModal.isOpen}
+        onClose={closeAlertModal}
+        onConfirm={alertModal.onConfirm}
+        type={alertModal.config.type}
+        title={alertModal.config.title}
+        message={alertModal.config.message}
+        confirmText={alertModal.config.confirmText}
+        cancelText={alertModal.config.cancelText}
+        showCancel={alertModal.config.showCancel !== false}
+        icon={alertModal.config.icon}
+        isLoading={alertModal.isLoading}
       />
     </AdminManagementView>
   );

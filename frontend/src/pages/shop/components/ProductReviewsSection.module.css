@@ -1,9 +1,11 @@
 /* =================== PRODUCT REVIEWS SECTION STYLES =============== */
 .reviewsSection {
+  position: relative; /* Required for FadeNotification positioning */
   margin-top: 32px;
   padding: 24px;
   background: #fafafa;
   border-radius: 8px;
+  overflow: visible; /* Ensure FadeNotification is not clipped */
 }
 .reviewList {
   margin-bottom: 16px;

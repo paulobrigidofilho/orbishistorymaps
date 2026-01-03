@@ -12,6 +12,7 @@ import styles from "./Cart.module.css";
 //  ========== Component imports  ========== //
 import MainNavBar from "../common/MainNavBar";
 import CartItem from "./components/CartItem";
+import AlertModal from "../common/components/AlertModal";
 
 //  ========== Function imports  ========== //
 import fetchCart from "./functions/fetchCart";
@@ -30,6 +31,7 @@ import { AuthContext } from "../common/context/AuthContext";
 
 //  ========== Constants imports  ========== //
 import { CART_MESSAGES } from "./constants/cartConstants";
+import { CART_ALERT_MESSAGES } from "../common/constants/alertModalConstants";
 
 ///////////////////////////////////////////////////////////////////////
 // =========================== CART PAGE ============================= //
@@ -48,6 +50,15 @@ export default function Cart() {
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
   const [message, setMessage] = useState(null);
+  
+  // Alert Modal state for confirmations
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    config: {},
+    onConfirm: null,
+  });
+  // Track which item is being removed (for confirmation)
+  const [pendingRemoveItemId, setPendingRemoveItemId] = useState(null);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -69,13 +80,42 @@ export default function Cart() {
   const updateQuantity = (cartItemId, newQuantity) => 
     handleUpdateQuantity(cartItemId, newQuantity, setUpdating, loadCart, (text, type) => showMessage(text, type, setMessage));
 
-  // Remove item from cart
-  const removeItem = (cartItemId) => 
-    handleRemoveItem(cartItemId, setUpdating, loadCart, (text, type) => showMessage(text, type, setMessage));
+  // Remove item from cart - opens confirmation modal
+  const requestRemoveItem = (cartItemId) => {
+    setPendingRemoveItemId(cartItemId);
+    setAlertModal({
+      isOpen: true,
+      config: CART_ALERT_MESSAGES.REMOVE_ITEM,
+      onConfirm: () => confirmRemoveItem(cartItemId),
+    });
+  };
 
-  // Clear entire cart
-  const clearEntireCart = () => 
+  // Actually remove item after confirmation
+  const confirmRemoveItem = (cartItemId) => {
+    handleRemoveItem(cartItemId, setUpdating, loadCart, (text, type) => showMessage(text, type, setMessage));
+    closeAlertModal();
+  };
+
+  // Clear entire cart - opens confirmation modal
+  const requestClearCart = () => {
+    setAlertModal({
+      isOpen: true,
+      config: CART_ALERT_MESSAGES.CLEAR_CART,
+      onConfirm: confirmClearCart,
+    });
+  };
+
+  // Actually clear cart after confirmation
+  const confirmClearCart = () => {
     handleClearCart(cartData.cart_id, setUpdating, loadCart, (text, type) => showMessage(text, type, setMessage));
+    closeAlertModal();
+  };
+
+  // Close alert modal
+  const closeAlertModal = () => {
+    setAlertModal({ isOpen: false, config: {}, onConfirm: null });
+    setPendingRemoveItemId(null);
+  };
 
   // Proceed to checkout
   const handleCheckout = () => {
@@ -186,14 +226,14 @@ export default function Cart() {
                 key={item.cart_item_id}
                 item={item}
                 onUpdateQuantity={updateQuantity}
-                onRemove={removeItem}
+                onRemove={requestRemoveItem}
                 updating={updating}
               />
             ))}
 
             {/* Clear Cart Button */}
             <button
-              onClick={clearEntireCart}
+              onClick={requestClearCart}
               disabled={updating}
               className={styles.clearCartButton}
             >
@@ -237,6 +277,20 @@ export default function Cart() {
           </div>
         </div>
       </div>
+
+      {/* Alert Modal for Confirmations */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={closeAlertModal}
+        onConfirm={alertModal.onConfirm}
+        type={alertModal.config.type}
+        title={alertModal.config.title}
+        message={alertModal.config.message}
+        confirmText={alertModal.config.confirmText}
+        cancelText={alertModal.config.cancelText}
+        showCancel={alertModal.config.showCancel !== false}
+        icon={alertModal.config.icon}
+      />
     </div>
   );
 }

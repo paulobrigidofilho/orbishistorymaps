@@ -10,6 +10,13 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import styles from "./FadeNotification.module.css";
 
+//  ========== Constants imports  ========== //
+import {
+  FADE_NOTIFICATION_DEFAULTS,
+  NOTIFICATION_TYPES,
+  DEFAULT_ICONS,
+} from "../constants/fadeNotificationConstants";
+
 ///////////////////////////////////////////////////////////////////////
 // =================== FADE NOTIFICATION ============================= //
 ///////////////////////////////////////////////////////////////////////
@@ -25,12 +32,12 @@ import styles from "./FadeNotification.module.css";
  * @param {Function} onComplete - Callback when notification is removed
  */
 const FadeNotification = ({
-  type = "success",
+  type = FADE_NOTIFICATION_DEFAULTS.type,
   text,
   icon,
-  duration = 2000,
-  fadeDuration = 500,
-  position = "right",
+  duration = FADE_NOTIFICATION_DEFAULTS.duration,
+  fadeDuration = FADE_NOTIFICATION_DEFAULTS.fadeDuration,
+  position = FADE_NOTIFICATION_DEFAULTS.position,
   onComplete,
 }) => {
   const [isFadingOut, setIsFadingOut] = useState(false);
@@ -66,16 +73,7 @@ const FadeNotification = ({
 
   // Get default icon based on type
   const getDefaultIcon = () => {
-    switch (type) {
-      case "success":
-        return "check_circle";
-      case "error":
-        return "error";
-      case "info":
-        return "info";
-      default:
-        return "check_circle";
-    }
+    return DEFAULT_ICONS[type] || DEFAULT_ICONS[NOTIFICATION_TYPES.SUCCESS];
   };
 
   ///////////////////////////////////////////////////////////////////////

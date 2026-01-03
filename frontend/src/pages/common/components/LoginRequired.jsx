@@ -13,17 +13,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import styles from "./LoginRequired.module.css";
 
-///////////////////////////////////////////////////////////////////////
-// =================== DEFAULT CONFIGURATIONS ======================= //
-///////////////////////////////////////////////////////////////////////
-
-const DEFAULT_CONFIG = {
-  icon: "lock",
-  title: "Please Log In",
-  message: "You need to be logged in to view this content.",
-  buttonText: "Sign In",
-  iconColor: "#3498db",
-};
+//  ========== Constants imports  ========== //
+import { LOGIN_REQUIRED_DEFAULTS } from "../constants/loginRequiredConstants";
 
 ///////////////////////////////////////////////////////////////////////
 // =================== COMPONENT ==================================== //
@@ -42,12 +33,12 @@ const DEFAULT_CONFIG = {
  * @returns {React.ReactElement} The login required component
  */
 export default function LoginRequired({
-  icon = DEFAULT_CONFIG.icon,
-  title = DEFAULT_CONFIG.title,
-  message = DEFAULT_CONFIG.message,
-  buttonText = DEFAULT_CONFIG.buttonText,
+  icon = LOGIN_REQUIRED_DEFAULTS.icon,
+  title = LOGIN_REQUIRED_DEFAULTS.title,
+  message = LOGIN_REQUIRED_DEFAULTS.message,
+  buttonText = LOGIN_REQUIRED_DEFAULTS.buttonText,
   onLoginClick,
-  iconColor = DEFAULT_CONFIG.iconColor,
+  iconColor = LOGIN_REQUIRED_DEFAULTS.iconColor,
   children,
 }) {
   ///////////////////////////////////////////////////////////////////////

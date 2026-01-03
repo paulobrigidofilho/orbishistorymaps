@@ -16,6 +16,7 @@ import DeleteUserModal from "./subcomponents/DeleteUserModal";
 import CountryFlag from "../../components/CountryFlag";
 import { EditBtn, DeleteBtn } from "../../btn";
 import viewStyles from "../../components/AdminManagementView.module.css";
+import AdminAlertModal from "../../components/AdminAlertModal/AdminAlertModal";
 
 //  ========== Constants imports (Search)  ========== //
 import { ADMIN_PAGE_TYPES } from "../../constants/adminSearchBarConstants";
@@ -31,6 +32,10 @@ import formatDateDMY from "../../helpers/formatDateDMY";
 //  ========== Constants imports  ========== //
 import { ERROR_MESSAGES } from "../../constants/adminErrorMessages";
 import { SUCCESS_MESSAGES } from "../../constants/adminSuccessMessages";
+import { 
+  ADMIN_USER_ALERT_MESSAGES, 
+  ADMIN_ERROR_ALERT_MESSAGES 
+} from "../../constants/adminAlertModalConstants";
 
 ///////////////////////////////////////////////////////////////////////
 // ======================== ADMIN USERS PAGE ========================= //
@@ -72,6 +77,14 @@ export default function AdminUsers() {
   const [userToDelete, setUserToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // AdminAlertModal state for confirmations
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    config: {},
+    onConfirm: null,
+    isLoading: false,
+  });
+
   ///////////////////////////////////////////////////////////////////////
   // ======================= HELPER FUNCTIONS ======================== //
   ///////////////////////////////////////////////////////////////////////
@@ -109,25 +122,64 @@ export default function AdminUsers() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.page, pagination.limit, filters.search, filters.role, filters.status, filters.country, sortConfig.field, sortConfig.order]);
 
-  const handleStatusChange = async (userId, newStatus) => {
-    if (!window.confirm(`Change user status to ${newStatus}?`)) return;
+  // Close alert modal helper
+  const closeAlertModal = () => {
+    setAlertModal({ isOpen: false, config: {}, onConfirm: null, isLoading: false });
+  };
 
+  // Show error alert helper
+  const showErrorAlert = (errorMessage) => {
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_ERROR_ALERT_MESSAGES.GENERIC_ERROR(errorMessage),
+      onConfirm: closeAlertModal,
+      isLoading: false,
+    });
+  };
+
+  // Request status change - opens confirmation modal
+  const handleStatusChange = async (userId, newStatus) => {
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_USER_ALERT_MESSAGES.CHANGE_STATUS(newStatus),
+      onConfirm: () => confirmStatusChange(userId, newStatus),
+      isLoading: false,
+    });
+  };
+
+  // Confirm status change
+  const confirmStatusChange = async (userId, newStatus) => {
+    setAlertModal(prev => ({ ...prev, isLoading: true }));
     try {
       await updateUserStatus(userId, newStatus);
-      fetchUsers(); // Refresh list
+      fetchUsers();
+      closeAlertModal();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      closeAlertModal();
+      showErrorAlert(err.message);
     }
   };
 
+  // Request role change - opens confirmation modal
   const handleRoleChange = async (userId, newRole) => {
-    if (!window.confirm(`Change user role to ${newRole}?`)) return;
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_USER_ALERT_MESSAGES.CHANGE_ROLE(newRole),
+      onConfirm: () => confirmRoleChange(userId, newRole),
+      isLoading: false,
+    });
+  };
 
+  // Confirm role change
+  const confirmRoleChange = async (userId, newRole) => {
+    setAlertModal(prev => ({ ...prev, isLoading: true }));
     try {
       await updateUserRole(userId, newRole);
-      fetchUsers(); // Refresh list
+      fetchUsers();
+      closeAlertModal();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      closeAlertModal();
+      showErrorAlert(err.message);
     }
   };
 
@@ -167,7 +219,12 @@ export default function AdminUsers() {
   const handleDeleteUser = (user) => {
     // Prevent deletion of admin accounts
     if (user.role === "admin") {
-      alert("Admin accounts cannot be deleted.");
+      setAlertModal({
+        isOpen: true,
+        config: ADMIN_USER_ALERT_MESSAGES.ADMIN_DELETE_BLOCKED,
+        onConfirm: closeAlertModal,
+        isLoading: false,
+      });
       return;
     }
     setUserToDelete(user);
@@ -187,7 +244,7 @@ export default function AdminUsers() {
       setUserToDelete(null);
       fetchUsers(); // Refresh list
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showErrorAlert(err.message);
     } finally {
       setIsDeleting(false);
     }
@@ -320,6 +377,21 @@ export default function AdminUsers() {
         onClose={handleCloseDeleteModal}
         onConfirm={handleConfirmDelete}
         isDeleting={isDeleting}
+      />
+
+      {/* Admin Alert Modal for Confirmations */}
+      <AdminAlertModal
+        isOpen={alertModal.isOpen}
+        onClose={closeAlertModal}
+        onConfirm={alertModal.onConfirm}
+        type={alertModal.config.type}
+        title={alertModal.config.title}
+        message={alertModal.config.message}
+        confirmText={alertModal.config.confirmText}
+        cancelText={alertModal.config.cancelText}
+        showCancel={alertModal.config.showCancel !== false}
+        icon={alertModal.config.icon}
+        isLoading={alertModal.isLoading}
       />
     </AdminManagementView>
   );

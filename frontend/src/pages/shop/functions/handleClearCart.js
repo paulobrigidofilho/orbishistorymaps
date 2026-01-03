@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 // This function handles clearing all items from cart
+// NOTE: Confirmation is now handled via AlertModal in the component
 
 //  ========== Function imports  ========== //
 import clearCart from "./cartService/clearCart";
@@ -12,7 +13,7 @@ import clearCart from "./cartService/clearCart";
 ///////////////////////////////////////////////////////////////////////
 
 /**
- * Clear all items from cart with confirmation
+ * Clear all items from cart (after confirmation via AlertModal)
  * @param {string} cartId - Cart UUID
  * @param {Function} setUpdating - Loading state setter
  * @param {Function} fetchCart - Function to refresh cart
@@ -20,8 +21,6 @@ import clearCart from "./cartService/clearCart";
  * @returns {Promise<void>}
  */
 export default async function handleClearCart(cartId, setUpdating, fetchCart, showMessage) {
-  if (!window.confirm("Clear all items from cart?")) return;
-
   try {
     setUpdating(true);
     await clearCart(cartId);

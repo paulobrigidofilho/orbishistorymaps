@@ -15,6 +15,7 @@ import MainNavBar from "../MainNavBar";
 import ReviewModal from "./components/ReviewModal";
 import LoginRequired from "../components/LoginRequired";
 import LoginModal from "../auth/LoginModal";
+import AlertModal from "../components/AlertModal";
 
 //  ========== Function imports  ========== //
 import getUserReviews from "./functions/getUserReviews";
@@ -31,6 +32,7 @@ import { AuthContext } from "../context/AuthContext.jsx";
 
 //  ========== Constants imports  ========== //
 import { REVIEW_MESSAGES } from "./constants/reviewConstants";
+import { REVIEW_ALERT_MESSAGES } from "../constants/alertModalConstants";
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= MY REVIEWS PAGE ========================= //
@@ -49,6 +51,14 @@ export default function MyReviews() {
   const [editReview, setEditReview] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  
+  // Alert Modal state for delete confirmation
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    config: {},
+    onConfirm: null,
+  });
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -84,17 +94,40 @@ export default function MyReviews() {
     setShowModal(true);
   };
 
-  const handleDelete = async (reviewId) => {
-    if (!window.confirm("Are you sure you want to delete this review? This action cannot be undone.")) {
-      return;
-    }
+  // Request delete - opens confirmation modal
+  const handleDelete = (reviewId) => {
+    setPendingDeleteId(reviewId);
+    setAlertModal({
+      isOpen: true,
+      config: REVIEW_ALERT_MESSAGES.DELETE_REVIEW,
+      onConfirm: () => confirmDelete(reviewId),
+    });
+  };
+
+  // Actually delete after confirmation
+  const confirmDelete = async (reviewId) => {
+    closeAlertModal();
     try {
       await deleteReview(reviewId);
       setReviews(reviews.filter(r => r.review_id !== reviewId));
     } catch (err) {
       console.error("Error deleting review:", err);
-      alert("Failed to delete review: " + (err.message || "Unknown error"));
+      // Show error modal
+      setAlertModal({
+        isOpen: true,
+        config: {
+          ...REVIEW_ALERT_MESSAGES.DELETE_FAILED,
+          message: "Failed to delete review: " + (err.message || "Unknown error"),
+        },
+        onConfirm: closeAlertModal,
+      });
     }
+  };
+
+  // Close alert modal
+  const closeAlertModal = () => {
+    setAlertModal({ isOpen: false, config: {}, onConfirm: null });
+    setPendingDeleteId(null);
   };
 
   const handleModalClose = () => {
@@ -248,6 +281,20 @@ export default function MyReviews() {
         userId={user.id}
         review={editReview}
         onSuccess={handleModalClose}
+      />
+
+      {/* Alert Modal for Delete Confirmation */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={closeAlertModal}
+        onConfirm={alertModal.onConfirm}
+        type={alertModal.config.type}
+        title={alertModal.config.title}
+        message={alertModal.config.message}
+        confirmText={alertModal.config.confirmText}
+        cancelText={alertModal.config.cancelText}
+        showCancel={alertModal.config.showCancel !== false}
+        icon={alertModal.config.icon}
       />
     </div>
   );

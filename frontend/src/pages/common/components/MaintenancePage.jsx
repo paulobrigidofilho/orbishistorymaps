@@ -11,17 +11,12 @@ import PropTypes from "prop-types";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import styles from "./MaintenancePage.module.css";
 
-///////////////////////////////////////////////////////////////////////
-// =================== DEFAULT CONFIGURATIONS ======================= //
-///////////////////////////////////////////////////////////////////////
-
-const DEFAULT_CONFIG = {
-  icon: "build",
-  title: "Under Maintenance",
-  message: "We are currently performing scheduled maintenance. Please check back soon.",
-  buttonText: "Refresh Page",
-  iconColor: "#f39c12",
-};
+//  ========== Constants imports  ========== //
+import {
+  MAINTENANCE_PAGE_DEFAULTS,
+  MAINTENANCE_MODE_CONFIGS,
+  MAINTENANCE_MODES,
+} from "../constants/maintenancePageConstants";
 
 ///////////////////////////////////////////////////////////////////////
 // =================== COMPONENT ==================================== //
@@ -44,7 +39,7 @@ export default function MaintenancePage({
   icon,
   title,
   message,
-  buttonText = DEFAULT_CONFIG.buttonText,
+  buttonText = MAINTENANCE_PAGE_DEFAULTS.buttonText,
   iconColor,
   children,
 }) {
@@ -56,43 +51,21 @@ export default function MaintenancePage({
   const navigate = useNavigate();
   
   // Get mode from URL params or props
-  const mode = propMode || searchParams.get("mode") || "site-wide";
+  const mode = propMode || searchParams.get("mode") || MAINTENANCE_MODES.SITE_WIDE;
 
   ///////////////////////////////////////////////////////////////////////
   // =================== CONFIGURATION BY MODE ======================== //
   ///////////////////////////////////////////////////////////////////////
 
   const getConfigByMode = () => {
-    switch (mode) {
-      case "site-wide":
-        return {
-          icon: icon || "build",
-          title: title || "Under Maintenance",
-          message: message || "We are currently performing scheduled maintenance. Please check back soon.",
-          iconColor: iconColor || "#f39c12",
-        };
-      case "shop-only":
-        return {
-          icon: icon || "store",
-          title: title || "Shop Under Maintenance",
-          message: message || "Our shop is currently undergoing maintenance. Browse our gallery while you wait!",
-          iconColor: iconColor || "#e74c3c",
-        };
-      case "registration-only":
-        return {
-          icon: icon || "person_add_disabled",
-          title: title || "Registration Unavailable",
-          message: message || "New user registration is temporarily unavailable. Please try again later.",
-          iconColor: iconColor || "#9b59b6",
-        };
-      default:
-        return {
-          icon: icon || DEFAULT_CONFIG.icon,
-          title: title || DEFAULT_CONFIG.title,
-          message: message || DEFAULT_CONFIG.message,
-          iconColor: iconColor || DEFAULT_CONFIG.iconColor,
-        };
-    }
+    const modeConfig = MAINTENANCE_MODE_CONFIGS[mode] || MAINTENANCE_MODE_CONFIGS[MAINTENANCE_MODES.SITE_WIDE];
+    
+    return {
+      icon: icon || modeConfig.icon,
+      title: title || modeConfig.title,
+      message: message || modeConfig.message,
+      iconColor: iconColor || modeConfig.iconColor,
+    };
   };
 
   const config = getConfigByMode();
