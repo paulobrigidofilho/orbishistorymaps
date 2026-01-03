@@ -70,11 +70,6 @@ export default function AdminUsers() {
   ///////////////////////////////////////////////////////////////////////
 
   const fetchUsers = async () => {
-    console.log("fetchUsers called with:", {
-      sortBy: sortConfig.field,
-      sortOrder: sortConfig.order,
-      page: pagination.page,
-    });
     try {
       setLoading(true);
       setError(null);
@@ -88,7 +83,6 @@ export default function AdminUsers() {
         sortBy: sortConfig.field,
         sortOrder: sortConfig.order,
       });
-      console.log("Received users data:", data.data?.map(u => ({ name: u.firstName, email: u.email })));
       setUsers([...data.data] || []); // Force new array reference
       setPagination((prev) => ({ ...prev, ...data.pagination }));
     } catch (err) {

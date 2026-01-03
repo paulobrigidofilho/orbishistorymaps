@@ -79,8 +79,6 @@ const getAllUsers = async (filters = {}) => {
   const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : "user_id";
   const validSortOrder = sortOrder.toLowerCase() === "asc" ? "ASC" : "DESC";
 
-  console.log(`[adminUserService] Sorting by: ${validSortBy} ${validSortOrder}`);
-
   // Get total count
   const total = await User.count({ where: whereConditions });
 

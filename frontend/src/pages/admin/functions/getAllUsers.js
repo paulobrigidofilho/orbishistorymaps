@@ -21,7 +21,6 @@ axios.defaults.withCredentials = true;
  */
 export default async function getAllUsers(params = {}) {
   try {
-    console.log("getAllUsers called with params:", params);
     // Clean up empty string values
     const cleanParams = Object.entries(params).reduce((acc, [key, value]) => {
       if (value !== "" && value !== null && value !== undefined) {
@@ -29,11 +28,8 @@ export default async function getAllUsers(params = {}) {
       }
       return acc;
     }, {});
-    console.log("Clean params being sent:", cleanParams);
     
     const response = await axios.get(`${API_BASE_URL}/api/admin/users`, { params: cleanParams });
-    console.log("Request URL:", response.config.url);
-    console.log("Request params:", response.config.params);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || "Failed to fetch users");

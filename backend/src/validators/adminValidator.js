@@ -220,6 +220,11 @@ const querySchema = Joi.object({
     .valid("active", "inactive", "suspended", "all")
     .optional(),
     
+  country: Joi.string()
+    .max(100)
+    .allow("")
+    .optional(),
+    
   sortBy: Joi.string()
     .valid(
       // User fields
@@ -229,6 +234,7 @@ const querySchema = Joi.object({
       "user_lastname",
       "user_role",
       "user_status",
+      "user_country",
       "user_created_at",
       "user_updated_at",
       // Product fields

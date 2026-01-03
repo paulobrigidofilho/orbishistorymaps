@@ -9,6 +9,9 @@
 import React from "react";
 import styles from "../AdminSearchBar.module.css";
 
+//  ========== Component imports  ========== //
+import AdminCountryFilter from "./AdminCountryFilter/AdminCountryFilter";
+
 ///////////////////////////////////////////////////////////////////////
 // =================== ADMIN SEARCH FILTERS COMPONENT ================ //
 ///////////////////////////////////////////////////////////////////////
@@ -45,21 +48,35 @@ export default function AdminSearchFilters({
 
   return (
     <div className={styles.filtersContainer}>
-      {filterConfigs.map((filterConfig) => (
-        <select
-          key={filterConfig.key}
-          value={filters[filterConfig.key] || ""}
-          onChange={(e) => handleChange(filterConfig.key, e.target.value)}
-          className={styles.filterSelect}
-          aria-label={filterConfig.label}
-        >
-          {getFilterOptions(filterConfig).map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      ))}
+      {filterConfigs.map((filterConfig) => {
+        // Use custom country filter component for country field
+        if (filterConfig.key === "country") {
+          return (
+            <AdminCountryFilter
+              key={filterConfig.key}
+              value={filters[filterConfig.key] || ""}
+              onChange={(value) => handleChange(filterConfig.key, value)}
+            />
+          );
+        }
+
+        // Use standard select for other filters
+        return (
+          <select
+            key={filterConfig.key}
+            value={filters[filterConfig.key] || ""}
+            onChange={(e) => handleChange(filterConfig.key, e.target.value)}
+            className={styles.filterSelect}
+            aria-label={filterConfig.label}
+          >
+            {getFilterOptions(filterConfig).map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        );
+      })}
     </div>
   );
 }
