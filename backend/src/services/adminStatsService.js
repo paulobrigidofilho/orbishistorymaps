@@ -8,7 +8,7 @@
 const { fn, col, Op } = require("sequelize");
 
 // ======= Model Imports ======= //
-const { User, Product, Order } = require("../models");
+const { User, Product, Order, ProductReview } = require("../models");
 
 ///////////////////////////////////////////////////////////////////////
 // ================ SERVICE FUNCTIONS ============================== //
@@ -19,7 +19,15 @@ const { User, Product, Order } = require("../models");
 
 const getStats = async () => {
   // Run multiple queries in parallel using Promise.all
-  const [totalUsers, totalProducts, activeOrders, revenueResult] = await Promise.all([
+  const [
+    totalUsers,
+    totalProducts,
+    activeOrders,
+    revenueResult,
+    totalReviews,
+    approvedReviews,
+    pendingReviews,
+  ] = await Promise.all([
     // Total users
     User.count(),
     
@@ -41,6 +49,19 @@ const getStats = async () => {
       attributes: [[fn("COALESCE", fn("SUM", col("total_amount")), 0), "revenue"]],
       raw: true,
     }),
+
+    // Total reviews
+    ProductReview.count(),
+
+    // Approved reviews
+    ProductReview.count({
+      where: { is_approved: true },
+    }),
+
+    // Pending reviews
+    ProductReview.count({
+      where: { is_approved: false },
+    }),
   ]);
 
   return {
@@ -48,6 +69,10 @@ const getStats = async () => {
     totalProducts,
     activeOrders,
     totalRevenue: parseFloat(revenueResult?.revenue || 0),
+    // Review stats
+    totalReviews,
+    approvedReviews,
+    pendingReviews,
   };
 };
 

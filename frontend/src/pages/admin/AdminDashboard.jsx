@@ -12,6 +12,7 @@ import styles from "./AdminDashboard.module.css";
 import AdminLayout from "./components/AdminLayout";
 import StatCard from "./components/StatCard";
 import ActionCard from "./components/ActionCard";
+import ReviewStatCard from "./components/ReviewStatCard";
 
 //  ========== Function imports  ========== //
 import fetchStats from "./functions/fetchStats";
@@ -34,9 +35,11 @@ export default function AdminDashboard() {
     totalProducts: 0,
     activeOrders: 0,
     totalRevenue: 0,
+    totalReviews: 0,
+    approvedReviews: 0,
+    pendingReviews: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [reviewStats, setReviewStats] = useState({ total: 0, recent: 0, pending: 0 });
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -44,26 +47,6 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchStats(setStats, setLoading);
-  }, []);
-  useEffect(() => {
-    fetch("/api/reviews")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch reviews");
-        return res.json();
-      })
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setReviewStats({
-            total: data.length,
-            recent: data.slice(0, 5).length,
-            pending: data.filter((r) => !r.is_approved).length,
-          });
-        }
-      })
-      .catch((err) => {
-        console.error("Error fetching review stats:", err);
-        // Keep default values
-      });
   }, []);
 
   ///////////////////////////////////////////////////////////////////////
@@ -77,12 +60,33 @@ export default function AdminDashboard() {
 
         {/* Stats Cards */}
         <div className={styles.statsGrid}>
-          {STAT_CARDS.map((card) => (
+          {/* Render first 3 stat cards (Users, Products, Orders) */}
+          {STAT_CARDS.slice(0, 3).map((card) => (
             <StatCard
               key={card.key}
               icon={card.icon}
               label={card.label}
-              value={card.key === 'totalReviews' ? reviewStats.total : (card.formatter ? card.formatter(stats[card.key]) : stats[card.key])}
+              value={card.formatter ? card.formatter(stats[card.key]) : stats[card.key]}
+              isLoading={loading}
+              to={card.to}
+            />
+          ))}
+
+          {/* Review Stat Card with breakdown */}
+          <ReviewStatCard
+            total={stats.totalReviews}
+            approved={stats.approvedReviews}
+            pending={stats.pendingReviews}
+            isLoading={loading}
+          />
+
+          {/* Render remaining stat cards (Wishlists, Revenue) */}
+          {STAT_CARDS.slice(3).map((card) => (
+            <StatCard
+              key={card.key}
+              icon={card.icon}
+              label={card.label}
+              value={card.formatter ? card.formatter(stats[card.key]) : stats[card.key]}
               isLoading={loading}
               to={card.to}
             />

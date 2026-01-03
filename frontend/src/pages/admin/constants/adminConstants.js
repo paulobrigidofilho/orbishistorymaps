@@ -24,12 +24,7 @@ export const STAT_CARDS = [
     key: "activeOrders",
     to: "/admin/orders",
   },
-  {
-    icon: "⭐",
-    label: "Total Reviews",
-    key: "totalReviews",
-    to: "/admin/reviews",
-  },
+  // Note: Reviews card is now handled separately by ReviewStatCard
   {
     icon: "❤️",
     label: "Wishlisted Products",
@@ -44,6 +39,25 @@ export const STAT_CARDS = [
     to: "/admin/orders",
   },
 ];
+
+/////////////////////////////////////////////////////////////////////////
+// =================== REVIEW STAT CARD CONFIG ======================= //
+/////////////////////////////////////////////////////////////////////////
+
+// Configuration for the review stat card with breakdown
+export const REVIEW_STAT_CARD = {
+  icon: "⭐",
+  label: "Total Reviews",
+  to: "/admin/reviews",
+  breakdownLabels: {
+    approved: "Approved",
+    pending: "Pending",
+  },
+  breakdownColors: {
+    approved: "#22c55e", // Green
+    pending: "#f59e0b", // Amber/Orange
+  },
+};
 
 // Dashboard action cards configuration
 export const ACTION_CARDS = [
