@@ -3,19 +3,21 @@
 ///////////////////////////////////////////////////////////////////////
 
 // This helper calculates default freight values based on the local rate
-// Used when fields are left empty during save
+// Uses realistic NZ shipping benchmarks with Tauranga as base
+// Default Local Rate: $30.00
 
 /**
- * Freight multipliers for each zone
+ * Freight multipliers for each zone (based on $30 local = Tauranga)
  */
 export const FREIGHT_MULTIPLIERS = {
-  north_island: 1.05,
-  south_island: 1.08,
-  intl_asia: 1.15,
-  intl_north_america: 1.25,
-  intl_europe: 1.25,
-  intl_africa: 1.25,
-  intl_latin_america: 1.25,
+  north_island: 1.5,      // $30 -> $45 (NZ North Island Metro)
+  south_island: 2.83,     // $30 -> $85 (NZ South Island)
+  rural_surcharge: 0.5,   // $30 -> $15 (flat rural fee)
+  intl_asia: 4.0,         // $30 -> $120
+  intl_north_america: 5.0, // $30 -> $150
+  intl_europe: 5.0,       // $30 -> $150
+  intl_africa: 6.0,       // $30 -> $180
+  intl_latin_america: 5.33, // $30 -> $160
 };
 
 /**
@@ -26,6 +28,11 @@ export const DEFAULT_THRESHOLDS = {
   national: 300.00,
   international: 500.00,
 };
+
+/**
+ * Default rural surcharge
+ */
+export const DEFAULT_RURAL_SURCHARGE = 15.00;
 
 /**
  * Calculate default freight costs based on local rate
@@ -43,6 +50,7 @@ export const calculateFreightDefaults = (localRate) => {
     local,
     north_island: parseFloat((local * FREIGHT_MULTIPLIERS.north_island).toFixed(2)),
     south_island: parseFloat((local * FREIGHT_MULTIPLIERS.south_island).toFixed(2)),
+    rural_surcharge: DEFAULT_RURAL_SURCHARGE,
     intl_asia: parseFloat((local * FREIGHT_MULTIPLIERS.intl_asia).toFixed(2)),
     intl_north_america: parseFloat((local * FREIGHT_MULTIPLIERS.intl_north_america).toFixed(2)),
     intl_europe: parseFloat((local * FREIGHT_MULTIPLIERS.intl_europe).toFixed(2)),
@@ -73,6 +81,9 @@ export const applyFreightDefaults = (data) => {
     south_island: data.south_island !== "" && data.south_island != null 
       ? parseFloat(data.south_island) 
       : defaults.south_island,
+    rural_surcharge: data.rural_surcharge !== "" && data.rural_surcharge != null 
+      ? parseFloat(data.rural_surcharge) 
+      : defaults.rural_surcharge,
     intl_asia: data.intl_asia !== "" && data.intl_asia != null 
       ? parseFloat(data.intl_asia) 
       : defaults.intl_asia,

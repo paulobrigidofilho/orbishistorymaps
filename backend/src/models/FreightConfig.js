@@ -24,18 +24,26 @@ const FreightConfig = sequelize.define(
     local: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      defaultValue: 12.00,
-      comment: "Local delivery cost (base rate)",
+      defaultValue: 30.00,
+      comment: "Local delivery cost (Tauranga & surrounds base rate)",
     },
     north_island: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: true,
-      comment: "NZ North Island delivery cost",
+      defaultValue: 45.00,
+      comment: "NZ North Island delivery cost (Metro areas)",
     },
     south_island: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: true,
+      defaultValue: 85.00,
       comment: "NZ South Island delivery cost",
+    },
+    rural_surcharge: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+      defaultValue: 15.00,
+      comment: "Rural delivery surcharge (flat fee)",
     },
     intl_north_america: {
       type: DataTypes.DECIMAL(10, 2),
@@ -166,16 +174,17 @@ FreightConfig.getConfig = async function () {
   let config = await FreightConfig.findOne();
   
   if (!config) {
-    // Create default configuration
+    // Create default configuration with Tauranga as base
     config = await FreightConfig.create({
-      local: 12.00,
-      north_island: 12.60,      // 1.05 * 12
-      south_island: 12.96,      // 1.08 * 12
-      intl_asia: 13.80,         // 1.15 * 12
-      intl_north_america: 15.00, // 1.25 * 12
-      intl_europe: 15.00,       // 1.25 * 12
-      intl_africa: 15.00,       // 1.25 * 12
-      intl_latin_america: 15.00, // 1.25 * 12
+      local: 30.00,              // Local (Tauranga & surrounds)
+      north_island: 45.00,       // NZ North Island Metro
+      south_island: 85.00,       // NZ South Island
+      rural_surcharge: 15.00,    // Rural surcharge flat fee
+      intl_asia: 120.00,
+      intl_north_america: 150.00,
+      intl_europe: 150.00,
+      intl_africa: 180.00,
+      intl_latin_america: 160.00,
       is_free_freight_enabled: false,
       threshold_local: 200.00,
       threshold_national: 300.00,

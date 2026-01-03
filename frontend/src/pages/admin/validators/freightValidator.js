@@ -67,6 +67,7 @@ export const validateFreightConfig = (data) => {
   const zoneCostFields = [
     "north_island",
     "south_island",
+    "rural_surcharge",
     "intl_asia",
     "intl_north_america",
     "intl_europe",

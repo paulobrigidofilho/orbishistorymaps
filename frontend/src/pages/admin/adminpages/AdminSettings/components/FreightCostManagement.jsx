@@ -31,6 +31,7 @@ const getZoneLabels = (localZoneCity = "Tauranga") => ({
   local: `Local Delivery (${localZoneCity})`,
   north_island: "NZ North Island",
   south_island: "NZ South Island",
+  rural_surcharge: "Rural Surcharge",
   intl_asia: "International - Asia",
   intl_north_america: "International - North America",
   intl_europe: "International - Europe",
@@ -42,6 +43,7 @@ const ZONE_ICONS = {
   local: "local_shipping",
   north_island: "flight_land",
   south_island: "flight_land",
+  rural_surcharge: "agriculture",
   intl_asia: "flight",
   intl_north_america: "flight",
   intl_europe: "flight",
@@ -114,7 +116,9 @@ export default function FreightCostManagement({ showNotification: parentShowNoti
   const handleSaveConfig = async (newConfig) => {
     try {
       setSaving(true);
+      console.log("[FreightCostManagement] Saving config:", JSON.stringify(newConfig, null, 2));
       const updated = await updateFreightConfig(newConfig);
+      console.log("[FreightCostManagement] API returned:", JSON.stringify(updated, null, 2));
       setConfig(updated);
       setShowEditModal(false);
       showNotificationMessage("success", "Freight configuration updated successfully");

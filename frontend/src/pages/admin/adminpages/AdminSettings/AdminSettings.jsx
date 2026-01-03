@@ -13,6 +13,7 @@ import styles from "./AdminSettings.module.css";
 import AdminLayout from "../../components/AdminLayout";
 import ConfirmMaintenanceModal from "./components/ConfirmMaintenanceModal";
 import FreightCostManagement from "./components/FreightCostManagement";
+import GeneralSettings from "./components/GeneralSettings";
 import FadeNotification from "../../../common/components/FadeNotification";
 
 //  ========== Constants imports  ========== //
@@ -21,7 +22,6 @@ import { SUCCESS_MESSAGES } from "../../constants/adminSuccessMessages";
 import {
   MAINTENANCE_MODES,
   MAINTENANCE_MODE_OPTIONS,
-  CURRENCY_OPTIONS,
   SETTINGS_MESSAGES,
   DEFAULT_SETTINGS,
 } from "../../constants/adminSettingsConstants";
@@ -229,88 +229,10 @@ export default function AdminSettings() {
           </section>
 
           {/* =================== GENERAL SETTINGS SECTION =================== */}
-          <section className={styles.section}>
-            <h2>General Settings</h2>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="site_name">Site Name</label>
-              <input
-                type="text"
-                id="site_name"
-                name="site_name"
-                value={settings.site_name}
-                onChange={handleInputChange}
-                className={styles.input}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="site_email">Site Email</label>
-              <input
-                type="email"
-                id="site_email"
-                name="site_email"
-                value={settings.site_email}
-                onChange={handleInputChange}
-                className={styles.input}
-              />
-            </div>
-          </section>
-
-          {/* =================== STORE SETTINGS SECTION =================== */}
-          <section className={styles.section}>
-            <h2>Store Settings</h2>
-
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label htmlFor="currency">Currency</label>
-                <select
-                  id="currency"
-                  name="currency"
-                  value={settings.currency}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                >
-                  {CURRENCY_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="tax_rate">Tax Rate (%)</label>
-                <input
-                  type="number"
-                  id="tax_rate"
-                  name="tax_rate"
-                  value={settings.tax_rate}
-                  onChange={handleInputChange}
-                  step="0.01"
-                  min="0"
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="default_shipping_fee">Default Shipping Fee</label>
-                <input
-                  type="number"
-                  id="default_shipping_fee"
-                  name="default_shipping_fee"
-                  value={settings.default_shipping_fee}
-                  onChange={handleInputChange}
-                  step="0.01"
-                  min="0"
-                  className={styles.input}
-                />
-              </div>
-            </div>
-          </section>
-
-          {/* =================== FREIGHT COSTS SECTION =================== */}
-          <FreightCostManagement showNotification={showNotification} />
+          <GeneralSettings 
+            settings={settings} 
+            onInputChange={handleInputChange} 
+          />
 
           {/* =================== FEATURE TOGGLES SECTION =================== */}
           <section className={styles.section}>
@@ -359,6 +281,9 @@ export default function AdminSettings() {
             </button>
           </div>
         </form>
+
+        {/* =================== FREIGHT COSTS SECTION (Outside form to prevent nested form issues) =================== */}
+        <FreightCostManagement showNotification={showNotification} />
 
         {/* =================== MAINTENANCE CONFIRMATION MODAL =================== */}
         <ConfirmMaintenanceModal

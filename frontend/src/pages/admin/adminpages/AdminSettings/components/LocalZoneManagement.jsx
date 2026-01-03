@@ -180,8 +180,8 @@ export default function LocalZoneManagement({ showNotification: parentShowNotifi
       <div className={styles.infoNote}>
         <i className="material-icons">info</i>
         <span>
-          Only North Island cities can be set as the local origin. 
-          When changed, the previous city will use North Island rates.
+          Select any New Zealand city as your local origin. 
+          Customers in this city will receive local freight rates.
         </span>
       </div>
 
@@ -201,7 +201,7 @@ export default function LocalZoneManagement({ showNotification: parentShowNotifi
 
             <div className={styles.modalBody}>
               <p className={styles.modalDescription}>
-                Search for a North Island city to set as your local delivery origin.
+                Search for a New Zealand city to set as your local delivery origin.
                 Customers in this city will receive local freight rates.
               </p>
 
@@ -214,7 +214,7 @@ export default function LocalZoneManagement({ showNotification: parentShowNotifi
                 <CitySearchInput
                   onCitySelect={handleCitySelect}
                   currentCity={localZone?.city || ""}
-                  placeholder="Type a NZ North Island city name..."
+                  placeholder="Type a New Zealand city name..."
                   disabled={saving}
                 />
               </div>

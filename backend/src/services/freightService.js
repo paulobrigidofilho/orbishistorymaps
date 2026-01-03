@@ -22,6 +22,7 @@ const {
 
 /**
  * Calculate default freight costs based on local rate
+ * Uses realistic NZ shipping benchmarks with Tauranga as base
  * @param {number} localRate - The base local freight rate
  * @returns {Object} Calculated default rates for all zones
  */
@@ -29,13 +30,14 @@ const calculateDefaults = (localRate) => {
   const local = parseFloat(localRate);
   
   return {
-    north_island: parseFloat((local * 1.05).toFixed(2)),
-    south_island: parseFloat((local * 1.08).toFixed(2)),
-    intl_asia: parseFloat((local * 1.15).toFixed(2)),
-    intl_north_america: parseFloat((local * 1.25).toFixed(2)),
-    intl_europe: parseFloat((local * 1.25).toFixed(2)),
-    intl_africa: parseFloat((local * 1.25).toFixed(2)),
-    intl_latin_america: parseFloat((local * 1.25).toFixed(2)),
+    north_island: parseFloat((local * 1.5).toFixed(2)),      // $30 -> $45
+    south_island: parseFloat((local * 2.83).toFixed(2)),     // $30 -> $85
+    rural_surcharge: 15.00,                                   // Flat $15 rural fee
+    intl_asia: parseFloat((local * 4.0).toFixed(2)),         // $30 -> $120
+    intl_north_america: parseFloat((local * 5.0).toFixed(2)), // $30 -> $150
+    intl_europe: parseFloat((local * 5.0).toFixed(2)),       // $30 -> $150
+    intl_africa: parseFloat((local * 6.0).toFixed(2)),       // $30 -> $180
+    intl_latin_america: parseFloat((local * 5.33).toFixed(2)), // $30 -> $160
   };
 };
 
@@ -44,6 +46,11 @@ const calculateDefaults = (localRate) => {
  * @param {Object} data - The freight data to process
  * @returns {Object} Processed data with defaults applied
  */
+/**
+ * Check if a value is a valid number (handles 0 correctly)
+ */
+const hasValue = (val) => val !== null && val !== undefined && val !== "" && !isNaN(parseFloat(val));
+
 const applyDefaults = (data) => {
   const local = parseFloat(data.local);
   
@@ -55,17 +62,18 @@ const applyDefaults = (data) => {
   
   return {
     local,
-    north_island: data.north_island ? parseFloat(data.north_island) : defaults.north_island,
-    south_island: data.south_island ? parseFloat(data.south_island) : defaults.south_island,
-    intl_asia: data.intl_asia ? parseFloat(data.intl_asia) : defaults.intl_asia,
-    intl_north_america: data.intl_north_america ? parseFloat(data.intl_north_america) : defaults.intl_north_america,
-    intl_europe: data.intl_europe ? parseFloat(data.intl_europe) : defaults.intl_europe,
-    intl_africa: data.intl_africa ? parseFloat(data.intl_africa) : defaults.intl_africa,
-    intl_latin_america: data.intl_latin_america ? parseFloat(data.intl_latin_america) : defaults.intl_latin_america,
+    north_island: hasValue(data.north_island) ? parseFloat(data.north_island) : defaults.north_island,
+    south_island: hasValue(data.south_island) ? parseFloat(data.south_island) : defaults.south_island,
+    rural_surcharge: hasValue(data.rural_surcharge) ? parseFloat(data.rural_surcharge) : defaults.rural_surcharge,
+    intl_asia: hasValue(data.intl_asia) ? parseFloat(data.intl_asia) : defaults.intl_asia,
+    intl_north_america: hasValue(data.intl_north_america) ? parseFloat(data.intl_north_america) : defaults.intl_north_america,
+    intl_europe: hasValue(data.intl_europe) ? parseFloat(data.intl_europe) : defaults.intl_europe,
+    intl_africa: hasValue(data.intl_africa) ? parseFloat(data.intl_africa) : defaults.intl_africa,
+    intl_latin_america: hasValue(data.intl_latin_america) ? parseFloat(data.intl_latin_america) : defaults.intl_latin_america,
     is_free_freight_enabled: Boolean(data.is_free_freight_enabled),
-    threshold_local: data.threshold_local ? parseFloat(data.threshold_local) : 200.00,
-    threshold_national: data.threshold_national ? parseFloat(data.threshold_national) : 300.00,
-    threshold_international: data.threshold_international ? parseFloat(data.threshold_international) : 500.00,
+    threshold_local: hasValue(data.threshold_local) ? parseFloat(data.threshold_local) : 200.00,
+    threshold_national: hasValue(data.threshold_national) ? parseFloat(data.threshold_national) : 300.00,
+    threshold_international: hasValue(data.threshold_international) ? parseFloat(data.threshold_international) : 500.00,
   };
 };
 

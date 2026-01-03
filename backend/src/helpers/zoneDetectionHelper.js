@@ -203,23 +203,57 @@ const TAURANGA_IDENTIFIERS = {
 };
 
 /**
- * NZ North Island cities that can be set as local zone
- * Only North Island cities can be configured as local zone
+ * NZ cities that can be set as local zone
+ * Includes all major cities from both North and South Island
  */
 const NZ_NORTH_ISLAND_CITIES = [
-  { city: "Auckland", region: "Auckland", postalPrefixes: ["010", "011", "012", "020", "021", "022", "023", "024", "060", "061", "062"] },
-  { city: "Wellington", region: "Wellington", postalPrefixes: ["601", "602", "603", "604", "605", "610", "611", "612", "613", "614", "615"] },
-  { city: "Hamilton", region: "Waikato", postalPrefixes: ["320", "321", "322", "323", "324", "325"] },
-  { city: "Tauranga", region: "Bay of Plenty", postalPrefixes: ["310", "311", "312", "314", "315", "316"] },
-  { city: "Rotorua", region: "Bay of Plenty", postalPrefixes: ["301", "302", "303", "304"] },
-  { city: "Napier", region: "Hawke's Bay", postalPrefixes: ["410", "411", "412", "413"] },
-  { city: "Hastings", region: "Hawke's Bay", postalPrefixes: ["414", "415", "416", "417", "418"] },
-  { city: "New Plymouth", region: "Taranaki", postalPrefixes: ["430", "431", "432", "433", "434"] },
-  { city: "Palmerston North", region: "Manawatu-Wanganui", postalPrefixes: ["440", "441", "442", "443", "444", "445"] },
-  { city: "Whangarei", region: "Northland", postalPrefixes: ["010", "011", "012", "013", "014"] },
-  { city: "Gisborne", region: "Gisborne", postalPrefixes: ["401", "402", "403", "404"] },
-  { city: "Taupo", region: "Waikato", postalPrefixes: ["330", "331", "332", "333"] },
-  { city: "Whakatane", region: "Bay of Plenty", postalPrefixes: ["307", "308", "309"] },
+  // ===== North Island Cities ===== //
+  { city: "Auckland", region: "Auckland", postalPrefixes: ["010", "011", "012", "020", "021", "022", "023", "024", "060", "061", "062"], island: "north" },
+  { city: "Wellington", region: "Wellington", postalPrefixes: ["601", "602", "603", "604", "605", "610", "611", "612", "613", "614", "615"], island: "north" },
+  { city: "Hamilton", region: "Waikato", postalPrefixes: ["320", "321", "322", "323", "324", "325"], island: "north" },
+  { city: "Tauranga", region: "Bay of Plenty", postalPrefixes: ["310", "311", "312", "314", "315", "316"], island: "north" },
+  { city: "Rotorua", region: "Bay of Plenty", postalPrefixes: ["301", "302", "303", "304"], island: "north" },
+  { city: "Napier", region: "Hawke's Bay", postalPrefixes: ["410", "411", "412", "413"], island: "north" },
+  { city: "Hastings", region: "Hawke's Bay", postalPrefixes: ["414", "415", "416", "417", "418"], island: "north" },
+  { city: "New Plymouth", region: "Taranaki", postalPrefixes: ["430", "431", "432", "433", "434"], island: "north" },
+  { city: "Palmerston North", region: "Manawatu-Wanganui", postalPrefixes: ["440", "441", "442", "443", "444", "445"], island: "north" },
+  { city: "Whangarei", region: "Northland", postalPrefixes: ["010", "011", "012", "013", "014"], island: "north" },
+  { city: "Gisborne", region: "Gisborne", postalPrefixes: ["401", "402", "403", "404"], island: "north" },
+  { city: "Taupo", region: "Waikato", postalPrefixes: ["330", "331", "332", "333"], island: "north" },
+  { city: "Whakatane", region: "Bay of Plenty", postalPrefixes: ["307", "308", "309"], island: "north" },
+  { city: "Lower Hutt", region: "Wellington", postalPrefixes: ["501", "502", "503", "504", "505"], island: "north" },
+  { city: "Upper Hutt", region: "Wellington", postalPrefixes: ["506", "507", "508"], island: "north" },
+  { city: "Porirua", region: "Wellington", postalPrefixes: ["504", "505"], island: "north" },
+  { city: "Kapiti Coast", region: "Wellington", postalPrefixes: ["500", "501"], island: "north" },
+  { city: "Whanganui", region: "Manawatu-Wanganui", postalPrefixes: ["450", "451", "452"], island: "north" },
+  { city: "Levin", region: "Manawatu-Wanganui", postalPrefixes: ["550", "551"], island: "north" },
+  { city: "Masterton", region: "Wellington", postalPrefixes: ["580", "581", "582"], island: "north" },
+  { city: "Cambridge", region: "Waikato", postalPrefixes: ["341", "342", "343"], island: "north" },
+  { city: "Te Awamutu", region: "Waikato", postalPrefixes: ["380", "381"], island: "north" },
+  { city: "Tokoroa", region: "Waikato", postalPrefixes: ["342", "343"], island: "north" },
+  { city: "Thames", region: "Waikato", postalPrefixes: ["350", "351", "352"], island: "north" },
+  { city: "Waihi", region: "Waikato", postalPrefixes: ["361", "362"], island: "north" },
+  { city: "Kerikeri", region: "Northland", postalPrefixes: ["020", "021", "022"], island: "north" },
+  { city: "Kaitaia", region: "Northland", postalPrefixes: ["040", "041", "042"], island: "north" },
+  // ===== South Island Cities ===== //
+  { city: "Christchurch", region: "Canterbury", postalPrefixes: ["800", "801", "802", "803", "804", "805", "806", "807", "808", "809", "810", "811", "812", "813", "814", "815", "816", "817", "818", "819", "820", "821", "822", "823", "824", "825", "826"], island: "south" },
+  { city: "Dunedin", region: "Otago", postalPrefixes: ["901", "902", "903", "904", "905", "906", "907", "908", "909", "910", "911", "912", "913", "914", "915", "916", "917", "918", "919", "920", "921", "922", "923", "924", "925", "926", "927"], island: "south" },
+  { city: "Queenstown", region: "Otago", postalPrefixes: ["930", "931", "932", "933"], island: "south" },
+  { city: "Invercargill", region: "Southland", postalPrefixes: ["981", "982", "983", "984", "985", "986", "987", "988", "989", "990", "991", "992", "993", "994", "995", "996", "997", "998"], island: "south" },
+  { city: "Nelson", region: "Nelson", postalPrefixes: ["700", "701", "702", "703", "704", "705", "706", "707", "708", "709", "710", "711", "712", "713", "714", "715", "716"], island: "south" },
+  { city: "Blenheim", region: "Marlborough", postalPrefixes: ["720", "721", "722", "723", "724", "725", "726"], island: "south" },
+  { city: "Timaru", region: "Canterbury", postalPrefixes: ["790", "791", "792", "793", "794", "795", "796", "797", "798", "799"], island: "south" },
+  { city: "Ashburton", region: "Canterbury", postalPrefixes: ["770", "771", "772", "773", "774", "775", "776", "777", "778", "779"], island: "south" },
+  { city: "Oamaru", region: "Otago", postalPrefixes: ["940", "941", "942", "943", "944", "945"], island: "south" },
+  { city: "Greymouth", region: "West Coast", postalPrefixes: ["770", "771", "772"], island: "south" },
+  { city: "Hokitika", region: "West Coast", postalPrefixes: ["780", "781", "782"], island: "south" },
+  { city: "Wanaka", region: "Otago", postalPrefixes: ["930", "931"], island: "south" },
+  { city: "Alexandra", region: "Otago", postalPrefixes: ["930", "931", "932"], island: "south" },
+  { city: "Gore", region: "Southland", postalPrefixes: ["970", "971", "972"], island: "south" },
+  { city: "Rangiora", region: "Canterbury", postalPrefixes: ["743", "744", "745"], island: "south" },
+  { city: "Rolleston", region: "Canterbury", postalPrefixes: ["755", "756"], island: "south" },
+  { city: "Motueka", region: "Tasman", postalPrefixes: ["710", "711", "712"], island: "south" },
+  { city: "Richmond", region: "Tasman", postalPrefixes: ["700", "701"], island: "south" },
 ];
 
 ///////////////////////////////////////////////////////////////////////

@@ -17,6 +17,7 @@ import {
   applyFreightDefaults,
   FREIGHT_MULTIPLIERS,
   DEFAULT_THRESHOLDS,
+  DEFAULT_RURAL_SURCHARGE,
 } from "../../../helpers/calculateFreightDefaults";
 
 //  ========== Validator imports  ========== //
@@ -30,6 +31,7 @@ const ZONE_FIELDS = [
   { key: "local", label: "Local Delivery", required: true },
   { key: "north_island", label: "NZ North Island", multiplier: FREIGHT_MULTIPLIERS.north_island },
   { key: "south_island", label: "NZ South Island", multiplier: FREIGHT_MULTIPLIERS.south_island },
+  { key: "rural_surcharge", label: "Rural Surcharge", isFlat: true },
   { key: "intl_asia", label: "International - Asia", multiplier: FREIGHT_MULTIPLIERS.intl_asia },
   { key: "intl_north_america", label: "International - North America", multiplier: FREIGHT_MULTIPLIERS.intl_north_america },
   { key: "intl_europe", label: "International - Europe", multiplier: FREIGHT_MULTIPLIERS.intl_europe },
@@ -66,6 +68,7 @@ export default function EditFreightCostModal({
         local: config.local || "",
         north_island: config.north_island || "",
         south_island: config.south_island || "",
+        rural_surcharge: config.rural_surcharge || "",
         intl_asia: config.intl_asia || "",
         intl_north_america: config.intl_north_america || "",
         intl_europe: config.intl_europe || "",
@@ -106,6 +109,9 @@ export default function EditFreightCostModal({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevent event bubbling to parent forms
+
+    console.log("[EditFreightCostModal] Form data before validation:", JSON.stringify(formData, null, 2));
 
     // Validate
     const validation = validateFreightConfig(formData);
@@ -117,6 +123,7 @@ export default function EditFreightCostModal({
     // Apply defaults and save
     try {
       const processedData = applyFreightDefaults(formData);
+      console.log("[EditFreightCostModal] Processed data to save:", JSON.stringify(processedData, null, 2));
       onSave(processedData);
     } catch (error) {
       setErrors({ local: error.message });
@@ -136,8 +143,8 @@ export default function EditFreightCostModal({
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContent}>
         {/* Header */}
         <div className={styles.modalHeader}>
           <h2>Edit Freight Costs</h2>
@@ -171,7 +178,9 @@ export default function EditFreightCostModal({
                       step="0.01"
                       min="0"
                       placeholder={
-                        field.multiplier && showDefaults
+                        field.isFlat
+                          ? `Default: ${DEFAULT_RURAL_SURCHARGE}`
+                          : field.multiplier && showDefaults
                           ? `Default: ${getCalculatedDefault(field.key)}`
                           : field.required
                           ? "Required"
@@ -186,6 +195,11 @@ export default function EditFreightCostModal({
                   {field.multiplier && (
                     <span className={styles.hint}>
                       Default: Local × {field.multiplier}
+                    </span>
+                  )}
+                  {field.isFlat && (
+                    <span className={styles.hint}>
+                      Flat fee added to rural deliveries
                     </span>
                   )}
                 </div>
