@@ -161,7 +161,7 @@ export default function EditFreightCostModal({
                     {field.required && <span className={styles.required}>*</span>}
                   </label>
                   <div className={styles.inputWrapper}>
-                    <span className={styles.currencyPrefix}>$</span>
+                    <span className={styles.currencyPrefix}>NZD</span>
                     <input
                       type="number"
                       id={field.key}
@@ -209,7 +209,7 @@ export default function EditFreightCostModal({
                 <div className={styles.fieldGroup}>
                   <label htmlFor="threshold_local">Local Threshold</label>
                   <div className={styles.inputWrapper}>
-                    <span className={styles.currencyPrefix}>$</span>
+                    <span className={styles.currencyPrefix}>NZD</span>
                     <input
                       type="number"
                       id="threshold_local"
@@ -230,7 +230,7 @@ export default function EditFreightCostModal({
                 <div className={styles.fieldGroup}>
                   <label htmlFor="threshold_national">National Threshold (NZ)</label>
                   <div className={styles.inputWrapper}>
-                    <span className={styles.currencyPrefix}>$</span>
+                    <span className={styles.currencyPrefix}>NZD</span>
                     <input
                       type="number"
                       id="threshold_national"
@@ -251,7 +251,7 @@ export default function EditFreightCostModal({
                 <div className={styles.fieldGroup}>
                   <label htmlFor="threshold_international">International Threshold</label>
                   <div className={styles.inputWrapper}>
-                    <span className={styles.currencyPrefix}>$</span>
+                    <span className={styles.currencyPrefix}>NZD</span>
                     <input
                       type="number"
                       id="threshold_international"

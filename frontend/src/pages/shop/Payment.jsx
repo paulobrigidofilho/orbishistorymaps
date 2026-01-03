@@ -250,7 +250,7 @@ export default function Payment() {
                 disabled={processing || !selectedMethod}
                 className={styles.placeOrderButton}
               >
-                {processing ? "Processing..." : `Place Order - $${orderTotal.toFixed(2)}`}
+                {processing ? "Processing..." : `Place Order - NZD $${orderTotal.toFixed(2)}`}
               </button>
             </div>
           </div>
@@ -281,7 +281,7 @@ export default function Payment() {
                       <p className={styles.itemQuantity}>Qty: {item.quantity}</p>
                     </div>
                     <p className={styles.itemPrice}>
-                      ${(item.price_at_addition * item.quantity).toFixed(2)}
+                      NZD ${(item.price_at_addition * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 ))}
@@ -291,17 +291,17 @@ export default function Payment() {
             <div className={styles.summaryTotals}>
               <div className={styles.summaryRow}>
                 <span>Subtotal</span>
-                <span>${checkoutData.subtotal.toFixed(2)}</span>
+                <span>NZD ${checkoutData.subtotal.toFixed(2)}</span>
               </div>
               <div className={styles.summaryRow}>
                 <span>Shipping</span>
                 <span>
-                  {checkoutData.shipping === 0 ? "FREE" : `$${checkoutData.shipping.toFixed(2)}`}
+                  {checkoutData.shipping === 0 ? "FREE" : `NZD $${checkoutData.shipping.toFixed(2)}`}
                 </span>
               </div>
               <div className={`${styles.summaryRow} ${styles.total}`}>
                 <span>Total</span>
-                <span>${checkoutData.total.toFixed(2)}</span>
+                <span>NZD ${checkoutData.total.toFixed(2)}</span>
               </div>
             </div>
           </div>

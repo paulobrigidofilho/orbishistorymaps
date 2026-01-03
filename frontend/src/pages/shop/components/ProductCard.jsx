@@ -105,10 +105,10 @@ const ProductCard = ({ product }) => {
           )}
           {/* Price */}
           <div className={styles.priceContainer}>
-            <span className={styles.currentPrice}>${displayPrice.toFixed(2)}</span>
+            <span className={styles.currentPrice}>NZD ${displayPrice.toFixed(2)}</span>
             {isOnSale && (
               <span className={styles.originalPrice}>
-                ${parseFloat(product.price).toFixed(2)}
+                NZD ${parseFloat(product.price).toFixed(2)}
               </span>
             )}
           </div>

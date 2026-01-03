@@ -217,15 +217,15 @@ export default function ProductDetail() {
             {/* Price Section */}
             <div className={styles.priceSection}>
               <span className={styles.currentPrice}>
-                ${displayPrice.toFixed(2)}
+                NZD ${displayPrice.toFixed(2)}
               </span>
               {isOnSale && (
                 <>
                   <span className={styles.originalPrice}>
-                    ${parseFloat(product.price).toFixed(2)}
+                    NZD ${parseFloat(product.price).toFixed(2)}
                   </span>
                   <span className={styles.savingsText}>
-                    Save $
+                    Save NZD $
                     {(
                       parseFloat(product.price) - parseFloat(product.sale_price)
                     ).toFixed(2)}

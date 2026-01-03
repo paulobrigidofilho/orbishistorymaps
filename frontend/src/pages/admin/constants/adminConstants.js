@@ -40,7 +40,7 @@ export const STAT_CARDS = [
     icon: "💰",
     label: "Total Revenue",
     key: "totalRevenue",
-    formatter: (value) => `$${value.toFixed(2)}`,
+    formatter: (value) => `NZD $${value.toFixed(2)}`,
     to: "/admin/orders",
   },
 ];

@@ -17,6 +17,7 @@ const { sequelize } = require("../config/sequelizeConfig");
 // Supported countries for shipping
 const SUPPORTED_COUNTRIES = [
   "New Zealand",
+  "Australia",
   "United States",
   "Canada", 
   "Brazil",

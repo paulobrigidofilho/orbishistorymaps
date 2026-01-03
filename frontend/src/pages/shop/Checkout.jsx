@@ -646,7 +646,7 @@ export default function Checkout() {
                     </span>
                   </div>
                   <span className={styles.itemPrice}>
-                    ${(item.price_at_addition * item.quantity).toFixed(2)}
+                    NZD ${(item.price_at_addition * item.quantity).toFixed(2)}
                   </span>
                 </div>
               ))}
@@ -655,7 +655,7 @@ export default function Checkout() {
             <div className={styles.summaryTotals}>
               <div className={styles.summaryRow}>
                 <span>Subtotal</span>
-                <span>${cartTotal.toFixed(2)}</span>
+                <span>NZD ${cartTotal.toFixed(2)}</span>
               </div>
               <div className={styles.summaryRow}>
                 <span>Shipping {freightResult?.zoneDisplayName ? `(${freightResult.zoneDisplayName})` : ""}</span>
@@ -665,7 +665,7 @@ export default function Checkout() {
                   ) : freightResult?.isFreeFreight ? (
                     <span className={styles.freeShippingText}>FREE</span>
                   ) : (
-                    `$${shippingCost.toFixed(2)}`
+                    `NZD $${shippingCost.toFixed(2)}`
                   )}
                 </span>
               </div>
@@ -687,7 +687,7 @@ export default function Checkout() {
               )}
               <div className={`${styles.summaryRow} ${styles.total}`}>
                 <span>Total</span>
-                <span>${orderTotal.toFixed(2)}</span>
+                <span>NZD ${orderTotal.toFixed(2)}</span>
               </div>
             </div>
           </div>

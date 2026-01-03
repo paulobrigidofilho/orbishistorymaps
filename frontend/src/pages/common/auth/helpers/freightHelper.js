@@ -186,15 +186,13 @@ export const getFreightConfig = async () => {
 ///////////////////////////////////////////////////////////////////////
 
 /**
- * Format currency for display
+ * Format currency for display (NZD $XX.XX format like Amazon)
  * @param {number} amount - Amount to format
  * @returns {string} Formatted currency string
  */
 export const formatCurrency = (amount) => {
-  return new Intl.NumberFormat("en-NZ", {
-    style: "currency",
-    currency: "NZD",
-  }).format(amount);
+  const num = parseFloat(amount) || 0;
+  return `NZD $${num.toFixed(2)}`;
 };
 
 /**

@@ -11,6 +11,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 
 //  ========== Component imports  ========== //
 import styles from "../Auth.module.css";
+import CountrySelect from "./CountrySelect";
 
 //  ========== Constants imports  ========== //
 import {
@@ -210,15 +211,11 @@ function FullAddressDiv({
     setZipCode("");
     setFreightResult(null);
 
-    // Reinitialize autocomplete with new country
+    // Immediately update autocomplete country restriction (no need to reinitialize)
     if (autocompleteRef.current) {
-      autocompleteRef.current = null;
+      const countryCode = COUNTRY_NAME_TO_CODE[newCountry] || "nz";
+      autocompleteRef.current.setComponentRestrictions({ country: countryCode });
     }
-    setTimeout(() => {
-      if (!readOnly && !isManualEntry) {
-        initializeAutocomplete();
-      }
-    }, 100);
   };
 
   ///////////////////////////////////////////////////////////////////////
@@ -301,19 +298,11 @@ function FullAddressDiv({
 
       {/* Country Selection */}
       <p className={styles.inputLabel}>Country:</p>
-      <select
+      <CountrySelect
         value={localCountry}
         onChange={handleCountryChange}
         disabled={readOnly}
-        className={`${styles.inputField} ${readOnly ? styles.readOnly : ""}`}
-        style={{ cursor: readOnly ? "not-allowed" : "pointer" }}
-      >
-        {SUPPORTED_COUNTRIES.map((c) => (
-          <option key={c.code} value={c.name}>
-            {c.displayName}
-          </option>
-        ))}
-      </select>
+      />
 
       {/* Street Address with Autocomplete */}
       <p className={styles.inputLabel}>

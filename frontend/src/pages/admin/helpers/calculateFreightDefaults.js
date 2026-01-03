@@ -109,8 +109,8 @@ export const applyFreightDefaults = (data) => {
  */
 export const formatFreightCost = (value, currency = "NZD") => {
   const num = parseFloat(value);
-  if (isNaN(num)) return "$0.00";
-  return `$${num.toFixed(2)}`;
+  if (isNaN(num)) return "NZD $0.00";
+  return `NZD $${num.toFixed(2)}`;
 };
 
 export default calculateFreightDefaults;

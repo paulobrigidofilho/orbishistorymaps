@@ -207,7 +207,7 @@ export default function Cart() {
             
             <div className={styles.summaryRow}>
               <span>Subtotal ({itemCount} items)</span>
-              <span>${cartTotal.toFixed(2)}</span>
+              <span>NZD ${cartTotal.toFixed(2)}</span>
             </div>
 
             <div className={styles.summaryRow}>
@@ -217,7 +217,7 @@ export default function Cart() {
 
             <div className={`${styles.summaryRow} ${styles.total}`}>
               <span>Total</span>
-              <span>${cartTotal.toFixed(2)}</span>
+              <span>NZD ${cartTotal.toFixed(2)}</span>
             </div>
 
             <button

@@ -14,13 +14,14 @@
  * Order: Default (NZ) first, then alphabetical
  */
 export const SUPPORTED_COUNTRIES = [
-  { code: "NZ", name: "New Zealand", displayName: "New Zealand" },
-  { code: "BR", name: "Brazil", displayName: "Brazil" },
-  { code: "CA", name: "Canada", displayName: "Canada" },
-  { code: "CN", name: "China", displayName: "China" },
-  { code: "PT", name: "Portugal", displayName: "Portugal" },
-  { code: "GB", name: "United Kingdom", displayName: "United Kingdom" },
-  { code: "US", name: "United States", displayName: "United States" },
+  { code: "NZ", name: "New Zealand", displayName: "🇳🇿 New Zealand" },
+  { code: "AU", name: "Australia", displayName: "🇦🇺 Australia" },
+  { code: "BR", name: "Brazil", displayName: "🇧🇷 Brazil" },
+  { code: "CA", name: "Canada", displayName: "🇨🇦 Canada" },
+  { code: "CN", name: "China", displayName: "🇨🇳 China" },
+  { code: "PT", name: "Portugal", displayName: "🇵🇹 Portugal" },
+  { code: "GB", name: "United Kingdom", displayName: "🇬🇧 United Kingdom" },
+  { code: "US", name: "United States", displayName: "🇺🇸 United States" },
 ];
 
 /**
@@ -40,6 +41,7 @@ export const DEFAULT_COUNTRY_CODE = "nz";
  */
 export const COUNTRY_CODE_TO_NAME = {
   nz: "New Zealand",
+  au: "Australia",
   us: "United States",
   ca: "Canada",
   br: "Brazil",
@@ -53,6 +55,7 @@ export const COUNTRY_CODE_TO_NAME = {
  */
 export const COUNTRY_NAME_TO_CODE = {
   "New Zealand": "nz",
+  Australia: "au",
   "United States": "us",
   Canada: "ca",
   Brazil: "br",

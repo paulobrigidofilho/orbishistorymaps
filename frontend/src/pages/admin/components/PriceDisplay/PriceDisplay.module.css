@@ -1,0 +1,103 @@
+/***********************************************************************
+ * PRICE DISPLAY STYLES
+ * Purpose: Styles for the PriceDisplay component with NZD currency label
+ ***********************************************************************/
+
+/* ===================================================================
+   CONTAINER
+   =================================================================== */
+.priceDisplay {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* ===================================================================
+   CURRENCY LABEL
+   =================================================================== */
+.currencyLabel {
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+  font-size: 0.75em;
+  text-transform: uppercase;
+}
+
+/* ===================================================================
+   PRICE VALUES
+   =================================================================== */
+.priceValues {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.currentPrice {
+  font-weight: 600;
+  color: var(--text-primary, #1a1a1a);
+}
+
+.originalPrice {
+  text-decoration: line-through;
+  color: var(--text-muted, #999);
+  font-size: 0.85em;
+}
+
+.salePrice {
+  font-weight: 600;
+  color: var(--sale-color, #dc2626);
+}
+
+/* ===================================================================
+   SIZE VARIANTS
+   =================================================================== */
+
+/* Small */
+.small .currencyLabel {
+  font-size: 0.6875rem;
+}
+
+.small .currentPrice,
+.small .salePrice {
+  font-size: 0.8125rem;
+}
+
+.small .originalPrice {
+  font-size: 0.6875rem;
+}
+
+/* Medium (default) */
+.medium .currencyLabel {
+  font-size: 0.75rem;
+}
+
+.medium .currentPrice,
+.medium .salePrice {
+  font-size: 0.875rem;
+}
+
+.medium .originalPrice {
+  font-size: 0.75rem;
+}
+
+/* Large */
+.large .currencyLabel {
+  font-size: 0.875rem;
+}
+
+.large .currentPrice,
+.large .salePrice {
+  font-size: 1rem;
+}
+
+.large .originalPrice {
+  font-size: 0.875rem;
+}
+
+/* ===================================================================
+   INLINE VARIANT (horizontal layout for prices)
+   =================================================================== */
+.priceDisplay.inline .priceValues {
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+}

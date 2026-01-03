@@ -13,6 +13,7 @@ import styles from "./AdminWishlists.module.css";
 //  ========== Component imports  ========== //
 import AdminManagementView from "../../components/AdminManagementView";
 import viewStyles from "../../components/AdminManagementView.module.css";
+import PriceDisplay from "../../components/PriceDisplay";
 import WishlistModal from "./subcomponents/WishlistModal";
 
 //  ========== Constants imports  ========== //
@@ -177,16 +178,11 @@ export default function AdminWishlists() {
         <span className={styles.categoryBadge}>{product.category_name || "—"}</span>
       </td>
       <td>
-        <div className={styles.priceCell}>
-          <span className={product.sale_price ? styles.originalPrice : ""}>
-            ${parseFloat(product.price).toFixed(2)}
-          </span>
-          {product.sale_price && (
-            <span className={styles.salePrice}>
-              ${parseFloat(product.sale_price).toFixed(2)}
-            </span>
-          )}
-        </div>
+        <PriceDisplay
+          price={product.price}
+          salePrice={product.sale_price}
+          size="small"
+        />
       </td>
       <td>
         <button

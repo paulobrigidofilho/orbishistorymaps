@@ -409,7 +409,7 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
                 <label htmlFor="price">
-                  Price ($) <span className={styles.required}>*</span>
+                  Price (NZD $) <span className={styles.required}>*</span>
                 </label>
                 <input
                   type="number"
@@ -427,7 +427,7 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="sale_price">Sale Price ($)</label>
+                <label htmlFor="sale_price">Sale Price (NZD $)</label>
                 <input
                   type="number"
                   id="sale_price"

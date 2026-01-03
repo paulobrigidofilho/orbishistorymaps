@@ -16,6 +16,7 @@
  */
 const SUPPORTED_COUNTRIES = [
   "New Zealand",
+  "Australia",
   "United States",
   "Canada",
   "Brazil",
@@ -32,6 +33,9 @@ const COUNTRY_CODE_MAP = {
   // New Zealand
   NZ: "New Zealand",
   "new zealand": "New Zealand",
+  // Australia
+  AU: "Australia",
+  australia: "Australia",
   // United States
   US: "United States",
   USA: "United States",
@@ -80,6 +84,7 @@ const FREIGHT_ZONES = {
  */
 const COUNTRY_TO_ZONE_MAP = {
   "New Zealand": null,           // Requires further city/region detection
+  Australia: FREIGHT_ZONES.INTL_ASIA,
   "United States": FREIGHT_ZONES.INTL_NORTH_AMERICA,
   Canada: FREIGHT_ZONES.INTL_NORTH_AMERICA,
   Brazil: FREIGHT_ZONES.INTL_LATIN_AMERICA,

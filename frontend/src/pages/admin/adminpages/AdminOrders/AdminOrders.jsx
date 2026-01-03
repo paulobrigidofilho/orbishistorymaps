@@ -11,6 +11,7 @@ import styles from "./AdminOrders.module.css";
 //  ========== Component imports  ========== //
 import AdminManagementView from "../../components/AdminManagementView";
 import viewStyles from "../../components/AdminManagementView.module.css";
+import PriceDisplay from "../../components/PriceDisplay";
 
 //  ========== Constants imports  ========== //
 import { ERROR_MESSAGES } from "../../constants/adminErrorMessages";
@@ -123,7 +124,9 @@ export default function AdminOrders() {
       <td>#{order.order_id}</td>
       <td>{order.customer_name}</td>
       <td>{new Date(order.created_at).toLocaleDateString()}</td>
-      <td>${order.total_amount}</td>
+      <td>
+        <PriceDisplay price={order.total_amount} size="small" />
+      </td>
       <td>
         <span className={`${viewStyles.badge} ${viewStyles[order.status]}`}>
           {order.status}
