@@ -48,6 +48,7 @@ function RegisterForm() {
   const [city, setCity] = useState("");
   const [stateName, setStateName] = useState("");
   const [zipCode, setZipCode] = useState("");
+  const [country, setCountry] = useState("New Zealand");
 
   // --- Registration State ---
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
@@ -100,6 +101,7 @@ function RegisterForm() {
       city,
       stateName,
       zipCode,
+      country,
     };
 
     const setters = {
@@ -165,6 +167,8 @@ function RegisterForm() {
         setStateName={setStateName}
         zipCode={zipCode}
         setZipCode={setZipCode}
+        country={country}
+        setCountry={setCountry}
         capitalizeWords={capitalizeWords}
       />
 

@@ -52,6 +52,7 @@ const updateProfile = async (req, res) => {
       city,
       state,
       zipCode,
+      country,
     } = req.body;
 
     // Get avatar path: use saveAvatarUrl for consistency with other controllers
@@ -70,6 +71,7 @@ const updateProfile = async (req, res) => {
       city,
       state,
       zipCode,
+      country,
     });
 
     console.log("Profile updated successfully:", result);

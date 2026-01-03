@@ -39,7 +39,8 @@ const registrationSchema = Joi.object({
   addressLine2: Joi.string().allow('').optional(),
   city: Joi.string().allow('').optional(),
   state: Joi.string().allow('').optional(),
-  zipCode: Joi.string().allow('').optional()
+  zipCode: Joi.string().allow('').optional(),
+  country: Joi.string().allow('').optional()
 });
 
 /**

@@ -15,7 +15,6 @@ import CountrySelect from "./CountrySelect";
 
 //  ========== Constants imports  ========== //
 import {
-  SUPPORTED_COUNTRIES,
   DEFAULT_COUNTRY,
   COUNTRY_NAME_TO_CODE,
   ADDRESS_COMPONENT_TYPES,

@@ -12,6 +12,7 @@
     "user_city": "São Paulo",
     "user_state": "SP",
     "user_zipcode": "01310-200",
+    "user_country": "Brazil",
     "user_role": "admin"
   }
 ]

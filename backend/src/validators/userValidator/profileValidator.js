@@ -28,11 +28,13 @@ const profileUpdateSchema = Joi.object({
   
   // Optional fields
   avatar: Joi.string().allow('').optional(),
+  avatarUrl: Joi.string().allow('').optional(),
   address: Joi.string().allow('').optional(),
   addressLine2: Joi.string().allow('').optional(),
   city: Joi.string().allow('').optional(),
   state: Joi.string().allow('').optional(),
-  zipCode: Joi.string().allow('').optional()
+  zipCode: Joi.string().allow('').optional(),
+  country: Joi.string().allow('').optional()
 });
 
 /**

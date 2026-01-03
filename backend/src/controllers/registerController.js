@@ -32,6 +32,7 @@ const register = async (req, res) => {
       city,
       state,
       zipCode,
+      country,
     } = req.body;
 
     const avatarPath = req.file
@@ -50,6 +51,7 @@ const register = async (req, res) => {
       city,
       state,
       zipCode,
+      country,
     });
 
     if (req.session) {

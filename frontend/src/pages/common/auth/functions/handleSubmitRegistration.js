@@ -76,6 +76,7 @@ const handleSubmitRegistration = async (e, formData, setters) => {
   submitData.append("city", formData.city || "");
   submitData.append("state", formData.stateName || "");
   submitData.append("zipCode", formData.zipCode || "");
+  submitData.append("country", formData.country || "New Zealand");
 
   if (formData.avatar) {
     submitData.append("avatar", formData.avatar);

@@ -42,6 +42,7 @@ const registerUser = async (userData) => {
     state,
     zipCode,
     addressLine2,
+    country,
   } = userData;
 
   // Validate required fields
@@ -76,6 +77,7 @@ const registerUser = async (userData) => {
     user_city: city || "",
     user_state: state || "",
     user_zipcode: zipCode || "",
+    user_country: country || "New Zealand",
     user_role: "user",
     user_status: "active",
   });

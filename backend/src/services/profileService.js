@@ -45,6 +45,7 @@ const updateUserProfile = async (userId, profileData) => {
     city: "user_city",
     state: "user_state",
     zipCode: "user_zipcode",
+    country: "user_country",
   };
 
   const updateData = {};
