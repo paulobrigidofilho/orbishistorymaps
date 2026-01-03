@@ -5,24 +5,29 @@
 /**
  * DOCUMENT PURPOSE:
  * Complete guide to the admin system including dashboard, user management,
- * product management, and all administrative features with backend API integration.
+ * product management, order management, review management, wishlist analytics,
+ * site settings, and freight configuration with backend API integration.
  * 
- * FEATURES: Admin Dashboard, User CRUD, Product CRUD, Stats, Role Management
- * LAST UPDATED: December 29, 2025
- * VERSION: 1.0
+ * FEATURES: Admin Dashboard, User CRUD, Product CRUD, Order Management,
+ *           Review Moderation, Wishlist Analytics, Site Settings, Freight Config
+ * LAST UPDATED: January 4, 2026
+ * VERSION: 2.0 (Sequelize ORM)
  */
 
 ---
 
 ## 📋 Overview
 
-The **Admin System** provides comprehensive management capabilities for administrators to control users, products, categories, and view platform statistics. Features include:
+The **Admin System** provides comprehensive management capabilities for administrators to control all aspects of the Orbis platform. Features include:
 
 - **Admin Dashboard** with real-time statistics and quick actions
-- **User Management** with role/status control and filtering
-- **Product Management** with CRUD operations and image uploads
-- **Category Management** for organizing products
-- **Statistics & Analytics** for platform metrics
+- **User Management** with role/status control and country filtering
+- **Product Management** with CRUD operations, image uploads, and wishlist counts
+- **Order Management** with status and payment tracking ✨
+- **Review Management** with moderation and rating breakdowns ✨
+- **Wishlist Analytics** with product popularity insights ✨
+- **Site Settings** with maintenance mode control ✨
+- **Freight Configuration** with zone-based shipping rates ✨
 - **Role-Based Access Control** protecting admin routes
 - **Responsive Admin Interface** optimized for desktop
 
@@ -38,110 +43,159 @@ frontend/src/pages/admin/
 ├── AdminDashboard.module.css
 │
 ├── adminpages/
-│   ├── AdminOrders/                # Order management section
+│   ├── AdminOrders/                # Order management section ✨
+│   │   ├── AdminOrders.jsx
+│   │   ├── AdminOrders.module.css
+│   │   └── subcomponents/
+│   │       ├── OrderDetailsModal.jsx
+│   │       └── OrderStatusDropdown.jsx
+│   │
 │   ├── AdminProducts/
 │   │   ├── AdminProducts.jsx       # Product list page
 │   │   ├── AdminProducts.module.css
-│   │   ├── AdminProductForm.jsx    # Create/edit product form
-│   │   └── AdminProductForm.module.css
-│   └── AdminUsers/
-│       ├── AdminUsers.jsx          # User list page
-│       ├── AdminUsers.module.css
-│       └── UserDetailsModal.jsx    # User detail view
+│   │   └── subcomponents/
+│   │       ├── ProductEditModal.jsx
+│   │       ├── AddProductModal.jsx
+│   │       ├── DeleteProductModal.jsx
+│   │       └── ProductRatingsModal.jsx  ✨
+│   │
+│   ├── AdminUsers/
+│   │   ├── AdminUsers.jsx          # User list page
+│   │   ├── AdminUsers.module.css
+│   │   └── subcomponents/
+│   │       ├── UserEditModal.jsx
+│   │       └── DeleteUserModal.jsx
+│   │
+│   ├── AdminReviews/               # Review management ✨
+│   │   ├── AdminReviews.jsx
+│   │   ├── AdminReviews.module.css
+│   │   └── subcomponents/
+│   │       ├── ReviewEditModal.jsx
+│   │       ├── DeleteReviewModal.jsx
+│   │       └── ViewUserDetailsModal.jsx
+│   │
+│   ├── AdminWishlists/             # Wishlist analytics ✨
+│   │   ├── AdminWishlists.jsx
+│   │   ├── AdminWishlists.module.css
+│   │   └── subcomponents/
+│   │       └── WishlistModal.jsx
+│   │
+│   └── AdminSettings/              # Site settings ✨
+│       ├── AdminSettings.jsx
+│       └── subcomponents/
+│           ├── FreightSettings.jsx
+│           └── MaintenanceSettings.jsx
 │
 ├── btn/
-│   ├── AddBtn.jsx                  # Add new item button
-│   ├── EditBtn.jsx                 # Edit item button
-│   ├── DeleteBtn.jsx               # Delete item button
-│   ├── SaveBtn.jsx                 # Save changes button
-│   ├── CancelBtn.jsx               # Cancel button
-│   ├── ConfirmBtn.jsx              # Confirm action button
-│   ├── UploadBtn.jsx               # Upload file button
+│   ├── index.js                    # Barrel export
+│   ├── AddBtn.jsx
+│   ├── EditBtn.jsx
+│   ├── DeleteBtn.jsx
+│   ├── ViewBtn.jsx                 ✨
+│   ├── CloseBtn.jsx                ✨
+│   ├── SaveBtn.jsx
+│   ├── CancelBtn.jsx
+│   ├── ConfirmBtn.jsx
 │   └── AdminButtons.module.css
 │
 ├── components/
-│   ├── AdminLayout.jsx             # Admin page wrapper with sidebar
-│   ├── AdminLayout.module.css
-│   ├── AdminNavBar.jsx             # Admin navigation bar
-│   ├── AdminNavBar.module.css
-│   ├── StatCard.jsx                # Statistics display card
-│   ├── StatCard.module.css
-│   ├── ActionCard.jsx              # Quick action card
-│   └── ActionCard.module.css
+│   ├── AdminLayout.jsx
+│   ├── AdminManagementView.jsx     ✨ Reusable template
+│   ├── AdminNavBar.jsx
+│   ├── AdminSearchBar.jsx          ✨
+│   ├── StatCard.jsx
+│   ├── ActionCard.jsx
+│   ├── PriceDisplay.jsx            ✨ NZD formatting
+│   └── CountryFlag.jsx             ✨
 │
 ├── constants/
-│   ├── adminConstants.js           # Admin-related constants
-│   ├── adminErrorMessages.js       # Error message constants
-│   └── adminSuccessMessages.js     # Success message constants
+│   ├── adminConstants.js
+│   ├── adminNavBarConstants.js     ✨
+│   ├── adminStatCardConstants.js   ✨
+│   ├── adminActionCardConstants.js ✨
+│   ├── adminSearchBarConstants.js  ✨
+│   ├── adminErrorMessages.js
+│   └── adminSuccessMessages.js
 │
 ├── functions/
-│   ├── fetchStats.js               # Fetch dashboard statistics
-│   ├── getAllUsers.js              # Get users list
-│   ├── getUserById.js              # Get single user
-│   ├── updateUserRole.js           # Update user role
-│   ├── updateUserStatus.js         # Update user status
-│   ├── getAllProducts.js           # Get products list
-│   ├── getProductById.js           # Get single product
-│   ├── createProduct.js            # Create new product
-│   ├── updateProduct.js            # Update product
-│   ├── deleteProduct.js            # Delete product
-│   ├── uploadProductImage.js       # Upload product image
-│   ├── deleteProductImage.js       # Delete product image
-│   ├── getProductTags.js           # Get product tags
-│   ├── getAllTags.js               # Get all available tags
-│   ├── addProductTag.js            # Add tag to product
-│   ├── deleteProductTag.js         # Remove tag from product
-│   └── addMultipleTags.js          # Add multiple tags
+│   ├── fetchStats.js
+│   ├── getAllUsers.js
+│   ├── getAllProducts.js
+│   ├── getAllOrders.js             ✨
+│   ├── getAllReviews.js            ✨
+│   ├── getAllWishlists.js          ✨
+│   ├── getWishlistUsers.js         ✨
+│   ├── updateOrderStatus.js        ✨
+│   └── ...
 │
-├── helpers/
-│   ├── formatDateDMY.js            # Date formatting (DD/MM/YYYY)
-│   ├── generateSKU.js              # Auto-generate product SKU
-│   ├── getChangedProductFields.js  # Detect changed fields
-│   └── sanitizeImagePath.js        # Sanitize image URLs
-│
-└── validators/
-    ├── validateProduct.js          # Product form validation
-    └── validateUserUpdate.js       # User update validation
+└── helpers/
+    ├── formatDateDMY.js
+    ├── formatNZD.js                ✨
+    └── ...
 ```
 
-### Backend
+### Backend (Sequelize ORM)
 
 ```
 backend/src/
+├── config/
+│   ├── config.js                   # Legacy DB pool
+│   └── sequelizeConfig.js          # Sequelize instance ✨
+│
+├── models/                         # Sequelize models ✨
+│   ├── index.js                    # Associations & exports
+│   ├── User.js
+│   ├── Product.js
+│   ├── ProductCategory.js
+│   ├── ProductImage.js
+│   ├── ProductReview.js            ✨
+│   ├── Order.js
+│   ├── OrderItem.js
+│   ├── Wishlist.js
+│   ├── SiteSettings.js             ✨
+│   ├── FreightConfig.js            ✨
+│   └── ...
+│
 ├── controllers/
-│   ├── adminUserController.js      # User management endpoints
-│   ├── adminProductController.js   # Product management endpoints
-│   ├── adminCategoryController.js  # Category management endpoints
-│   └── adminStatsController.js     # Statistics endpoints
+│   ├── adminUserController.js
+│   ├── adminProductController.js
+│   ├── adminCategoryController.js
+│   ├── adminStatsController.js
+│   ├── adminOrderController.js     ✨
+│   ├── adminReviewController.js    ✨
+│   ├── adminWishlistController.js  ✨
+│   ├── adminSettingsController.js  ✨
+│   └── freightController.js        ✨
 │
 ├── services/
-│   ├── adminUserService.js         # User business logic
-│   ├── adminProductService.js      # Product business logic
-│   ├── adminCategoryService.js     # Category business logic
-│   └── adminStatsService.js        # Statistics business logic
-│
-├── model/
-│   └── [Uses existing models]      # Users, Products, Categories
+│   ├── adminUserService.js
+│   ├── adminProductService.js
+│   ├── adminStatsService.js
+│   ├── adminOrderService.js        ✨
+│   ├── adminReviewService.js       ✨
+│   ├── adminWishlistService.js     ✨
+│   ├── adminSettingsService.js     ✨
+│   └── freightService.js           ✨
 │
 ├── routes/
-│   ├── adminUserRoutes.js          # User management routes
-│   ├── adminProductRoutes.js       # Product management routes
-│   ├── adminCategoryRoutes.js      # Category management routes
-│   └── adminStatsRoutes.js         # Statistics routes
+│   ├── adminUserRoutes.js
+│   ├── adminProductRoutes.js
+│   ├── adminStatsRoutes.js
+│   ├── adminOrderRoutes.js         ✨
+│   ├── adminReviewRoutes.js        ✨
+│   ├── adminWishlistRoutes.js      ✨
+│   ├── adminSettingsRoutes.js      ✨
+│   └── freightRoutes.js            ✨
 │
 ├── middleware/
-│   ├── authMiddleware.js           # Authentication check
-│   └── adminMiddleware.js          # Admin role verification
-│
-├── validators/
-│   └── adminValidator.js           # Input validation for admin
+│   ├── authMiddleware.js
+│   └── adminMiddleware.js
 │
 ├── helpers/
-│   └── compressProductImage.js     # Image compression for products
+│   └── zoneDetectionHelper.js      ✨ NZ zone detection
 │
 └── constants/
-    ├── adminMessages.js            # Admin-related messages
-    └── errorMessages.js            # Error messages
+    └── adminMessages.js
 ```
 
 ---
@@ -158,43 +212,160 @@ Route: `/admin`
 - Total users count
 - Total products count
 - Active orders count
-- Total revenue metrics
+- Total revenue metrics (NZD)
 
 **Quick Action Cards:**
 - View all users
 - Create new product
 - View all products
 - View all orders
+- Manage reviews ✨
+- View wishlists ✨
+- Site settings ✨
 
 **Layout:**
 - Header with admin title
-- Sidebar navigation
+- Sidebar navigation (AdminNavBar)
 - Main content area with stats grid
 - Responsive design
 
-### Component Structure
+---
 
-```jsx
-<AdminLayout>
-  <h1>Admin Dashboard</h1>
-  <StatCard 
-    label="Total Users"
-    value={stats.totalUsers}
-    icon="people"
-  />
-  <StatCard 
-    label="Total Products"
-    value={stats.totalProducts}
-    icon="shopping_bag"
-  />
-  {/* More stat cards */}
-  <ActionCard 
-    title="Manage Users"
-    description="View and edit user accounts"
-    link="/admin/users"
-  />
-  {/* More action cards */}
-</AdminLayout>
+## 📦 Admin Order Management ✨
+
+### Location
+`frontend/src/pages/admin/adminpages/AdminOrders/AdminOrders.jsx`
+Route: `/admin/orders`
+
+### Features
+- Paginated order list with customer details
+- Filter by order status (pending, processing, shipped, delivered, cancelled)
+- Filter by payment status (pending, completed, failed, refunded)
+- Sort by date, amount, status
+- View order details with items
+- Update order status
+- Update payment status
+- Delete orders
+
+### API Endpoints
+```
+GET    /api/admin/orders                  - List all orders
+GET    /api/admin/orders/:orderId         - Get order details
+PUT    /api/admin/orders/:orderId/status  - Update order status
+PUT    /api/admin/orders/:orderId/payment - Update payment status
+DELETE /api/admin/orders/:orderId         - Delete order
+```
+
+---
+
+## ⭐ Admin Review Management ✨
+
+### Location
+`frontend/src/pages/admin/adminpages/AdminReviews/AdminReviews.jsx`
+Route: `/admin/reviews`
+
+### Features
+- Paginated review list with user and product info
+- Filter by approval status (pending, approved)
+- Sort by date, rating
+- View/edit review details
+- Approve/reject reviews
+- Delete inappropriate reviews
+- Rating breakdown by product (1-5 stars distribution)
+- User hover modal with profile preview
+- Click product name to filter AdminProducts
+
+### API Endpoints
+```
+GET    /api/admin/reviews                              - List all reviews
+GET    /api/admin/reviews/:reviewId                    - Get review details
+PUT    /api/admin/reviews/:reviewId                    - Update review
+PATCH  /api/admin/reviews/:reviewId/approve            - Approve review
+DELETE /api/admin/reviews/:reviewId                    - Delete review
+GET    /api/admin/reviews/product/:productId/breakdown - Rating breakdown
+```
+
+---
+
+## 💝 Admin Wishlist Analytics ✨
+
+### Location
+`frontend/src/pages/admin/adminpages/AdminWishlists/AdminWishlists.jsx`
+Route: `/admin/wishlists`
+
+### Features
+- Products sorted by wishlist count
+- View users who wishlisted each product
+- Click user to navigate to AdminUsers with filter
+- Wishlist statistics overview
+- Product popularity insights
+
+### API Endpoints
+```
+GET    /api/admin/wishlists/stats              - Overall statistics
+GET    /api/admin/wishlists/products           - Products with counts
+GET    /api/admin/wishlists/:productId/users   - Users per product
+GET    /api/admin/wishlists/:productId/count   - Count for product
+DELETE /api/admin/wishlists/:productId/users/:userId - Remove item
+```
+
+---
+
+## ⚙️ Admin Site Settings ✨
+
+### Location
+`frontend/src/pages/admin/adminpages/AdminSettings/AdminSettings.jsx`
+Route: `/admin/settings`
+
+### Features
+- Maintenance mode control (off, site-wide, shop-only, registration-only)
+- Custom maintenance message
+- Feature toggles (registration, reviews, wishlist)
+- General site configuration
+
+### API Endpoints
+```
+GET    /api/admin/settings                    - Get all settings
+GET    /api/admin/settings/:key               - Get single setting
+PUT    /api/admin/settings/:key               - Update setting
+PUT    /api/admin/settings                    - Update multiple
+PUT    /api/admin/settings/maintenance        - Set maintenance mode
+GET    /api/settings/maintenance              - Public: check status
+```
+
+---
+
+## 🚚 Admin Freight Configuration ✨
+
+### Location
+Part of AdminSettings or dedicated freight section
+Route: `/admin/settings` (Freight tab)
+
+### Features
+- Zone-based freight rates (8 zones)
+- Free freight thresholds per zone type
+- Local zone configuration (change from Tauranga)
+- Supported countries management
+
+### Freight Zones
+1. **Local** - Configurable city (default: Tauranga, NZ)
+2. **North Island** - NZ North Island
+3. **South Island** - NZ South Island
+4. **International North America** - USA, Canada
+5. **International Europe** - UK, Portugal, EU
+6. **International Asia** - China
+7. **International Latin America** - Brazil
+8. **International Africa** - African countries
+
+### API Endpoints
+```
+GET    /api/admin/freight                     - Get freight config
+PUT    /api/admin/freight                     - Update freight config
+GET    /api/admin/freight/local-zone          - Get local zone
+PUT    /api/admin/freight/local-zone          - Update local zone
+GET    /api/admin/freight/available-cities    - NI cities list
+GET    /api/freight/zones                     - Public: zone costs
+POST   /api/freight/calculate                 - Calculate freight
 ```
 
 ---

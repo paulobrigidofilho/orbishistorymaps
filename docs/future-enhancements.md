@@ -1,151 +1,227 @@
-# Future Enhancements & In-Progress Development
+# Future Enhancements & Development Roadmap
 
-This document outlines planned features, in-progress work, and improvements for the Orbis project based on current development status as of December 29, 2025.
+This document outlines planned features, completed work, and improvements for the Orbis project.
+
+**Last Updated:** January 4, 2026  
+**Current Phase:** Active Development  
+**Branch:** paulo
 
 ---
 
-## 🔄 In Progress - Current Development Phase (December 2025)
+## ✅ Recently Completed (December 2025 - January 2026)
+
+### Backend Migration to Sequelize ORM
+- [x] **Sequelize Configuration** - Centralized ORM setup with connection pooling
+- [x] **Model Definitions** - Complete Sequelize models for all entities:
+  - User, Product, ProductCategory, ProductImage, ProductTag
+  - Order, OrderItem, Cart, CartItem
+  - Wishlist, ProductReview, Inventory
+  - Address, Payment, PasswordReset
+  - SiteSettings, FreightConfig
+- [x] **Model Associations** - Proper foreign key relationships and eager loading
+- [x] **Service Layer Refactoring** - Controllers migrated from raw SQL to Sequelize
+- Status: ✅ Complete
+
+### Admin Dashboard Enhancements
+- [x] **Admin Order Management** - Full CRUD with status/payment management
+- [x] **Admin Review Management** - View, moderate, approve/reject reviews with rating breakdowns
+- [x] **Admin Wishlist Management** - View products with wishlist counts, see users per product
+- [x] **Admin Settings Page** - Maintenance mode, site configuration
+- [x] **Admin Freight Zone Management** - Configure shipping rates by zone
+- [x] **Reusable AdminManagementView** - Template component for all admin pages
+- [x] **AdminSearchBar System** - Unified search with type-specific filters
+- [x] **User Details Hover Modal** - Hover-triggered user info display in reviews
+- [x] **Cross-Page Navigation** - URL search params for deep linking between admin pages
+- Status: ✅ Complete
+
+### Product Review System
+- [x] **User Review CRUD** - Create, read, update, delete reviews
+- [x] **One Rating Per User Per Product** - Database constraint enforced
+- [x] **Rating Breakdown** - 5-star distribution statistics per product
+- [x] **Admin Review Moderation** - Approve, edit, delete reviews
+- [x] **Product Rating Aggregation** - Auto-update average ratings
+- Status: ✅ Complete
+
+### Freight & Shipping Configuration
+- [x] **Zone-Based Freight System** - 8-tier regional shipping:
+  - Local (Tauranga, NZ) - Configurable city
+  - North Island (NZ)
+  - South Island (NZ)
+  - International: North America, Europe, Asia, Latin America, Africa
+- [x] **Free Freight Thresholds** - Configurable per zone type
+- [x] **Local Zone Configuration** - Admin can change local city/suburbs
+- [x] **Address-Based Zone Detection** - Auto-detect freight zone from address
+- [x] **Zone Detection Helper** - NZ city-to-region mapping with 100+ cities
+- Status: ✅ Complete
+
+### Regional & Localization Updates
+- [x] **Default Currency: NZD** - Standardized across all displays
+- [x] **PriceDisplay Component** - NZ flag + formatted NZD prices
+- [x] **Country Field** - Added to user registration and profile
+- [x] **CountrySelect Component** - Dropdown with supported countries
+- [x] **SmartAddressInput** - Address autocomplete integration ready
+- Status: ✅ Complete
 
 ### Component Refactoring & Architecture
-- [ ] **Auth Component Refactoring** - Separate buttons, helpers, and logic functions
-- [ ] **Component Separation** - Extract reusable buttons, form inputs, and helper components
-- [ ] **Code Organization** - Separate business logic from UI components
-- [ ] **Helper Functions** - Create utility functions for common operations
-- [ ] Status: ~40% complete
+- [x] **Reusable Button Components** - AddBtn, EditBtn, DeleteBtn, ViewBtn, CloseBtn
+- [x] **Admin Constants System** - NavBar, StatCard, ActionCard, SearchBar configs
+- [x] **Helper Functions** - formatDateDMY, formatNZD, sanitizeImagePath
+- [x] **Error/Success Message Constants** - Centralized messaging
+- Status: ✅ Complete
+
+---
+
+## 🎯 Priority Roadmap (Q1-Q2 2026)
+
+### Priority 1: Order Process Completion
+**Objective:** Implement dummy payment method and complete checkout flow
+
+- [ ] **Dummy Payment Gateway** - Simulated payment processing
+  - Success/failure simulation modes
+  - Card validation UI (test numbers)
+  - Payment confirmation page
+- [ ] **Checkout Flow Completion**
+  - Address selection from saved addresses
+  - Freight calculation at checkout
+  - Order summary with totals
+  - Payment processing integration
+- [ ] **Order Confirmation**
+  - Confirmation page with order details
+  - Order number generation
+  - Receipt download (PDF)
+- **Estimated Effort:** 2-3 weeks
+- **Priority:** 🔴 Critical
+
+### Priority 2: Order Simulation Engine
+**Objective:** Backend engine to simulate order lifecycle events
+
+- [ ] **Order Status Workflow Engine**
+  - Pending → Processing → Shipped → Delivered → Completed
+  - Configurable delays between stages
+  - Manual and automatic progression
+- [ ] **Simulation Dashboard**
+  - Admin interface to trigger status changes
+  - Bulk order simulation
+  - Delivery date estimation
+- [ ] **Event Logging**
+  - Order history timeline
+  - Status change timestamps
+  - Tracking number generation (simulated)
+- **Estimated Effort:** 1-2 weeks
+- **Priority:** 🔴 Critical
+
+### Priority 3: Automated Email Flows
+**Objective:** Integration of automated email triggers for key events
+
+- [ ] **Password Reset Emails**
+  - Reset link generation
+  - Expiration handling
+  - Template customization
+- [ ] **Inquiry/Contact Emails**
+  - Contact form submission notifications
+  - Admin notification emails
+- [ ] **Order Confirmation Emails**
+  - Order placed confirmation
+  - Order shipped notification
+  - Delivery confirmation
+- [ ] **Post-Purchase Rating Requests**
+  - Automated email after delivery
+  - Direct link to product rating page
+  - Reminder emails
+- [ ] **SMTP Configuration**
+  - Admin-configurable SMTP settings
+  - Email template management
+  - Test email functionality
+- **Estimated Effort:** 2-3 weeks
+- **Priority:** 🟠 High
+
+### Priority 4: Design System & Global Style Dictionary
+**Objective:** Establish core design system for universal UI consistency
+
+- [ ] **CSS Variables Centralization**
+  - Color palette (gold/black theme)
+  - Typography scale
+  - Spacing system
+  - Border radius tokens
+  - Shadow definitions
+- [ ] **Component Library Documentation**
+  - Button variants and states
+  - Form input styles
+  - Card components
+  - Modal patterns
+- [ ] **Theme Configuration**
+  - Light/dark mode support (future)
+  - Admin theme customization
+  - Brand color management
+- [ ] **Global Styles**
+  - Reset/normalize CSS
+  - Utility classes
+  - Responsive breakpoints
+- **Estimated Effort:** 1-2 weeks
+- **Priority:** 🟠 High
+
+### Priority 5: Admin Posts & Content Management
+**Objective:** Blog/news system with admin content management
+
+- [ ] **Frontend: Homepage Posts Section**
+  - Display 3 newest posts
+  - Pagination for older content
+  - Post preview cards
+  - "Read More" navigation
+- [ ] **Admin Dashboard: Posts Management**
+  - Create/Edit/Delete posts
+  - Markdown editor support
+  - Image upload for posts
+  - Post scheduling (publish date)
+  - Draft/Published status
+- [ ] **Post Model & API**
+  - Post database schema
+  - CRUD endpoints
+  - Image storage handling
+  - SEO metadata fields
+- **Estimated Effort:** 2-3 weeks
+- **Priority:** 🟡 Medium
+
+### Priority 6: Standardized Error Handling
+**Objective:** Uniform error pages across the application
+
+- [ ] **Error Page Components**
+  - 404 Not Found - Custom design
+  - 500 Server Error - User-friendly message
+  - 403 Forbidden - Access denied page
+  - 503 Maintenance - Service unavailable
+- [ ] **Error Boundary Implementation**
+  - React error boundaries
+  - Graceful error recovery
+  - Error logging integration
+- [ ] **User Experience**
+  - Helpful navigation options
+  - "Go Home" / "Go Back" buttons
+  - Contact support links
+  - Search functionality on 404
+- **Estimated Effort:** 1 week
+- **Priority:** 🟡 Medium
+
+---
+
+## 📦 Phase 2 - Enhanced E-Commerce (Q2 2026)
 
 ### Page Development & UI Completion
-- [ ] **Gallery Page** - Currently blank, needs implementation
+- [ ] **Gallery Page** - Interactive map gallery
   - [ ] Gallery grid layout with product images
   - [ ] Image carousel with fullscreen view
-  - [ ] Expandable product details
   - [ ] Historical information display
   - [ ] Interactive map integration (Google Maps API)
-  - [ ] Location markers and info popups
-- [ ] **Home Page** - Currently blank, needs enhancement
+- [ ] **Home Page** - Landing page enhancement
   - [ ] Hero section with featured products
   - [ ] Featured products carousel
-  - [ ] Company highlights
+  - [ ] **Blog Posts Section** - 3 newest posts (Priority 5)
   - [ ] Newsletter signup
-  - [ ] Call-to-action sections
-- [ ] **About Us Page** - Currently blank, needs implementation
+- [ ] **About Us Page** - Company information
   - [ ] Company mission and values
   - [ ] Team member profiles
-  - [ ] Company history and achievements
-  - [ ] Contact information
   - [ ] Google Maps location embed
-  - [ ] Social media links
-- [ ] Status: ~20% complete
-
-### Admin Dashboard Polishing
-- [ ] **Code Refactoring** - Clean up admin component code
-- [ ] **Testing** - Comprehensive admin feature testing
-- [ ] **UI Polish** - Improve admin dashboard design and usability
-- [ ] Status: ~60% complete
-
-### Error Pages (Required)
-- [ ] **403 Forbidden Page** - Custom design and routing
-- [ ] **404 Not Found Page** - Custom design and routing
-- [ ] **500 Server Error Page** - Custom design and routing
-- [ ] Status: Not started
-
-### Regional & Localization Updates (Required)
-- [ ] **Change Default Nationality** - USA → New Zealand ✅ (to be implemented in user_profiles)
-- [ ] **Change Default Currency** - USD → NZD ✅ (to be implemented in products and orders)
-- [ ] **Update Price Display** - Show prices in NZD across app
-- [ ] **Update Address Fields** - Optimize for New Zealand addresses
-- [ ] Status: Not started
-
----
-
-## 📦 Phase 1 - Payment & Shipping (Q1 2026)
-
-### Payment Processing
-- [ ] **Payment Gateway Integration** - Stripe or similar payment processor
-- [ ] **Payment Processing Pages** - Secure payment form and confirmation
-- [ ] **Order Simulation Logic** - Simulate payment and order processing
-- [ ] **Order Confirmation** - Email with order details
-- [ ] **Invoice Generation** - PDF invoice creation and download
-- [ ] Status: Not started
-
-### Shipping & Freight System
-- [ ] **Freight Pricing Tiers** - Location-based shipping costs:
-  - [ ] Local (Tauranga, New Zealand) - Standard rate
-  - [ ] National (New Zealand North Island) - Regional rate
-  - [ ] National (New Zealand South Island) - Regional rate
-  - [ ] International (North America) - International rate
-  - [ ] International (Europe) - International rate
-  - [ ] International (Asia & Oceania) - International rate
-  - [ ] International (South & Central America) - International rate
-  - [ ] International (Africa) - International rate
-- [ ] **Automatic Tier Selection** - Based on user address
-- [ ] **Shipping Calculator** - Real-time shipping cost calculation
-- [ ] **Carrier Integration** - Optional carrier APIs (DHL, FedEx, etc.)
-- [ ] Status: Not started
-
-### Google Address Autocomplete API
-- [ ] **Address API Integration** - Implement Google Address Autocomplete
-- [ ] **Address Validation** - Validate addresses against API
-- [ ] **Auto-fill Functionality** - Auto-populate address fields
-- [ ] **Regional Detection** - Automatically detect shipping tier
-- [ ] **Multi-address Support** - Allow multiple saved addresses
-- [ ] Status: Not started
-
-### Shopping Flow Automation
-- [ ] **Order Status Workflow** - Pending → Processing → Shipped → Delivered
-- [ ] **Automated Status Updates** - Update based on shipping events
-- [ ] **Delivery Tracking** - Provide tracking links to customers
-- [ ] **Automated Notifications** - Email/SMS at each stage
-- [ ] Status: Not started
-
----
-
-## 📊 Phase 2 - Rating & Review System (Q1 2026)
-
-### Product Rating System
-- [ ] **Rating Database Schema** - New tables for ratings and comments
-- [ ] **Email Link Generation** - Send rating link after delivery
-- [ ] **One Rating Per User Per Product** - Enforce constraint
-- [ ] **Rating Collection Page** - User-friendly rating interface
-- [ ] **Star Rating Input** - 1-5 star selection
-- [ ] **Comment/Review Input** - Text area for written feedback
-- [ ] **Edit Rating** - Allow users to edit rating and comment
-- [ ] **View Edit History** - Show when edits were made
-- [ ] Status: Not started
-
-### Admin Rating Management
-- [ ] **Admin Rating Dashboard** - Dedicated page for viewing all ratings
-- [ ] **Rating Filter** - Filter by product, rating score, user
-- [ ] **Moderation Tools** - Edit, delete, or hide ratings
-- [ ] **Rating Statistics** - Stats card showing rating metrics
-- [ ] **Product Rating Display** - Show ratings on product pages
-- [ ] **Admin Shortcut** - Quick access from admin dashboard
-- [ ] **Manage Individual Ratings** - Full CRUD operations on ratings
-- [ ] Status: Not started
-
----
-
-## ⚙️ Phase 3 - Admin Settings (Q2 2026)
-
-### Freight Price Management
-- [ ] **Shipping Tier Configuration** - Admin interface to set rates
-- [ ] **Edit Shipping Costs** - Update prices per tier
-- [ ] **Tax Configuration** - Optional tax settings by region
-- [ ] **Currency Management** - Set display currency globally
-- [ ] Status: Not started
-
-### Application Settings
-- [ ] **Maintenance Mode (Full)** - Disable entire application
-- [ ] **Maintenance Mode (Shop)** - Disable only shop features
-- [ ] **User Registration Toggle** - Enable/disable new registrations
-- [ ] **System Notifications** - Global announcements/alerts
-- [ ] **Email Configuration** - SMTP settings for notifications
-- [ ] **Theme Customization** - Brand color settings (gold/black)
-- [ ] **Analytics Configuration** - Third-party analytics tracking
-- [ ] Status: Not started
-
----
-
-## 💳 Phase 4 - Enhanced E-Commerce (Q2 2026)
+- Status: ~20% complete
 
 ### Shopping Flow Enhancement
 - [ ] **Cart Persistence** - Maintain cart across sessions ✅ (partially done)
@@ -316,6 +392,28 @@ This document outlines planned features, in-progress work, and improvements for 
 
 ---
 
-**Last Updated:** December 29, 2025  
+**Last Updated:** January 4, 2026  
 **Status:** Active Development  
 **Note:** Timeline and priorities subject to change based on development progress and user feedback.
+
+---
+
+## 📊 Technical Debt & Maintenance
+
+### Code Quality
+- [ ] Unit test coverage (Jest)
+- [ ] Integration test suite
+- [ ] E2E tests (Cypress)
+- [ ] Code documentation
+
+### Performance
+- [ ] Image optimization & lazy loading
+- [ ] Database query optimization
+- [ ] Bundle size reduction
+- [ ] Caching strategies
+
+### Security
+- [ ] Rate limiting implementation
+- [ ] Input sanitization audit
+- [ ] CORS security review
+- [ ] Dependency vulnerability scan
