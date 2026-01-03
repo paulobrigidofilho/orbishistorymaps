@@ -5,11 +5,11 @@
 /**
  * DOCUMENT PURPOSE:
  * Complete e-commerce flow including product browsing, cart management,
- * wishlist functionality, and checkout with guest and authenticated users.
+ * wishlist functionality, checkout with freight calculation, and Google Address Autocomplete.
  * 
  * STATUS: ✅ IMPLEMENTED
- * LAST UPDATED: December 29, 2025
- * VERSION: 2.0
+ * LAST UPDATED: January 4, 2026
+ * VERSION: 3.0 (Freight & Address Integration)
  */
 
 ---
@@ -48,14 +48,71 @@ Browse Products → View Details → Add to Cart / Add to Wishlist
     ↓
 View Cart → Update Quantities → Remove Items
     ↓
-Proceed to Checkout → Enter Shipping Address
+Proceed to Checkout → Enter Shipping Address (Google Autocomplete)
+    ↓
+Freight Zone Detected → Freight Cost Calculated
     ↓
 Select Payment Method → Place Order
     ↓
 Order Confirmation Page → Email Confirmation
 ```
 
-### 3. Wishlist Integration Flow
+### 3. Checkout with Freight Calculation ✨
+
+```
+User clicks "Proceed to Checkout"
+    ↓
+Checkout Page Loads with AddressAutocomplete component
+    ↓
+User starts typing address → Google Places API suggestions appear
+    ↓
+User selects address from dropdown
+    ↓
+Frontend extracts: { address, city, country, google_place_id }
+    ↓
+Frontend: POST /api/freight/calculate-from-address
+    Body: { address, city, country, cart_total }
+    ↓
+Backend: zoneDetectionHelper.detectZone(city, country)
+    ├── "local"         → Tauranga/Mount Maunganui (cheapest)
+    ├── "north_island"  → NZ North Island
+    ├── "south_island"  → NZ South Island
+    ├── "intl_north_america" → USA, Canada
+    ├── "intl_asia"     → China, Japan, etc.
+    ├── "intl_europe"   → UK, Portugal, etc.
+    ├── "intl_latin_america" → Brazil, etc.
+    └── "intl_africa"   → Africa region
+    ↓
+Backend: freightService.calculateFreight(zone, cart_total, weight)
+    {
+      zone: "north_island",
+      baseCost: 12.00,
+      freeThreshold: 150.00,
+      isFreeShipping: cart_total >= 150,
+      finalCost: cart_total >= 150 ? 0 : 12.00
+    }
+    ↓
+Frontend: Display FreightCostDisplay component
+    ├── Shows zone name (e.g., "North Island Delivery")
+    ├── Shows freight cost or "FREE SHIPPING" badge
+    └── Shows progress to free shipping threshold
+    ↓
+User confirms address and reviews total with freight
+    ↓
+User selects payment method → Place Order
+```
+
+**Supported Countries:**
+- 🇳🇿 New Zealand (with local/regional zones)
+- 🇦🇺 Australia
+- 🇺🇸 USA
+- 🇨🇦 Canada
+- 🇧🇷 Brazil
+- 🇵🇹 Portugal
+- 🇬🇧 United Kingdom
+- 🇨🇳 China
+
+### 4. Wishlist Integration Flow
 
 ```
 Product Page → Click Wishlist Heart Icon → Toggle Added/Removed
@@ -417,7 +474,7 @@ window.dispatchEvent(new Event("wishlistUpdated"));
 
 ## 🎯 Future Enhancements
 
-- [ ] Product reviews and ratings
+- [x] ~~Product reviews and ratings~~ ✅ Implemented
 - [ ] Save for later functionality
 - [ ] Cart expiration for abandoned carts
 - [ ] Recently viewed products
@@ -428,6 +485,6 @@ window.dispatchEvent(new Event("wishlistUpdated"));
 
 ---
 
-**Document Version:** 2.0  
-**Last Updated:** December 29, 2025  
+**Document Version:** 3.0  
+**Last Updated:** January 4, 2026  
 **Maintained By:** Development Team

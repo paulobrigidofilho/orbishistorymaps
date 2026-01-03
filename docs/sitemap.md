@@ -14,7 +14,7 @@ This document serves as the main index for the Orbis project documentation.
 - **[Profile Management Flow](./flows/profile-management-flow.md)** - User profile viewing and editing ✅ IMPLEMENTED
 
 ### E-Commerce Features
-- **[Shop & Cart Flow](./flows/shop-cart-flow.md)** - Product browsing, cart, wishlist, checkout ✅ IMPLEMENTED
+- **[Shop & Cart Flow](./flows/shop-cart-flow.md)** - Product browsing, cart, wishlist, checkout with freight ✅ IMPLEMENTED
 - **[Interactive Gallery Flow](./flows/gallery-flow.md)** - Product gallery with history and maps 🔄 PLANNED
 
 ### Other Features
@@ -22,10 +22,10 @@ This document serves as the main index for the Orbis project documentation.
 - **[Password Reset Flow](./flows/password-reset-flow.md)** - Forgot password and reset functionality ✅ IMPLEMENTED
 
 ### Architecture
-- **[System Architecture Overview](./architecture/system-architecture.md)** - Complete system design and technology stack ✅
+- **[System Architecture Overview](./architecture/system-architecture.md)** - Complete system design (Sequelize ORM) ✅
 - **[API Architecture & Design](./architecture/api-architecture.md)** - REST API endpoints and specifications ✅
 - **[Component Architecture](./architecture/component-architecture.md)** - Frontend component hierarchy and patterns ✅
-- **[Database Schema](./architecture/database-schema.md)** - PostgreSQL tables, relationships, and queries ✅
+- **[Database Schema](./architecture/database-schema.md)** - PostgreSQL tables with Sequelize models ✅
 - **[Page Hierarchy](./architecture/page-hierarchy.md)** - Complete page structure and routing ✅
 - **[Navigation Structure](./architecture/navigation-structure.md)** - Nav bar and menu organization ✅
 - **[User Roles & Permissions](./architecture/user-roles.md)** - Access control and permissions ✅
@@ -38,9 +38,12 @@ This document serves as the main index for the Orbis project documentation.
 - **[Password Reset](./quickstart/password-reset.md)** - Password reset flow and implementation ✅
 - **[Authentication System](./quickstart/authentication.md)** - Login, registration, and auth flow ✅
 - **[Order Management](./quickstart/order-management.md)** - Checkout, orders, and confirmations ✅
+- **[Freight System](./quickstart/freight-system.md)** - Zone-based freight calculation ✅ NEW
+- **[Address Management](./quickstart/address-management.md)** - Google Places integration ✅ NEW
+- **[Review System](./quickstart/review-system.md)** - Product reviews and ratings ✅ NEW
 
 ### Charts & Diagrams
-- **[Shop & Cart Flow Chart](./charts/shop-cart-flow-chart.md)** - Visual flow diagram ✅
+- **[Shop & Cart Flow Chart](./charts/shop-cart-flow-chart.md)** - Visual flow with freight calculation ✅
 - **[Authentication Flow Chart](./charts/authentication-flow-chart.md)** - Login, registration, and session flows ✅
 - **[Profile Management Flow Chart](./charts/profile-management-flow-chart.md)** - Profile viewing and editing ✅
 - **[Main Application Flow Chart](./charts/main-application-flow-chart.md)** - Overall navigation flows ✅
@@ -54,14 +57,15 @@ This document serves as the main index for the Orbis project documentation.
 - **Error (Red):** `#cc0000`
 - **Success (Green):** `#4caf50`
 - **Info (Blue):** `#2196f3`
+- **Google Blue:** `#4285F4`
 
 ---
 
 ## 📊 Project Status
 
-**Version:** 2.0  
+**Version:** 3.0 (Sequelize ORM Edition)  
 **Status:** Active Development  
-**Last Updated:** December 29, 2025
+**Last Updated:** January 4, 2026
 
 ### ✅ Implemented Features
 
@@ -100,6 +104,35 @@ This document serves as the main index for the Orbis project documentation.
 - ✅ Real-time wishlist updates
 - ✅ Authentication required for wishlist
 
+**Freight & Shipping System (NEW):**
+- ✅ Zone-based freight calculation
+- ✅ Local zone (Tauranga/Mount Maunganui)
+- ✅ North/South Island zones (NZ)
+- ✅ International zones (NA, Asia, Europe, LatAm, Africa)
+- ✅ Free shipping thresholds per zone
+- ✅ Google Places Address Autocomplete
+- ✅ AddressAutocomplete component
+- ✅ FreightCostDisplay component
+- ✅ Zone detection helper (608 cities)
+- ✅ 8 supported countries
+
+**Product Reviews (NEW):**
+- ✅ Submit product reviews
+- ✅ Star rating system (1-5)
+- ✅ Review approval workflow
+- ✅ Admin review moderation
+- ✅ Average rating calculation
+- ✅ Review responses by admin
+
+**Admin System (Expanded):**
+- ✅ User management (list, edit, roles)
+- ✅ Product management (CRUD, images)
+- ✅ Order management (status, tracking) ✨
+- ✅ Review moderation ✨
+- ✅ Wishlist analytics ✨
+- ✅ Site settings management ✨
+- ✅ Freight configuration ✨
+
 **Notification System:**
 - ✅ FadeNotification reusable component
 - ✅ Success, error, info variants
@@ -108,35 +141,72 @@ This document serves as the main index for the Orbis project documentation.
 - ✅ Material Icons integration
 
 **Checkout & Orders:**
-- ✅ Shipping address form
+- ✅ Shipping address form with Google autocomplete ✨
+- ✅ Freight cost calculation ✨
 - ✅ Payment method selection
-- ✅ Order creation
+- ✅ Order creation with freight zone ✨
 - ✅ Order confirmation page
-- ✅ Order history (basic)
+- ✅ Order history with tracking ✨
 
 ### 🔄 In Progress Features
 
-- Address validation improvements
 - Payment gateway integration (Stripe)
 - Email order confirmations
-- Product reviews and ratings
+- Order tracking page
 
 ### 📝 Planned Features
 
 - Interactive gallery with maps
 - About Us page
 - Contact form
-- Advanced admin panel
-- Order tracking
+- Advanced reporting dashboard
 - Discount codes
 - Gift wrapping
 
-### Planned Features
-- 🔄 E-commerce shop with cart
-- 🔄 Interactive product gallery
-- 🔄 Password reset flow
-- 🔄 About Us page with contact form
-- 🔄 Admin dashboard
+---
+
+## 🗺️ Application Routes
+
+### Public Routes
+| Route | Component | Description |
+|-------|-----------|-------------|
+| `/` | Home | Landing page |
+| `/shop` | Shop | Product catalog |
+| `/shop/:identifier` | ProductDetail | Product details |
+| `/about` | About | Company info |
+| `/contact` | Contact | Contact form |
+
+### Auth Routes
+| Route | Component | Description |
+|-------|-----------|-------------|
+| `/login` | Login | User login |
+| `/register` | Register | Multi-step registration |
+| `/forgot-password` | ForgotPassword | Request reset |
+| `/reset-password/:token` | ResetPassword | Reset form |
+
+### User Routes (Protected)
+| Route | Component | Description |
+|-------|-----------|-------------|
+| `/profile` | Profile | User profile |
+| `/profile/edit` | ProfileEdit | Edit profile |
+| `/cart` | Cart | Shopping cart |
+| `/checkout` | Checkout | Shipping address ✨ |
+| `/payment` | Payment | Payment method |
+| `/order-confirmation` | OrderConfirmation | Order success |
+| `/wishlist` | Wishlist | Saved items |
+| `/orders` | OrderHistory | Order history |
+
+### Admin Routes (Protected)
+| Route | Component | Description |
+|-------|-----------|-------------|
+| `/admin` | AdminDashboard | Dashboard overview |
+| `/admin/users` | AdminUsers | User management |
+| `/admin/products` | AdminProducts | Product CRUD |
+| `/admin/orders` | AdminOrders | Order management ✨ |
+| `/admin/reviews` | AdminReviews | Review moderation ✨ |
+| `/admin/wishlists` | AdminWishlists | Wishlist analytics ✨ |
+| `/admin/settings` | AdminSettings | Site settings ✨ |
+| `/admin/freight` | AdminFreight | Freight zones ✨ |
 
 ---
 
