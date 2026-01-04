@@ -83,13 +83,13 @@ export const POST_STAT_CARD = {
 // Dashboard action cards configuration
 export const ACTION_CARDS = [
   {
-    icon: "�",
+    icon: "📝",
     title: "Manage Posts",
     description: "Create and manage blog posts",
     to: "/admin/posts",
   },
   {
-    icon: "�👥",
+    icon: "👥",
     title: "Manage Users",
     description: "View and manage user accounts",
     to: "/admin/users",
