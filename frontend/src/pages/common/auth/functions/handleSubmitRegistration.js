@@ -20,6 +20,7 @@ import axios from "axios";
 import {
   validatePersonalDetails,
   validateProfileDetails,
+  validateAddressDetails,
 } from "../validators/registrationValidator";
 import { REGISTRATION_ERRORS } from "../constants/authErrorMessages";
 import { API_BASE } from "../constants/authConstants";
@@ -59,6 +60,21 @@ const handleSubmitRegistration = async (e, formData, setters) => {
     return;
   }
 
+  // Validate address details (all-or-nothing rule)
+  const addressValidation = validateAddressDetails({
+    address: formData.address,
+    addressLine2: formData.addressLine2,
+    city: formData.city,
+    stateName: formData.stateName,
+    zipCode: formData.zipCode,
+    country: formData.country,
+  });
+
+  if (!addressValidation.success) {
+    setters.setError(addressValidation.error);
+    return;
+  }
+
   // ========================= FORM DATA PREPARATION ========================= //
   // Prepare form data for submission
 
@@ -76,6 +92,7 @@ const handleSubmitRegistration = async (e, formData, setters) => {
   submitData.append("city", formData.city || "");
   submitData.append("state", formData.stateName || "");
   submitData.append("zipCode", formData.zipCode || "");
+  submitData.append("country", formData.country || "New Zealand");
 
   if (formData.avatar) {
     submitData.append("avatar", formData.avatar);

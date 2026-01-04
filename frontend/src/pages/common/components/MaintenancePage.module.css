@@ -1,0 +1,163 @@
+/* ============================== */
+/* ===== MAINTENANCE PAGE STYLES ===== */
+/* ============================== */
+
+.maintenanceContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 2rem;
+}
+
+.maintenanceCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  text-align: center;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  max-width: 550px;
+  width: 100%;
+}
+
+/* ============================== */
+/* ===== ICON WRAPPER ===== */
+/* ============================== */
+
+.iconWrapper {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 24px rgba(243, 156, 18, 0.2);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* ============================== */
+/* ===== TEXT STYLES ===== */
+/* ============================== */
+
+.title {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  font-weight: 700;
+}
+
+.message {
+  font-size: 1.15rem;
+  color: #7f8c8d;
+  margin: 0 0 2rem 0;
+  line-height: 1.7;
+  max-width: 400px;
+}
+
+.subtext {
+  font-size: 0.9rem;
+  color: #95a5a6;
+  margin-top: 1.5rem;
+  font-style: italic;
+}
+
+/* ============================== */
+/* ===== BUTTON STYLES ===== */
+/* ============================== */
+
+.refreshButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.refreshButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.refreshButton:active {
+  transform: translateY(0);
+}
+
+.refreshButton i {
+  font-size: 1.2rem;
+}
+
+/* ============================== */
+/* ===== RESPONSIVE DESIGN ===== */
+/* ============================== */
+
+@media (max-width: 768px) {
+  .maintenanceContainer {
+    padding: 1rem;
+  }
+
+  .maintenanceCard {
+    padding: 2rem 1.5rem;
+  }
+
+  .iconWrapper {
+    width: 100px;
+    height: 100px;
+  }
+
+  .iconWrapper i {
+    font-size: 3rem !important;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .message {
+    font-size: 1rem;
+  }
+}
+
+/* ============================== */
+/* ===== ADMIN LINK ===== */
+/* ============================== */
+
+.adminLink {
+  background: none;
+  border: none;
+  color: #bdc3c7;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-top: 2rem;
+  padding: 0.5rem 1rem;
+  transition: color 0.3s ease;
+  text-decoration: none;
+}
+
+.adminLink:hover {
+  color: #7f8c8d;
+  text-decoration: underline;
+}

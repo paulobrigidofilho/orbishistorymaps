@@ -1,6 +1,6 @@
-///////////////////////////////////////
-// ===== LOGIN MODAL COMPONENT ===== //
-///////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ===================== LOGIN MODAL COMPONENT ===================== //
+///////////////////////////////////////////////////////////////////////
 
 // This component renders a modal for user login, handling email and password input,
 // and providing feedback for login errors.
@@ -9,7 +9,10 @@
 import styles from "./Auth.module.css"; 
 import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext.jsx';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
+//  ========== Button imports  ========== //
+import { SubmitBtn, CloseBtn, LinkBtn } from './btn';
 
 //  ========== Function imports  ========== //
 import handleSubmitLogin from './functions/handleSubmitLogin';
@@ -37,7 +40,7 @@ function LoginModal({ onClose }) {
     <div className={styles.loginModal}>
       <div className={styles.modalContent}>
         <h2 className={styles.loginTitle}>Log In</h2>
-        <button onClick={onClose} className={styles.closeButton}>×</button>
+        <CloseBtn onClick={onClose} />
         
         <form onSubmit={handleSubmitWithContext}>
           {error && <div className={styles.error}>{error}</div>}
@@ -61,21 +64,13 @@ function LoginModal({ onClose }) {
               className={styles.inputField}
             />
 
-            <div className={styles.forgotPasswordLink}>
-              <NavLink to="/forgot-password" onClick={onClose}>
-                Forgot Password?
-              </NavLink>
-            </div>
+            <LinkBtn variant="forgot" onClick={onClose} />
             
-            <button type="submit" className={styles.loginButton}>
-              Log In
-            </button>
+            <SubmitBtn variant="login" />
           </div>
         </form>
         
-        <div className={styles.registerLink}>
-          Not a user? <NavLink to="/register">Register here</NavLink>
-        </div>
+        <LinkBtn variant="register" />
       </div>
     </div>
   );

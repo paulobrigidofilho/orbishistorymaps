@@ -12,6 +12,8 @@ import styles from "./MyOrders.module.css";
 //  ========== Component imports  ========== //
 import MainNavBar from "../MainNavBar";
 import OrderCard from "./components/OrderCard";
+import LoginRequired from "../components/LoginRequired";
+import LoginModal from "../auth/LoginModal";
 
 //  ========== Function imports  ========== //
 import getUserOrders from "./functions/getUserOrders";
@@ -37,6 +39,7 @@ export default function MyOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -80,16 +83,14 @@ export default function MyOrders() {
     return (
       <div className={styles.ordersPage}>
         <MainNavBar />
-        <div className={styles.emptyContainer}>
-          <i className="material-icons" style={{ fontSize: "4rem", color: "#3498db" }}>
-            receipt_long
-          </i>
-          <h2>Please Log In</h2>
-          <p>You need to be logged in to view your orders.</p>
-          <button onClick={() => navigate("/register")} className={styles.actionButton}>
-            Sign Up / Login
-          </button>
-        </div>
+        <LoginRequired
+          icon="receipt_long"
+          title="Please Log In"
+          message="You need to be logged in to view your orders."
+          iconColor="#3498db"
+          onLoginClick={() => setShowLoginModal(true)}
+        />
+        {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
       </div>
     );
   }

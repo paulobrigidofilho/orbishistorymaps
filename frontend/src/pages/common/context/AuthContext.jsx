@@ -6,7 +6,7 @@
 // login, and logout functionalities, and ensuring user data is persisted across sessions.
 
 // ====== Module imports ====== //
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import handleLogin from "../auth/functions/handleLogin";
 import handleLogout from "../auth/functions/handleLogout";
@@ -143,4 +143,21 @@ const AuthProvider = ({ children }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+///////////////////////////////////////////////////////////////////////
+// ========================= CUSTOM HOOK =========================== //
+///////////////////////////////////////////////////////////////////////
+
+/**
+ * Custom hook to access auth context
+ * @returns {Object} Auth context value containing user, setUser, login, logout
+ */
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
+
 export { AuthProvider };
+

@@ -2,26 +2,26 @@
 // ===== GET USER BY ID ASYNC HELPER ====== //
 //////////////////////////////////////////////
 
-// This helper promisifies the callback-based userModel.getUserById
+// This helper retrieves a user by ID using the Sequelize User model
 // for use in async/await service functions.
 
 // ======= Model Imports ======= //
-const userModel = require("../model/userModel");
+const { User } = require("../models");
 
 ///////////////////////////////////
 // ===== HELPER FUNCTION ======= //
 ///////////////////////////////////
 
 // ===== getUserByIdAsync Function ===== //
-// Promisified wrapper around userModel.getUserById
+// Retrieves a user by ID using Sequelize User model
 
-const getUserByIdAsync = (userId) => {
-  return new Promise((resolve, reject) => {
-    userModel.getUserById(userId, (err, user) => {
-      if (err) return reject(err);
-      resolve(user);
-    });
-  });
+const getUserByIdAsync = async (userId) => {
+  try {
+    const user = await User.findByPk(userId, { raw: true });
+    return user;
+  } catch (error) {
+    throw error;
+  }
 };
 
 module.exports = { getUserByIdAsync };

@@ -1,0 +1,204 @@
+/* ============================================================ */
+/* ============== REVIEW EDIT MODAL STYLES =================== */
+/* ============================================================ */
+
+.modalOverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+.modalContent {
+	background-color: white;
+	border-radius: 8px;
+	width: 90%;
+	max-width: 500px;
+	max-height: 90vh;
+	overflow-y: auto;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+	animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+	from { transform: translateY(30px); opacity: 0; }
+	to { transform: translateY(0); opacity: 1; }
+}
+
+.modalHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1.5rem;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.modalHeader h2 {
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #1f2937;
+}
+
+.closeButton {
+	background: none;
+	border: none;
+	font-size: 2rem;
+	color: #6b7280;
+	cursor: pointer;
+	padding: 0;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 4px;
+	transition: all 0.2s;
+}
+
+.closeButton:hover {
+	background-color: #f3f4f6;
+	color: #1f2937;
+}
+
+.modalForm {
+	padding: 1.5rem;
+}
+
+.formGroup {
+	margin-bottom: 1.25rem;
+}
+
+.formGroup label {
+	display: block;
+	font-size: 0.95rem;
+	font-weight: 500;
+	color: #374151;
+	margin-bottom: 0.5rem;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+	width: 100%;
+	padding: 0.625rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 0.9375rem;
+	transition: all 0.2s;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+	outline: none;
+	border-color: #3b82f6;
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.inputError {
+	border-color: #ef4444 !important;
+}
+
+.inputError:focus {
+	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.formGroupCheckbox {
+	margin-bottom: 1.25rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.errorText {
+	display: block;
+	color: #ef4444;
+	font-size: 0.8125rem;
+	margin-top: 0.25rem;
+}
+
+.successMessage {
+	background-color: #d1fae5;
+	color: #065f46;
+	padding: 0.75rem 1rem;
+	border-radius: 6px;
+	margin-bottom: 1rem;
+	font-size: 0.875rem;
+	border: 1px solid #a7f3d0;
+	font-weight: 500;
+}
+
+.submitError {
+	background-color: #fee2e2;
+	color: #991b1b;
+	padding: 0.75rem 1rem;
+	border-radius: 6px;
+	margin-bottom: 1rem;
+	font-size: 0.875rem;
+	border: 1px solid #fecaca;
+}
+
+.modalActions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.75rem;
+	padding-top: 1rem;
+	border-top: 1px solid #e5e7eb;
+}
+
+.cancelButton,
+.saveButton {
+	padding: 0.625rem 1.5rem;
+	border-radius: 6px;
+	font-size: 0.9375rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+	border: none;
+}
+
+.cancelButton {
+	background-color: white;
+	color: #374151;
+	border: 1px solid #d1d5db;
+}
+
+.cancelButton:hover:not(:disabled) {
+	background-color: #f9fafb;
+	border-color: #9ca3af;
+}
+
+.saveButton {
+	background-color: #3b82f6;
+	color: white;
+}
+
+.saveButton:hover:not(:disabled) {
+	background-color: #2563eb;
+}
+
+.cancelButton:disabled,
+.saveButton:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+	.modalContent {
+		width: 95%;
+		max-height: 95vh;
+	}
+}

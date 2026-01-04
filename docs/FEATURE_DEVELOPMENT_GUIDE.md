@@ -1,103 +1,216 @@
 ---
 
-# 📋 Feature Development Guide - Rating System & Admin Settings
+# 📋 Feature Development Guide
 
-**Document Purpose:** Quick reference for implementing rating system and admin settings  
-**Last Updated:** December 29, 2025  
-**Status:** Planning Phase
+**Document Purpose:** Quick reference for implementing core features and system architecture  
+**Last Updated:** January 4, 2026  
+**Status:** Active Development (paulo branch)
 
 ---
 
-## 🌟 Rating System Implementation Guide
+## ✅ Completed Features
 
-### Overview
-A comprehensive product rating system allowing customers to rate and review products after delivery, with admin management capabilities.
+### 🌟 Product Review System (IMPLEMENTED)
 
-### Key Requirements
+The product review system is now fully implemented using Sequelize ORM.
 
-#### Customer-Facing Features
-1. **Email-Based Rating Links**
-   - Automatically sent after product delivery
-   - Unique link per order/product combination
-   - Link expires after 30 days
-   - Multiple products in one order = multiple rating links
+#### Database Model: ProductReview
+```javascript
+// backend/src/models/ProductReview.js
+{
+  review_id: STRING(36),      // UUID primary key
+  product_id: STRING(36),     // FK to products
+  user_id: STRING(64),        // FK to users
+  order_id: STRING(36),       // FK to orders (optional)
+  rating: INTEGER,            // 1-5 stars
+  review_title: STRING(255),  // Optional title
+  review_text: TEXT,          // Review content
+  is_verified_purchase: BOOLEAN,
+  is_approved: BOOLEAN,       // Admin moderation
+  helpful_count: INTEGER,
+  created_at, updated_at
+}
+```
 
-2. **One Rating Per User Per Product**
-   - Database constraint: UNIQUE(user_id, product_id)
-   - Prevent duplicate ratings
-   - Allow only one active rating per user per product
+#### API Endpoints (Implemented)
+```
+# User Review Endpoints
+GET    /api/reviews/product/:productId    - Get product reviews (public)
+POST   /api/reviews                        - Create/update review (auth required)
+GET    /api/reviews/user/:userId           - Get user's reviews
+PATCH  /api/reviews/:reviewId              - Edit review
+DELETE /api/reviews/:reviewId              - Delete review
 
-3. **Rating & Comment Edit Capability**
-   - Users can edit their rating (1-5 stars)
-   - Users can edit their comment/review text
-   - Edit timestamp tracked and displayed
-   - Show "Last edited: [date]" on rating display
+# Admin Review Endpoints
+GET    /api/admin/reviews                  - Get all reviews with filters
+GET    /api/admin/reviews/:reviewId        - Get single review
+PUT    /api/admin/reviews/:reviewId        - Update review
+PATCH  /api/admin/reviews/:reviewId/approve - Approve review
+DELETE /api/admin/reviews/:reviewId        - Delete review
+GET    /api/admin/reviews/product/:productId/breakdown - Rating breakdown
+```
 
-4. **Rating Page Interface**
-   - Star rating selector (1-5 stars)
-   - Comment text area (optional, max 500 chars)
-   - Photo upload (optional)
-   - Submit button
-   - Form validation
+#### Implementation Files
+- `backend/src/models/ProductReview.js` - Sequelize model
+- `backend/src/controllers/reviewController.js` - User review controller
+- `backend/src/controllers/adminReviewController.js` - Admin controller
+- `backend/src/services/reviewService.js` - Business logic
+- `backend/src/services/adminReviewService.js` - Admin service
+- `backend/src/routes/reviewRoutes.js` - User routes
+- `backend/src/routes/adminReviewRoutes.js` - Admin routes
+- `frontend/src/pages/admin/adminpages/AdminReviews/` - Admin UI
 
-#### Admin Features
-1. **Admin Rating Dashboard**
-   - View all product ratings
-   - Filter by product name/ID
-   - Filter by rating score (1★, 2★, 3★, 4★, 5★)
-   - Filter by user
-   - Sort options (newest, highest, lowest, helpful)
-   - Pagination (20 per page)
+---
 
-2. **Rating Statistics Card**
-   - Average rating (e.g., 4.5/5)
-   - Total number of reviews
-   - Distribution chart (counts for each star level)
-   - Percentage breakdown
-   - Trend indicator (↑ up, ↓ down, → stable)
+### ⚙️ Admin Settings System (IMPLEMENTED)
 
-3. **Admin Moderation Tools**
-   - View full rating with user info
-   - Edit rating or comment (admin notes on edit)
-   - Delete inappropriate ratings
-   - Hide/unhide specific ratings
-   - Mark as verified purchase
+Site-wide configuration management with maintenance mode support.
 
-4. **Admin Shortcuts**
-   - Dashboard widget: "Recent Reviews" (5 most recent)
-   - Dashboard widget: "Average Rating" by product (top 5 products)
-   - Quick link from admin menu to Ratings page
-   - Product management quick link to product's ratings
+#### Database Model: SiteSettings
+```javascript
+// backend/src/models/SiteSettings.js
+{
+  setting_id: INTEGER,
+  setting_key: STRING(100),      // Unique key
+  setting_value: TEXT,           // JSON-compatible value
+  setting_type: ENUM('string', 'number', 'boolean', 'json'),
+  setting_description: STRING(255),
+  setting_category: STRING(50),  // 'maintenance', 'store', 'features'
+  created_at, updated_at
+}
+```
 
-5. **Rating Management Page Features**
-   - Bulk actions (hide, delete, approve)
-   - Export ratings to CSV
-   - Search by product/user/date range
-   - Real-time update notifications
+#### Static Methods
+- `SiteSettings.getSetting(key)` - Get typed value
+- `SiteSettings.setSetting(key, value, options)` - Create/update setting
+- `SiteSettings.getAllForCategory(category)` - Get category settings
+- `SiteSettings.getAllAsObject()` - Get all as key-value object
 
-### Database Schema
+#### API Endpoints (Implemented)
+```
+# Public
+GET    /api/settings/maintenance           - Get maintenance status
 
-```sql
--- New table: ratings
-CREATE TABLE ratings (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-  product_id UUID NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  
-  score INT NOT NULL CHECK (score >= 1 AND score <= 5),
-  comment TEXT CHECK (char_length(comment) <= 500),
-  photo_url TEXT,
-  
-  verified_purchase BOOLEAN DEFAULT true,
-  helpful_count INT DEFAULT 0,
-  unhelpful_count INT DEFAULT 0,
-  
-  is_hidden BOOLEAN DEFAULT false,
-  admin_notes TEXT,
-  
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+# Admin
+GET    /api/admin/settings                 - Get all settings
+GET    /api/admin/settings/:key            - Get single setting
+PUT    /api/admin/settings/:key            - Update setting
+PUT    /api/admin/settings                 - Update multiple settings
+PUT    /api/admin/settings/maintenance     - Set maintenance mode
+POST   /api/admin/settings/initialize      - Initialize defaults
+GET    /api/admin/settings/category/:cat   - Get by category
+```
+
+#### Maintenance Mode Options
+- `off` - Normal operation
+- `site-wide` - Entire site disabled
+- `shop-only` - Shop features disabled
+- `registration-only` - New registrations disabled
+
+---
+
+### 🚚 Freight Zone System (IMPLEMENTED)
+
+Zone-based shipping cost calculation with configurable local zone.
+
+#### Database Model: FreightConfig
+```javascript
+// backend/src/models/FreightConfig.js
+{
+  config_id: UUID,
+  // Zone costs
+  local: DECIMAL,              // Tauranga (default)
+  north_island: DECIMAL,       // NZ North Island
+  south_island: DECIMAL,       // NZ South Island
+  rural_surcharge: DECIMAL,
+  intl_north_america: DECIMAL,
+  intl_asia: DECIMAL,
+  intl_europe: DECIMAL,
+  intl_africa: DECIMAL,
+  intl_latin_america: DECIMAL,
+  // Free freight
+  is_free_freight_enabled: BOOLEAN,
+  threshold_local: DECIMAL,
+  threshold_national: DECIMAL,
+  threshold_international: DECIMAL,
+  // Local zone config
+  local_zone_city: STRING,     // "Tauranga"
+  local_zone_region: STRING,   // "Bay of Plenty"
+  local_zone_postal_prefixes: STRING,
+  local_zone_suburbs: TEXT
+}
+```
+
+#### API Endpoints (Implemented)
+```
+# Admin
+GET    /api/admin/freight                  - Get freight config
+PUT    /api/admin/freight                  - Update freight config
+GET    /api/admin/freight/local-zone       - Get local zone config
+PUT    /api/admin/freight/local-zone       - Update local zone
+GET    /api/admin/freight/available-cities - Get NI cities
+
+# Public
+GET    /api/freight/config                 - Public freight config
+GET    /api/freight/zones                  - Get zone costs
+POST   /api/freight/calculate              - Calculate freight cost
+POST   /api/freight/calculate-from-address - Calculate from address
+GET    /api/freight/zones-info             - Get zones information
+POST   /api/freight/validate-address       - Validate shipping address
+GET    /api/freight/supported-countries    - Get country list
+```
+
+#### Zone Detection Logic
+The `zoneDetectionHelper.js` provides:
+- NZ city-to-island mapping (100+ cities)
+- International country-to-zone mapping
+- Postal code prefix detection
+- Suburb matching for local zone
+
+---
+
+### 💝 Admin Wishlist Management (IMPLEMENTED)
+
+View and manage product wishlists with user details.
+
+#### API Endpoints (Implemented)
+```
+GET    /api/admin/wishlists/stats          - Overall statistics
+GET    /api/admin/wishlists/products       - Products with wishlist counts
+GET    /api/admin/wishlists/:productId/users - Users who wishlisted product
+GET    /api/admin/wishlists/:productId/count - Wishlist count for product
+DELETE /api/admin/wishlists/:productId/users/:userId - Remove from wishlist
+```
+
+#### Frontend Components
+- `AdminWishlists.jsx` - Main wishlist management page
+- `WishlistModal.jsx` - Modal showing users per product
+
+---
+
+### 📦 Admin Order Management (IMPLEMENTED)
+
+Full order lifecycle management with status tracking.
+
+#### API Endpoints (Implemented)
+```
+GET    /api/admin/orders                   - Get all orders (paginated)
+GET    /api/admin/orders/:orderId          - Get order details
+PUT    /api/admin/orders/:orderId/status   - Update order status
+PUT    /api/admin/orders/:orderId/payment  - Update payment status
+DELETE /api/admin/orders/:orderId          - Delete order
+```
+
+#### Order Statuses
+- `pending` → `processing` → `shipped` → `delivered`
+- `cancelled`, `refunded`
+
+#### Payment Statuses
+- `pending`, `completed`, `failed`, `refunded`
+
+---
+
+## 🔮 Upcoming Implementation Guide
   
   UNIQUE(user_id, product_id),
   INDEX idx_product_id (product_id),
@@ -436,23 +549,206 @@ POST /api/admin/settings/branding/logo
 
 ---
 
-## 🔗 Integration Points
+## � Upcoming Implementation Guide
 
-### Rating System Integration
-- **Checkout Page:** After payment, order transitions to "Pending" (awaiting delivery)
-- **Order Delivery:** When admin marks order as "Delivered", send rating email
-- **Product Page:** Display average rating and review count
-- **Profile Page:** Show user's own ratings
-- **Admin Dashboard:** Show recent reviews widget
+### Priority 1: Dummy Payment Method
 
-### Admin Settings Integration
-- **Checkout Page:** Auto-select shipping tier based on address
-- **Shop Page:** Show maintenance banner if shop maintenance enabled
-- **Login Page:** Hide if full maintenance mode enabled (except admin)
-- **Navigation:** Show maintenance alerts based on settings
-- **Email:** Use configured SMTP for all notifications
-- **Branding:** Apply custom colors from settings
+#### Implementation Plan
+```javascript
+// backend/src/models/Payment.js (exists)
+// Add dummy gateway integration
+
+// Simulated payment flow:
+// 1. User submits payment form with test card
+// 2. Backend validates card format (not real validation)
+// 3. Simulate processing delay (1-2 seconds)
+// 4. Return success/failure based on card number
+```
+
+#### Test Card Numbers
+- `4111111111111111` - Always succeeds
+- `4000000000000002` - Always fails
+- `4000000000000010` - Random success/failure
+
+#### Required Files
+- `backend/src/services/paymentService.js` - Payment processing
+- `backend/src/controllers/paymentController.js` - Endpoints
+- `frontend/src/pages/checkout/PaymentForm.jsx` - Payment UI
+- `frontend/src/pages/checkout/OrderConfirmation.jsx` - Confirmation
 
 ---
 
-**Note:** These are planning documents. Actual implementation may vary based on requirements and constraints.
+### Priority 2: Order Simulation Engine
+
+#### Implementation Plan
+```javascript
+// backend/src/services/orderSimulationService.js
+const simulateOrderProgress = async (orderId, config) => {
+  // Config: { delayMinutes, autoProgress }
+  // Pending -> Processing: 5 min
+  // Processing -> Shipped: 30 min
+  // Shipped -> Delivered: 2 hours
+};
+```
+
+#### Admin Controls
+- Manual status change buttons
+- Auto-simulation toggle
+- Configurable delays per stage
+- Bulk simulation for testing
+
+---
+
+### Priority 3: Email Integration
+
+#### Required Setup
+1. Configure SMTP in admin settings
+2. Create email templates (Handlebars/EJS)
+3. Implement email queue service
+
+#### Email Templates Needed
+- `welcome.html` - New user registration
+- `password-reset.html` - Password reset link
+- `order-confirmation.html` - Order placed
+- `order-shipped.html` - Order shipped
+- `rating-request.html` - Post-delivery rating
+
+---
+
+### Priority 4: Design System
+
+#### CSS Variables Structure
+```css
+:root {
+  /* Colors */
+  --color-primary: #D4AF37;      /* Gold */
+  --color-secondary: #1a1a1a;    /* Black */
+  --color-background: #ffffff;
+  --color-surface: #f9fafb;
+  --color-error: #dc2626;
+  --color-success: #059669;
+  
+  /* Typography */
+  --font-family: 'Inter', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  
+  /* Borders */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+}
+```
+
+---
+
+### Priority 5: Admin Posts System
+
+#### Database Model
+```javascript
+// backend/src/models/Post.js
+{
+  post_id: UUID,
+  title: STRING(255),
+  slug: STRING(300),
+  content: TEXT,           // Markdown content
+  excerpt: STRING(500),    // Preview text
+  featured_image: STRING,
+  author_id: FK(users),
+  status: ENUM('draft', 'published'),
+  published_at: DATE,
+  created_at, updated_at
+}
+```
+
+#### Admin Interface
+- Post list with status filter
+- Markdown editor (react-markdown-editor-lite)
+- Image upload for featured image
+- Publish/unpublish toggle
+- Schedule publishing
+
+---
+
+### Priority 6: Error Pages
+
+#### Component Structure
+```jsx
+// frontend/src/pages/errors/
+├── Error404.jsx      // Not Found
+├── Error403.jsx      // Forbidden
+├── Error500.jsx      // Server Error
+├── Error503.jsx      // Maintenance
+└── ErrorBoundary.jsx // Catch-all wrapper
+```
+
+#### Features
+- Consistent branding (gold/black theme)
+- Helpful navigation (Home, Back, Search)
+- Contact support link
+- Automatic error logging
+
+---
+
+## 📁 Architecture Reference
+
+### Backend Directory (Sequelize ORM)
+```
+backend/src/
+├── config/
+│   ├── config.js              # DB pool (legacy)
+│   └── sequelizeConfig.js     # Sequelize instance ✨
+├── models/                     # Sequelize models ✨
+│   ├── index.js               # Model associations
+│   ├── User.js
+│   ├── Product.js
+│   ├── ProductReview.js
+│   ├── Order.js
+│   ├── SiteSettings.js
+│   ├── FreightConfig.js
+│   └── ...
+├── controllers/
+├── services/
+├── routes/
+├── middleware/
+└── helpers/
+    └── zoneDetectionHelper.js # NZ zone detection ✨
+```
+
+### Frontend Admin Structure
+```
+frontend/src/pages/admin/
+├── AdminDashboard.jsx
+├── adminpages/
+│   ├── AdminUsers/
+│   ├── AdminProducts/
+│   ├── AdminOrders/           ✨
+│   ├── AdminReviews/          ✨
+│   ├── AdminWishlists/        ✨
+│   └── AdminSettings/         ✨
+├── components/
+│   ├── AdminManagementView.jsx  ✨ Template component
+│   ├── AdminSearchBar.jsx       ✨
+│   ├── AdminNavBar.jsx
+│   └── ...
+├── constants/
+│   ├── adminSearchBarConstants.js ✨
+│   ├── adminNavBarConstants.js    ✨
+│   └── ...
+└── btn/
+    └── index.js               # Reusable buttons ✨
+```
+
+---
+
+**Note:** ✨ = New/Updated in paulo branch (Dec 2025 - Jan 2026)

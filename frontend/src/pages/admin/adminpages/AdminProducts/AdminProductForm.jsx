@@ -11,6 +11,7 @@ import styles from "./AdminProductForm.module.css";
 
 //  ========== Component imports  ========== //
 import AdminLayout from "../../components/AdminLayout";
+import AdminAlertModal from "../../components/AdminAlertModal/AdminAlertModal";
 
 //  ========== Function imports  ========== //
 import getProductById from "../../functions/getProductById";
@@ -22,6 +23,10 @@ import deleteProductImage from "../../functions/deleteProductImage";
 //  ========== Constants imports  ========== //
 import { ERROR_MESSAGES } from "../../constants/adminErrorMessages";
 import { SUCCESS_MESSAGES } from "../../constants/adminSuccessMessages";
+import { 
+  ADMIN_PRODUCT_ALERT_MESSAGES, 
+  ADMIN_ERROR_ALERT_MESSAGES 
+} from "../../constants/adminAlertModalConstants";
 
 ///////////////////////////////////////////////////////////////////////
 // ===================== ADMIN PRODUCT FORM ========================== //
@@ -53,6 +58,14 @@ export default function AdminProductForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+
+  // AdminAlertModal state
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    config: {},
+    onConfirm: null,
+  });
+  const [pendingDeleteImageId, setPendingDeleteImageId] = useState(null);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -102,6 +115,38 @@ export default function AdminProductForm() {
     }));
   };
 
+  ///////////////////////////////////////////////////////////////////////
+  // =================== ALERT MODAL HELPERS ========================= //
+  ///////////////////////////////////////////////////////////////////////
+
+  // Close alert modal
+  const closeAlertModal = () => {
+    setAlertModal({ isOpen: false, config: {}, onConfirm: null });
+    setPendingDeleteImageId(null);
+  };
+
+  // Show success alert
+  const showSuccessAlert = (config) => {
+    setAlertModal({
+      isOpen: true,
+      config: config,
+      onConfirm: closeAlertModal,
+    });
+  };
+
+  // Show error alert
+  const showErrorAlert = (errorMessage) => {
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_ERROR_ALERT_MESSAGES.GENERIC_ERROR(errorMessage),
+      onConfirm: closeAlertModal,
+    });
+  };
+
+  ///////////////////////////////////////////////////////////////////////
+  // =================== FORM SUBMIT ================================= //
+  ///////////////////////////////////////////////////////////////////////
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -110,11 +155,17 @@ export default function AdminProductForm() {
     try {
       if (isEditMode) {
         await updateProduct(productId, formData);
-        alert(SUCCESS_MESSAGES.PRODUCT_UPDATED);
+        showSuccessAlert(ADMIN_PRODUCT_ALERT_MESSAGES.PRODUCT_UPDATED);
       } else {
         const response = await createProduct(formData);
-        alert(SUCCESS_MESSAGES.PRODUCT_CREATED);
-        navigate(`/admin/products/edit/${response.data.product_id}`);
+        setAlertModal({
+          isOpen: true,
+          config: ADMIN_PRODUCT_ALERT_MESSAGES.PRODUCT_CREATED,
+          onConfirm: () => {
+            closeAlertModal();
+            navigate(`/admin/products/edit/${response.data.product_id}`);
+          },
+        });
       }
     } catch (err) {
       setError(err.message);
@@ -138,23 +189,33 @@ export default function AdminProductForm() {
       await uploadProductImage(productId, imageFile, images.length === 0);
       setImageFile(null);
       fetchProduct(); // Refresh to get new images
-      alert("Image uploaded successfully!");
+      showSuccessAlert(ADMIN_PRODUCT_ALERT_MESSAGES.IMAGE_UPLOADED);
     } catch (err) {
-      alert(`Error uploading image: ${err.message}`);
+      showErrorAlert(`Error uploading image: ${err.message}`);
     } finally {
       setUploadingImage(false);
     }
   };
 
-  const handleImageDelete = async (imageId) => {
-    if (!window.confirm("Delete this image?")) return;
+  // Request image delete - opens confirmation modal
+  const handleImageDelete = (imageId) => {
+    setPendingDeleteImageId(imageId);
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_PRODUCT_ALERT_MESSAGES.DELETE_IMAGE,
+      onConfirm: () => confirmImageDelete(imageId),
+    });
+  };
 
+  // Actually delete image after confirmation
+  const confirmImageDelete = async (imageId) => {
+    closeAlertModal();
     try {
       await deleteProductImage(imageId);
       fetchProduct(); // Refresh to update images
-      alert("Image deleted successfully!");
+      showSuccessAlert(ADMIN_PRODUCT_ALERT_MESSAGES.IMAGE_DELETED);
     } catch (err) {
-      alert(`Error deleting image: ${err.message}`);
+      showErrorAlert(`Error deleting image: ${err.message}`);
     }
   };
 
@@ -366,6 +427,20 @@ export default function AdminProductForm() {
           </section>
         )}
       </div>
+
+      {/* Admin Alert Modal */}
+      <AdminAlertModal
+        isOpen={alertModal.isOpen}
+        onClose={closeAlertModal}
+        onConfirm={alertModal.onConfirm}
+        type={alertModal.config.type}
+        title={alertModal.config.title}
+        message={alertModal.config.message}
+        confirmText={alertModal.config.confirmText}
+        cancelText={alertModal.config.cancelText}
+        showCancel={alertModal.config.showCancel !== false}
+        icon={alertModal.config.icon}
+      />
     </AdminLayout>
   );
 }

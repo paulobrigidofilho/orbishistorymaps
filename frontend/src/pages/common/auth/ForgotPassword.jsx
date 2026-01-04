@@ -1,6 +1,6 @@
-////////////////////////////////////////
-// ===== FORGOT PASSWORD PAGE ======= //
-////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// =================== FORGOT PASSWORD COMPONENT =================== //
+///////////////////////////////////////////////////////////////////////
 
 // This component handles the forgot password request
 // where users can enter their email to receive a reset link
@@ -8,7 +8,9 @@
 //  ========== Module imports  ========== //
 import styles from "./Auth.module.css";
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+
+//  ========== Button imports  ========== //
+import { SubmitBtn, LinkBtn } from "./btn";
 
 // ========================= FORGOT PASSWORD COMPONENT ======================== //
 
@@ -106,19 +108,18 @@ function ForgotPassword() {
             disabled={isLoading}
           />
 
-          <button
-            type="submit"
-            className={styles.registerButton}
+          <SubmitBtn
+            variant="register"
             disabled={isLoading}
+            loading={isLoading}
+            loadingText="Sending..."
           >
-            {isLoading ? "Sending..." : "Send Reset Link"}
-          </button>
+            Send Reset Link
+          </SubmitBtn>
         </div>
       </form>
 
-      <div className={styles.registerLink}>
-        Remember your password? <NavLink to="/">Back to Login</NavLink>
-      </div>
+      <LinkBtn variant="login" />
     </div>
   );
 }

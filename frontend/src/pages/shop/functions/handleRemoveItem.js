@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 // This function handles removing items from cart
+// NOTE: Confirmation is now handled via AlertModal in the component
 
 //  ========== Function imports  ========== //
 import removeCartItem from "./cartService/removeCartItem";
@@ -12,7 +13,7 @@ import removeCartItem from "./cartService/removeCartItem";
 ///////////////////////////////////////////////////////////////////////
 
 /**
- * Remove item from cart with confirmation
+ * Remove item from cart (after confirmation via AlertModal)
  * @param {string} cartItemId - Cart item UUID
  * @param {Function} setUpdating - Loading state setter
  * @param {Function} fetchCart - Function to refresh cart
@@ -20,8 +21,6 @@ import removeCartItem from "./cartService/removeCartItem";
  * @returns {Promise<void>}
  */
 export default async function handleRemoveItem(cartItemId, setUpdating, fetchCart, showMessage) {
-  if (!window.confirm("Remove this item from cart?")) return;
-
   try {
     setUpdating(true);
     await removeCartItem(cartItemId);

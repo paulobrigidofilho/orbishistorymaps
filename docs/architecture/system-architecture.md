@@ -5,7 +5,8 @@
   
   Document Type: System Architecture & Technical Design
   Purpose: Complete system architecture, technology stack, and design patterns
-  Last Updated: December 29, 2025
+  Last Updated: January 4, 2026
+  Version: 2.0 (Sequelize ORM)
   
   For page structure: see page-hierarchy.md
   For navigation: see navigation-structure.md
@@ -22,10 +23,11 @@ This comprehensive document describes the complete system architecture of the Or
 
 ### Architecture Type
 - **Frontend:** SPA (Single Page Application) with React
-- **Backend:** Node.js/Express REST API
+- **Backend:** Node.js/Express REST API with **Sequelize ORM** ✨
 - **Database:** PostgreSQL (relational)
 - **Deployment:** Docker containers
 - **State Management:** Context API (frontend), Sessions (backend)
+- **External APIs:** Google Places API (address autocomplete) ✨
 
 ### Key Principles
 1. **Separation of Concerns** - Frontend/backend clearly separated
@@ -33,6 +35,8 @@ This comprehensive document describes the complete system architecture of the Or
 3. **Session-Based Auth** - Server sessions with httpOnly cookies
 4. **Responsive Design** - Mobile, tablet, desktop support
 5. **Security First** - Validation, sanitization, CORS
+6. **Service-Oriented** - Dedicated services for complex operations ✨
+7. **Localization Ready** - NZD currency, multi-country support ✨
 
 ---
 
@@ -45,20 +49,89 @@ graph TB
     
     Frontend["FRONTEND<br/>React + Vite<br/>Port 5173"]:::black -->
     
-    API["REST API<br/>Express.js<br/>Port 3000"]:::gold -->
+    API["REST API<br/>Express.js + Sequelize<br/>Port 3000"]:::gold -->
     
     Database["DATABASE<br/>PostgreSQL<br/>Port 5432"]:::error -->
     
     Storage["FILE STORAGE<br/>Server uploads/<br/>Avatars & Images"]:::black -->
     
+    GoogleAPI["GOOGLE API<br/>Places Autocomplete<br/>Address Validation"]:::gold -->
+    
     User <-->|HTTP/HTTPS| Frontend
     Frontend <-->|Axios + Cookie| API
-    API <-->|SQL Queries| Database
+    Frontend <-->|Address Lookup| GoogleAPI
+    API <-->|Sequelize ORM| Database
     API <-->|File I/O| Storage
+    API <-->|Zone Detection| GoogleAPI
     
     classDef gold fill:#D4AF37,stroke:#000,stroke-width:2px,color:#000
     classDef black fill:#1a1a1a,stroke:#D4AF37,stroke-width:2px,color:#D4AF37
     classDef error fill:#cc0000,stroke:#000,stroke-width:2px,color:#fff
+```
+
+---
+
+## 🚚 Freight Management System ✨
+
+### Overview
+The Freight Management System provides zone-based shipping calculation with automatic detection based on user address. Integrates with Google Places API for address validation.
+
+### Architecture Diagram
+
+```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#D4AF37','primaryTextColor':'#000','primaryBorderColor':'#000','lineColor':'#D4AF37','secondaryColor':'#1a1a1a','tertiaryColor':'#333'}}}%%
+graph LR
+    subgraph Frontend
+        AddressInput["📍 AddressAutocomplete<br/>Google Places"]:::gold
+        FreightDisplay["💰 FreightCostDisplay<br/>Zone & Cost"]:::black
+    end
+    
+    subgraph Backend Services
+        FreightController["freightController.js<br/>HTTP Handlers"]:::gold
+        FreightService["freightService.js<br/>Business Logic"]:::black
+        ZoneHelper["zoneDetectionHelper.js<br/>Zone Classification"]:::gold
+    end
+    
+    subgraph Database
+        FreightConfig["freight_config<br/>Zone Rates & Thresholds"]:::error
+        UserAddress["users.user_freight_zone<br/>Cached Zone"]:::error
+    end
+    
+    AddressInput -->|POST /freight/calculate-from-address| FreightController
+    FreightController --> FreightService
+    FreightService --> ZoneHelper
+    ZoneHelper --> FreightConfig
+    FreightService --> FreightDisplay
+    FreightService -->|Cache Zone| UserAddress
+    
+    classDef gold fill:#D4AF37,stroke:#000,stroke-width:2px,color:#000
+    classDef black fill:#1a1a1a,stroke:#D4AF37,stroke-width:2px,color:#D4AF37
+    classDef error fill:#cc0000,stroke:#000,stroke-width:2px,color:#fff
+```
+
+### Freight Zone Classification
+
+| Zone | Coverage | Detection Logic |
+|------|----------|-----------------|
+| `local` | Configurable city (default: Tauranga) | City name match + postal prefix |
+| `north_island` | NZ North Island (excl. local) | Country=NZ + NI region list |
+| `south_island` | NZ South Island | Country=NZ + SI region list |
+| `intl_north_america` | USA, Canada | Country match |
+| `intl_europe` | UK, Portugal, EU | Country match |
+| `intl_asia` | China | Country match |
+| `intl_latin_america` | Brazil | Country match |
+| `intl_africa` | African countries | Country match |
+
+### Service Layer Pattern
+
+```
+freightController.js (HTTP Layer)
+    ↓
+freightService.js (Business Logic)
+    ↓
+zoneDetectionHelper.js (Zone Classification)
+    ↓
+FreightConfig Model (Database Access)
 ```
 
 ---
@@ -87,7 +160,10 @@ frontend/
 │   │   │   │   ├── MainNavBar.jsx
 │   │   │   │   ├── LoginModal.jsx
 │   │   │   │   ├── ProtectedRoute.jsx
-│   │   │   │   └── FadeNotification.jsx
+│   │   │   │   ├── FadeNotification.jsx
+│   │   │   │   ├── PriceDisplay.jsx          # ✨ NZD formatting
+│   │   │   │   ├── CountrySelect.jsx         # ✨ Country dropdown
+│   │   │   │   └── AddressAutocomplete.jsx   # ✨ Google Places
 │   │   │   └── context/
 │   │   │       └── AuthContext.jsx
 │   │   ├── auth/
@@ -99,24 +175,33 @@ frontend/
 │   │   │   ├── ShopPage.jsx
 │   │   │   ├── ProductDetail.jsx
 │   │   │   ├── CartPage.jsx
-│   │   │   ├── CheckoutPage.jsx
+│   │   │   ├── CheckoutPage.jsx              # ✨ Freight calculation
 │   │   │   ├── OrderHistoryPage.jsx
 │   │   │   ├── WishlistPage.jsx
 │   │   │   └── components/
 │   │   │       ├── ProductCard.jsx
 │   │   │       ├── CartItem.jsx
-│   │   │       └── CheckoutForm.jsx
+│   │   │       ├── CheckoutForm.jsx
+│   │   │       ├── FreightCostDisplay.jsx    # ✨ Zone-based costs
+│   │   │       └── ProductReviewSection.jsx  # ✨ Reviews
 │   │   ├── gallery/
 │   │   │   ├── GalleryPage.jsx
 │   │   │   └── components/
 │   │   │       └── GalleryGrid.jsx
 │   │   └── admin/
 │   │       ├── AdminDashboard.jsx
-│   │       ├── AdminUsersPage.jsx
-│   │       ├── AdminProductsPage.jsx
+│   │       ├── adminpages/
+│   │       │   ├── AdminUsers/               # User management
+│   │       │   ├── AdminProducts/            # Product management
+│   │       │   ├── AdminOrders/              # ✨ Order management
+│   │       │   ├── AdminReviews/             # ✨ Review moderation
+│   │       │   ├── AdminWishlists/           # ✨ Wishlist analytics
+│   │       │   └── AdminSettings/            # ✨ Site & freight settings
 │   │       └── components/
-│   │           ├── UserTable.jsx
-│   │           └── ProductTable.jsx
+│   │           ├── AdminManagementView.jsx   # ✨ Reusable template
+│   │           ├── AdminNavBar.jsx
+│   │           ├── StatCard.jsx
+│   │           └── ViewUserDetailsModal.jsx  # ✨ User preview
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── styles/
@@ -229,10 +314,28 @@ const axiosInstance = axios.create({
 - **CORS:** cors middleware
 - **Environment:** dotenv
 
-### Backend Directory Structure
+### Backend Directory Structure (Sequelize ORM) ✨
 ```
 backend/
 ├── src/
+│   ├── config/
+│   │   ├── config.js              # Legacy DB pool
+│   │   └── sequelizeConfig.js     # ✨ Sequelize instance
+│   ├── models/                    # ✨ Sequelize models
+│   │   ├── index.js               # Associations & exports
+│   │   ├── User.js
+│   │   ├── Product.js
+│   │   ├── ProductCategory.js
+│   │   ├── ProductImage.js
+│   │   ├── ProductReview.js       # ✨ Review system
+│   │   ├── Cart.js
+│   │   ├── CartItem.js
+│   │   ├── Order.js
+│   │   ├── OrderItem.js
+│   │   ├── Wishlist.js
+│   │   ├── Address.js             # ✨ Google Places fields
+│   │   ├── SiteSettings.js        # ✨ Maintenance modes
+│   │   └── FreightConfig.js       # ✨ Zone-based rates
 │   ├── controllers/
 │   │   ├── authController.js
 │   │   ├── productController.js
@@ -240,7 +343,14 @@ backend/
 │   │   ├── orderController.js
 │   │   ├── profileController.js
 │   │   ├── wishlistController.js
-│   │   └── adminController.js
+│   │   ├── reviewController.js    # ✨ User reviews
+│   │   ├── freightController.js   # ✨ Freight calculation
+│   │   ├── adminUserController.js
+│   │   ├── adminProductController.js
+│   │   ├── adminOrderController.js     # ✨
+│   │   ├── adminReviewController.js    # ✨
+│   │   ├── adminWishlistController.js  # ✨
+│   │   └── adminSettingsController.js  # ✨
 │   ├── routes/
 │   │   ├── authRoutes.js
 │   │   ├── productRoutes.js
@@ -248,39 +358,84 @@ backend/
 │   │   ├── orderRoutes.js
 │   │   ├── profileRoutes.js
 │   │   ├── wishlistRoutes.js
-│   │   └── adminRoutes.js
-│   ├── middleware/
-│   │   ├── authMiddleware.js
-│   │   ├── roleMiddleware.js
-│   │   ├── validationMiddleware.js
-│   │   ├── errorHandler.js
-│   │   └── corsMiddleware.js
-│   ├── models/
-│   │   ├── User.js
-│   │   ├── Product.js
-│   │   ├── Cart.js
-│   │   ├── Order.js
-│   │   ├── Session.js
-│   │   └── Wishlist.js
+│   │   ├── reviewRoutes.js        # ✨
+│   │   ├── freightRoutes.js       # ✨
+│   │   ├── adminUserRoutes.js
+│   │   ├── adminProductRoutes.js
+│   │   ├── adminOrderRoutes.js    # ✨
+│   │   ├── adminReviewRoutes.js   # ✨
+│   │   ├── adminWishlistRoutes.js # ✨
+│   │   └── adminSettingsRoutes.js # ✨
 │   ├── services/
 │   │   ├── authService.js
 │   │   ├── productService.js
 │   │   ├── orderService.js
 │   │   ├── emailService.js
-│   │   └── fileService.js
-│   ├── config/
-│   │   ├── database.js
-│   │   ├── environment.js
-│   │   └── constants.js
+│   │   ├── fileService.js
+│   │   ├── reviewService.js       # ✨
+│   │   ├── freightService.js      # ✨ Zone calculation
+│   │   ├── adminOrderService.js   # ✨
+│   │   ├── adminReviewService.js  # ✨
+│   │   ├── adminWishlistService.js # ✨
+│   │   └── adminSettingsService.js # ✨
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   ├── adminMiddleware.js
+│   │   ├── validationMiddleware.js
+│   │   └── errorHandler.js
+│   ├── helpers/
+│   │   ├── handleServerError.js
+│   │   └── zoneDetectionHelper.js # ✨ NZ zone detection
 │   ├── uploads/
 │   │   ├── avatars/
 │   │   └── products/
-│   ├── app.js
 │   └── server.js
 ├── package.json
 ├── .env
 └── .env.example
 ```
+
+### MVC Pattern Extension ✨
+
+The backend follows an extended MVC pattern with dedicated service layers:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     REQUEST FLOW                            │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  HTTP Request                                               │
+│       ↓                                                     │
+│  ┌─────────────┐                                           │
+│  │   Routes    │  Define endpoints, apply middleware        │
+│  └─────────────┘                                           │
+│       ↓                                                     │
+│  ┌─────────────┐                                           │
+│  │ Controllers │  Parse request, validate, call service     │
+│  └─────────────┘                                           │
+│       ↓                                                     │
+│  ┌─────────────┐                                           │
+│  │  Services   │  Business logic, complex operations        │
+│  └─────────────┘                                           │
+│       ↓                                                     │
+│  ┌─────────────┐                                           │
+│  │  Helpers    │  Utility functions (zone detection, etc.)  │
+│  └─────────────┘                                           │
+│       ↓                                                     │
+│  ┌─────────────┐                                           │
+│  │   Models    │  Sequelize ORM, database access            │
+│  └─────────────┘                                           │
+│       ↓                                                     │
+│  HTTP Response                                              │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Key Service Additions:**
+- `freightService.js` - Zone-based freight calculation with threshold logic
+- `adminOrderService.js` - Order management with status workflows
+- `adminReviewService.js` - Review moderation with rating recalculation
+- `adminSettingsService.js` - Site configuration with maintenance modes
 
 ### Backend Components
 
@@ -313,7 +468,7 @@ backend/
 
 ---
 
-## 💾 Database Schema
+## 💾 Database Schema (Sequelize ORM) ✨
 
 ### Core Tables
 
@@ -329,6 +484,9 @@ users {
   avatar_url
   role DEFAULT 'user'
   status DEFAULT 'active'
+  user_country                    # ✨ For freight zone
+  user_freight_zone               # ✨ Detected zone
+  user_is_tauranga BOOLEAN        # ✨ Local delivery flag
   created_at
   updated_at
 }
@@ -355,7 +513,7 @@ user_profiles {
   city
   state
   zip_code
-  country DEFAULT 'USA'
+  country DEFAULT 'New Zealand'   # ✨ Updated default
   updated_at
 }
 ```
@@ -368,8 +526,39 @@ products {
   description
   price
   inventory
-  category
+  category_id FK→product_categories  # ✨
+  weight                             # ✨ For freight calc
   image_url
+  created_at
+  updated_at
+}
+```
+
+#### Product Categories Table ✨
+```sql
+product_categories {
+  id PK
+  name UK
+  description
+  slug UK
+  parent_id FK→product_categories (self-ref)
+  is_active DEFAULT true
+  created_at
+  updated_at
+}
+```
+
+#### Product Reviews Table ✨
+```sql
+product_reviews {
+  id PK
+  product_id FK→products
+  user_id FK→users
+  rating (1-5)
+  title
+  comment TEXT
+  is_approved DEFAULT false
+  admin_response TEXT
   created_at
   updated_at
 }
@@ -402,13 +591,77 @@ cart_items {
 orders {
   id PK
   user_id FK→users
-  status (pending, shipped, delivered)
+  status ENUM('pending','processing','shipped','delivered','cancelled')  # ✨
   total_amount
-  shipping_address
+  freight_cost                    # ✨
+  freight_zone                    # ✨
+  shipping_address JSONB          # ✨ Google Places format
   payment_method
+  tracking_number                 # ✨
+  notes TEXT                      # ✨
   created_at
   updated_at
 }
+```
+
+#### Addresses Table ✨
+```sql
+addresses {
+  id PK
+  user_id FK→users
+  address_line_1
+  address_line_2
+  city
+  state
+  postal_code
+  country
+  google_place_id                 # ✨ Google Places integration
+  formatted_address               # ✨ Full formatted address
+  latitude
+  longitude
+  freight_zone                    # ✨ Calculated zone
+  is_default DEFAULT false
+  created_at
+  updated_at
+}
+```
+
+#### Freight Config Table ✨
+```sql
+freight_configs {
+  id PK
+  zone UK ENUM('local','north_island','south_island',
+               'intl_north_america','intl_asia','intl_europe',
+               'intl_latin_america','intl_africa')
+  base_rate DECIMAL
+  per_kg_rate DECIMAL
+  free_threshold DECIMAL
+  weight_threshold DECIMAL
+  is_active DEFAULT true
+  created_at
+  updated_at
+}
+```
+
+#### Site Settings Table ✨
+```sql
+site_settings {
+  id PK
+  setting_key UK
+  setting_value JSONB
+  setting_type ENUM('string','number','boolean','json')
+  description
+  is_editable DEFAULT true
+  created_at
+  updated_at
+}
+
+-- Example settings:
+-- maintenance_mode: boolean
+-- site_name: string
+-- contact_email: string
+-- feature_reviews_enabled: boolean
+-- feature_wishlists_enabled: boolean
 ```
 
 #### Wishlists Table
@@ -474,7 +727,7 @@ Frontend: Update badge count
 User sees notification
 ```
 
-### Checkout Flow
+### Checkout Flow (with Freight Calculation) ✨
 ```
 User clicks "Proceed to Checkout"
   ↓
@@ -483,17 +736,48 @@ Frontend: Check if authenticated
 If guest: Show login modal
 If authenticated: Navigate to checkout
   ↓
-User fills shipping address
+User enters shipping address (AddressAutocomplete component)
+  ↓
+Frontend: Google Places API autocomplete suggestions
+  ↓
+User selects address from Google Places
+  ↓
+Frontend: POST /api/freight/calculate-from-address
+  ├── Body: { address, country, city }
+  │
+  ↓
+Backend: zoneDetectionHelper determines freight zone
+  ├── local (Tauranga/Mount Maunganui)
+  ├── north_island (NZ North Island cities)
+  ├── south_island (NZ South Island cities)
+  └── intl_* (International zones)
+  │
+  ↓
+Backend: freightService calculates cost
+  ├── Base rate per zone
+  ├── Weight threshold rules
+  └── Free freight threshold check
+  │
+  ↓
+Backend: Return freight calculation
+  {
+    zone: "north_island",
+    baseCost: 12.00,
+    freeThreshold: 150.00,
+    isFreeShipping: false
+  }
+  ↓
+Frontend: Display FreightCostDisplay component
   ↓
 User selects payment method
   ↓
 User clicks "Place Order"
   ↓
-Frontend: POST /api/orders (cart, address, payment)
+Frontend: POST /api/orders (cart, address, freight_zone, payment)
   ↓
-Backend: Validate cart & address
+Backend: Validate cart, address, freight
   ↓
-Backend: Create order in DB
+Backend: Create order in DB with freight cost
   ↓
 Backend: Clear cart
   ↓
@@ -606,6 +890,6 @@ DATA LAYER
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** December 29, 2025  
-**Status:** ✅ Complete
+**Document Version:** 2.0  
+**Last Updated:** January 4, 2026  
+**Status:** ✅ Complete (Sequelize ORM Edition)

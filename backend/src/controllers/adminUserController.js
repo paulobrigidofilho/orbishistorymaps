@@ -24,26 +24,17 @@ const { ADMIN_ERRORS, ADMIN_SUCCESS } = require("../constants/adminMessages");
 // Retrieves paginated list of users with optional filters
 
 const getUsers = async (req, res) => {
-  console.log("==================== NEW REQUEST ====================");
-  console.log("[adminUserController] req.url:", req.url);
-  console.log("[adminUserController] req.originalUrl:", req.originalUrl);
-  console.log("[adminUserController] Full req.query:", JSON.stringify(req.query, null, 2));
-  
   try {
-    console.log("[adminUserController] sortBy from query:", req.query.sortBy);
-    console.log("[adminUserController] sortOrder from query:", req.query.sortOrder);
-    
     const filters = {
       page: parseInt(req.query.page) || 1,
       limit: parseInt(req.query.limit) || 20,
       search: req.query.search || "",
       role: req.query.role || "all",
       status: req.query.status || "all",
+      country: req.query.country || "all",
       sortBy: req.query.sortBy || "user_id",
       sortOrder: req.query.sortOrder || "desc",
     };
-
-    console.log("GET /api/admin/users requested with filters:", filters);
 
     const result = await getAllUsers(filters);
 

@@ -1,0 +1,249 @@
+/****************************************************************
+ * ADMIN LOGIN PAGE STYLES
+ ****************************************************************/
+
+/****************************************************************
+ * 1. CONTAINER
+ ****************************************************************/
+
+.adminLoginContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 20px;
+}
+
+/****************************************************************
+ * 2. CARD
+ ****************************************************************/
+
+.adminLoginCard {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  backdrop-filter: blur(10px);
+}
+
+/****************************************************************
+ * 3. HEADER
+ ****************************************************************/
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.title {
+  font-size: 1.8rem;
+  color: #1a1a2e;
+  margin: 15px 0 10px;
+  font-weight: 700;
+}
+
+.maintenanceBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.maintenanceBadge i {
+  font-size: 1rem;
+}
+
+/****************************************************************
+ * 4. FORM ELEMENTS
+ ****************************************************************/
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0 15px;
+  transition: all 0.3s ease;
+}
+
+.inputWrapper:focus-within {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.inputWrapper i {
+  color: #a0aec0;
+  font-size: 1.2rem;
+}
+
+.inputWrapper:focus-within i {
+  color: #667eea;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 14px 12px;
+  font-size: 1rem;
+  color: #2d3748;
+  outline: none;
+}
+
+.input::placeholder {
+  color: #a0aec0;
+}
+
+/****************************************************************
+ * 5. BUTTON STYLES
+ ****************************************************************/
+
+.submitButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.submitButton i {
+  font-size: 1.2rem;
+}
+
+/* Spinning animation for loading */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+/****************************************************************
+ * 6. ERROR MESSAGE
+ ****************************************************************/
+
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff5f5;
+  border: 1px solid #fc8181;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #c53030;
+  font-size: 0.9rem;
+}
+
+.errorMessage i {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/****************************************************************
+ * 7. FOOTER
+ ****************************************************************/
+
+.footer {
+  text-align: center;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.footerText {
+  color: #718096;
+  font-size: 0.85rem;
+  margin-bottom: 15px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #667eea;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.backLink:hover {
+  color: #764ba2;
+}
+
+.backLink i {
+  font-size: 1rem;
+}
+
+/****************************************************************
+ * 8. RESPONSIVE DESIGN
+ ****************************************************************/
+
+@media (max-width: 480px) {
+  .adminLoginCard {
+    padding: 30px 20px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .submitButton {
+    padding: 12px 20px;
+  }
+}

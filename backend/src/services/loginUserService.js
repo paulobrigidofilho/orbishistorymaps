@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////
-// ============= LOGIN USER SERVICE ============= //
-////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ================= LOGIN USER SERVICE (SEQUELIZE) ================ //
+///////////////////////////////////////////////////////////////////////
 
 // This service handles the login logic for users
 // including credential verification and profile retrieval.
@@ -9,7 +9,7 @@
 const bcrypt = require("bcrypt");
 
 // ======= Model Imports ======= //
-const userModel = require("../model/userModel");
+const { User } = require("../models");
 
 // ======= Constants Imports ======= //
 const { AUTH_ERRORS } = require("../constants/errorMessages");
@@ -17,9 +17,9 @@ const { AUTH_ERRORS } = require("../constants/errorMessages");
 // ======= Helper Imports ======= //
 const { createUserProfile } = require("../helpers/createUserProfile");
 
-///////////////////////////////////
-// ===== SERVICE FUNCTIONS ===== //
-///////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ================ SERVICE FUNCTIONS ============================== //
+///////////////////////////////////////////////////////////////////////
 
 // ===== loginUser Function ===== //
 // Authenticates user credentials and retrieves user profile
@@ -27,25 +27,36 @@ const { createUserProfile } = require("../helpers/createUserProfile");
 const loginUser = async (credentials) => {
   const { email, password } = credentials;
 
-  return new Promise((resolve, reject) => {
-    userModel.getUserByEmail(email, async (err, user) => {
-      if (err) return reject(err);
-      if (!user) return reject(new Error(AUTH_ERRORS.INVALID_CREDENTIALS));
-
-      try {
-        const passwordMatch = await bcrypt.compare(
-          password,
-          user.user_password
-        );
-        if (!passwordMatch)
-          return reject(new Error(AUTH_ERRORS.INVALID_CREDENTIALS));
-        const userProfile = createUserProfile(user);
-        resolve(userProfile);
-      } catch (compareError) {
-        reject(compareError);
-      }
+  try {
+    // Find user by email
+    const user = await User.findOne({
+      where: { user_email: email },
     });
-  });
+
+    if (!user) {
+      throw new Error(AUTH_ERRORS.INVALID_CREDENTIALS);
+    }
+
+    // Verify password
+    const passwordMatch = await bcrypt.compare(password, user.user_password);
+    if (!passwordMatch) {
+      throw new Error(AUTH_ERRORS.INVALID_CREDENTIALS);
+    }
+
+    // Create user profile from Sequelize model
+    const userProfile = createUserProfile(user.toJSON());
+    return userProfile;
+  } catch (error) {
+    if (error.message === AUTH_ERRORS.INVALID_CREDENTIALS) {
+      throw error;
+    }
+    console.error("Login error:", error);
+    throw error;
+  }
 };
+
+///////////////////////////////////////////////////////////////////////
+// ================ EXPORTS ======================================== //
+///////////////////////////////////////////////////////////////////////
 
 module.exports = { loginUser };

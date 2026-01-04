@@ -6,7 +6,10 @@
 
 // ======= Service Imports ======= //
 const adminProductService = require("../services/adminProductService");
-const productModel = require("../model/productModel");
+
+// ======= Model Imports (Sequelize) ======= //
+const { Product, ProductImage, ProductCategory, Inventory, Wishlist } = require("../models");
+const { Op, fn, col, literal } = require("sequelize");
 
 // ======= Constants Imports ======= //
 const { ADMIN_SUCCESS, ADMIN_ERRORS } = require("../constants/adminMessages");
@@ -31,104 +34,93 @@ const getProducts = async (req, res) => {
       sortOrder = "desc"
     } = req.query;
 
-    // Validate sort fields to prevent SQL injection
-    const allowedSortFields = ["product_id", "product_name", "sku", "price", "quantity_available", "created_at", "view_count", "rating_average", "rating_count"];
+    // Validate sort fields
+    const allowedSortFields = ["product_id", "product_name", "sku", "price", "created_at", "view_count", "rating_average", "rating_count"];
     const allowedSortOrders = ["asc", "desc"];
     
     const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : "created_at";
-    const safeSortOrder = allowedSortOrders.includes(sortOrder.toLowerCase()) ? sortOrder.toLowerCase() : "desc";
+    const safeSortOrder = allowedSortOrders.includes(sortOrder.toLowerCase()) ? sortOrder.toUpperCase() : "DESC";
 
-    // Build query with JOIN to inventory table
-    let query = `
-      SELECT 
-        p.product_id, p.product_name, p.product_description, p.sku, p.brand,
-        p.price, p.sale_price, p.category_id, p.is_active, p.is_featured,
-        p.view_count, p.rating_average, p.rating_count,
-        p.created_at, p.updated_at,
-        COALESCE(i.quantity_available, 0) as quantity_available,
-        c.category_name
-      FROM products p
-      LEFT JOIN inventory i ON p.product_id = i.product_id
-      LEFT JOIN product_categories c ON p.category_id = c.category_id
-      WHERE 1=1
-    `;
-    const values = [];
+    // Build WHERE clause
+    const whereConditions = {};
 
     if (search) {
-      query += " AND (p.product_name LIKE ? OR p.sku LIKE ?)";
-      values.push(`%${search}%`, `%${search}%`);
+      whereConditions[Op.or] = [
+        { product_name: { [Op.like]: `%${search}%` } },
+        { sku: { [Op.like]: `%${search}%` } },
+      ];
     }
 
     if (category_id) {
-      query += " AND p.category_id = ?";
-      values.push(category_id);
+      whereConditions.category_id = category_id;
     }
 
     if (is_active !== undefined) {
-      query += " AND p.is_active = ?";
-      values.push(is_active === "true" || is_active === true);
+      whereConditions.is_active = is_active === "true" || is_active === true;
     }
 
     if (is_featured !== undefined) {
-      query += " AND p.is_featured = ?";
-      values.push(is_featured === "true" || is_featured === true);
+      whereConditions.is_featured = is_featured === "true" || is_featured === true;
     }
 
-    // Handle sorting - prefix with table alias for ambiguous columns
-    const sortField = safeSortBy === "quantity_available" ? "i.quantity_available" : `p.${safeSortBy}`;
-    query += ` ORDER BY ${sortField} ${safeSortOrder.toUpperCase()} LIMIT ? OFFSET ?`;
     const offset = (parseInt(page) - 1) * parseInt(limit);
-    values.push(parseInt(limit), offset);
 
-    // Execute query
-    const db = require("../config/config").db;
-    db.query(query, values, (err, products) => {
-      if (err) {
-        console.error("[adminProductController] Error fetching products:", err);
-        return res.status(500).json({ success: false, message: err.message });
-      }
+    // Get products with includes
+    const { count, rows: products } = await Product.findAndCountAll({
+      where: whereConditions,
+      include: [
+        {
+          model: Inventory,
+          as: "inventory",
+          attributes: ["quantity_available"],
+        },
+        {
+          model: ProductCategory,
+          as: "category",
+          attributes: ["category_name"],
+        },
+      ],
+      order: [[safeSortBy, safeSortOrder]],
+      limit: parseInt(limit),
+      offset: offset,
+    });
 
-      // Get total count for pagination
-      let countQuery = "SELECT COUNT(*) as total FROM products p WHERE 1=1";
-      const countValues = [];
+    // Get wishlist counts for these products
+    const productIds = products.map(p => p.product_id);
+    const wishlistCounts = await Wishlist.findAll({
+      where: { product_id: { [Op.in]: productIds } },
+      attributes: ["product_id", [fn("COUNT", col("wishlist_id")), "count"]],
+      group: ["product_id"],
+      raw: true,
+    });
 
-      if (search) {
-        countQuery += " AND (p.product_name LIKE ? OR p.sku LIKE ?)";
-        countValues.push(`%${search}%`, `%${search}%`);
-      }
-      if (category_id) {
-        countQuery += " AND p.category_id = ?";
-        countValues.push(category_id);
-      }
-      if (is_active !== undefined) {
-        countQuery += " AND p.is_active = ?";
-        countValues.push(is_active === "true" || is_active === true);
-      }
-      if (is_featured !== undefined) {
-        countQuery += " AND p.is_featured = ?";
-        countValues.push(is_featured === "true" || is_featured === true);
-      }
+    const wishlistMap = {};
+    wishlistCounts.forEach(w => {
+      wishlistMap[w.product_id] = parseInt(w.count) || 0;
+    });
 
-      db.query(countQuery, countValues, (err, countResults) => {
-        if (err) {
-          console.error("[adminProductController] Error counting products:", err);
-          return res.status(500).json({ success: false, message: err.message });
-        }
+    // Format response
+    const formattedProducts = products.map(p => {
+      const json = p.toJSON();
+      return {
+        ...json,
+        quantity_available: json.inventory?.quantity_available || 0,
+        category_name: json.category?.category_name || null,
+        wishlist_count: wishlistMap[json.product_id] || 0,
+      };
+    });
 
-        const total = countResults[0].total;
-        const totalPages = Math.ceil(total / parseInt(limit));
+    const totalPages = Math.ceil(count / parseInt(limit));
 
-        res.status(200).json({
-          success: true,
-          data: products,
-          pagination: {
-            page: parseInt(page),
-            limit: parseInt(limit),
-            total,
-            totalPages,
-          },
-        });
-      });
+    res.status(200).json({
+      success: true,
+      data: formattedProducts,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: count,
+        totalPages,
+      },
     });
   } catch (error) {
     console.error("[adminProductController] Error in getProducts:", error);
@@ -142,51 +134,38 @@ const getProducts = async (req, res) => {
 const getProduct = async (req, res) => {
   try {
     const { productId } = req.params;
-    const db = require("../config/config").db;
 
-    // Get product with inventory data
-    const productQuery = `
-      SELECT 
-        p.*,
-        COALESCE(i.quantity_available, 0) as quantity_available,
-        COALESCE(i.quantity_reserved, 0) as quantity_reserved
-      FROM products p
-      LEFT JOIN inventory i ON p.product_id = i.product_id
-      WHERE p.product_id = ?
-    `;
+    const product = await Product.findByPk(productId, {
+      include: [
+        {
+          model: Inventory,
+          as: "inventory",
+          attributes: ["quantity_available", "quantity_reserved"],
+        },
+        {
+          model: ProductImage,
+          as: "images",
+          attributes: ["image_id", "image_url", "image_alt_text", "is_primary", "display_order"],
+          order: [["is_primary", "DESC"], ["display_order", "ASC"]],
+        },
+      ],
+    });
 
-    db.query(productQuery, [productId], (err, productResults) => {
-      if (err) {
-        console.error("[adminProductController] Error fetching product:", err);
-        return res.status(500).json({ success: false, message: err.message });
-      }
+    if (!product) {
+      return res.status(404).json({ success: false, message: ADMIN_ERRORS.PRODUCT_NOT_FOUND });
+    }
 
-      if (!productResults || productResults.length === 0) {
-        return res.status(404).json({ success: false, message: ADMIN_ERRORS.PRODUCT_NOT_FOUND });
-      }
+    const json = product.toJSON();
+    const formattedProduct = {
+      ...json,
+      quantity_available: json.inventory?.quantity_available || 0,
+      quantity_reserved: json.inventory?.quantity_reserved || 0,
+      images: json.images || [],
+    };
 
-      const product = productResults[0];
-
-      // Get product images
-      const imagesQuery = `
-        SELECT image_id, image_url, image_alt_text, is_primary, display_order
-        FROM product_images
-        WHERE product_id = ?
-        ORDER BY is_primary DESC, display_order ASC
-      `;
-
-      db.query(imagesQuery, [productId], (imgErr, images) => {
-        if (imgErr) {
-          console.error("[adminProductController] Error fetching images:", imgErr);
-          // Return product without images if image fetch fails
-          return res.status(200).json({ success: true, data: { ...product, images: [] } });
-        }
-
-        res.status(200).json({ 
-          success: true, 
-          data: { ...product, images: images || [] } 
-        });
-      });
+    res.status(200).json({ 
+      success: true, 
+      data: formattedProduct,
     });
   } catch (error) {
     console.error("[adminProductController] Error in getProduct:", error);

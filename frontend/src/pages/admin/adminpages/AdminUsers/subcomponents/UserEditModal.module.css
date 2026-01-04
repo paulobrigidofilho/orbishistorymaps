@@ -109,6 +109,16 @@
   border-bottom: 2px solid #e5e7eb;
 }
 
+/* ===== Address Wrapper ===== */
+.addressWrapper {
+  margin: -0.5rem 0;
+}
+
+/* Override FullAddressDiv styles for modal context */
+.addressWrapper h2 {
+  display: none; /* Hide the "Full Address" header since we have our own section title */
+}
+
 /* ===== Form Group ===== */
 .formGroup {
   margin-bottom: 1.25rem;

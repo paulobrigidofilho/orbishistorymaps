@@ -12,17 +12,16 @@ import styles from "./ProductDetail.module.css";
 //  ========== Component imports  ========== //
 import MainNavBar from "../common/MainNavBar";
 import WishlistToggleBtn from "../common/wishlist/components/WishlistToggleBtn";
-import QuantitySelector from "./btn/QuantitySelector";
-import AddToCartBtn from "./btn/AddToCartBtn";
-import ProceedToCheckoutBtn from "./btn/ProceedToCheckoutBtn";
+import { QuantitySelector, AddToCartBtn, ProceedToCheckoutBtn } from "./btn";
 import FadeNotification from "../common/components/FadeNotification";
+import ProductReviewsSection from "./components/ProductReviewsSection";
 
 //  ========== Function imports  ========== //
 import getProductDetails from "./functions/productService/getProductDetails";
 import addToCart from "./functions/cartService/addToCart";
 
 //  ========== Helper imports  ========== //
-import handleQuantityChange from "./helpers/handleQuantityChange";
+import { handleQuantityChange } from "./helpers";
 
 //  ========== Context imports  ========== //
 import { AuthContext } from "../common/context/AuthContext";
@@ -218,15 +217,15 @@ export default function ProductDetail() {
             {/* Price Section */}
             <div className={styles.priceSection}>
               <span className={styles.currentPrice}>
-                ${displayPrice.toFixed(2)}
+                NZD ${displayPrice.toFixed(2)}
               </span>
               {isOnSale && (
                 <>
                   <span className={styles.originalPrice}>
-                    ${parseFloat(product.price).toFixed(2)}
+                    NZD ${parseFloat(product.price).toFixed(2)}
                   </span>
                   <span className={styles.savingsText}>
-                    Save $
+                    Save NZD $
                     {(
                       parseFloat(product.price) - parseFloat(product.sale_price)
                     ).toFixed(2)}
@@ -339,6 +338,11 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
+
+        {/* Product Reviews Section - below product info */}
+        {product && (
+          <ProductReviewsSection productId={product.product_id} userId={user?._id} />
+        )}
       </div>
     </div>
   );

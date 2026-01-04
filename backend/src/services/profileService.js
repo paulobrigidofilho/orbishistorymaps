@@ -1,91 +1,83 @@
-////////////////////////////////////////////////
-// ============= PROFILE SERVICE ============ //
-////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ================ PROFILE SERVICE (SEQUELIZE) ==================== //
+///////////////////////////////////////////////////////////////////////
 
-// This service manages user profile retrieval and updates,
-// interacting with the user model and handling data transformations.
-
-// ======= Module Imports ======= //
-const db = require("../config/config").db;
+// This service manages user profile retrieval and updates
+// using Sequelize ORM for database operations
 
 // ======= Model Imports ======= //
-const userModel = require("../model/userModel");
+const { User } = require("../models");
 
 // ======= Helper Imports ======= //
 const { createUserProfile } = require("../helpers/createUserProfile");
 
-///////////////////////////////////
-// ===== SERVICE FUNCTIONS ===== //
-///////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ================ SERVICE FUNCTIONS ============================== //
+///////////////////////////////////////////////////////////////////////
 
 // ===== getUserProfile Function ===== //
 // Retrieves user profile by user ID
 
 const getUserProfile = async (userId) => {
-  return new Promise((resolve, reject) => {
-    userModel.getUserById(userId, (err, user) => {
-      if (err) return reject(err);
-      if (!user) return reject(new Error("Profile not found"));
-      const userProfile = createUserProfile(user);
-      resolve(userProfile);
-    });
-  });
+  const user = await User.findByPk(userId);
+
+  if (!user) {
+    throw new Error("Profile not found");
+  }
+
+  const userProfile = createUserProfile(user.toJSON());
+  return userProfile;
 };
 
 // ===== updateUserProfile Function ===== //
-// Updates user profile with provided data using dynamic SQL to ensure atomic updates
+// Updates user profile with provided data using Sequelize
 
 const updateUserProfile = async (userId, profileData) => {
-  return new Promise((resolve, reject) => {
-    // Map camelCase input fields to snake_case database columns
-    const fieldMap = {
-      firstName: "user_firstname",
-      lastName: "user_lastname",
-      email: "user_email",
-      nickname: "user_nickname",
-      avatar: "user_avatar",
-      address: "user_address",
-      addressLine2: "user_address_line_2",
-      city: "user_city",
-      state: "user_state",
-      zipCode: "user_zipcode",
-    };
+  // Map camelCase input fields to snake_case database columns
+  const fieldMap = {
+    firstName: "user_firstname",
+    lastName: "user_lastname",
+    email: "user_email",
+    nickname: "user_nickname",
+    avatar: "user_avatar",
+    address: "user_address",
+    addressLine2: "user_address_line_2",
+    city: "user_city",
+    state: "user_state",
+    zipCode: "user_zipcode",
+    country: "user_country",
+  };
 
-    const updateFields = [];
-    const updateValues = [];
+  const updateData = {};
 
-    // Build dynamic UPDATE clause for only provided fields
-    // Note: Empty strings are allowed to enable clearing optional fields
-    Object.entries(profileData).forEach(([key, value]) => {
-      if (value !== undefined && fieldMap[key]) {
-        updateFields.push(`${fieldMap[key]} = ?`);
-        updateValues.push(value);
-      }
-    });
-
-    // If no fields to update, return early
-    if (updateFields.length === 0) {
-      return reject(new Error("No fields to update"));
+  // Build update object for only provided fields
+  // Note: Empty strings are allowed to enable clearing optional fields
+  Object.entries(profileData).forEach(([key, value]) => {
+    if (value !== undefined && fieldMap[key]) {
+      updateData[fieldMap[key]] = value;
     }
-
-    // Build and execute atomic UPDATE query
-    const query = `UPDATE users SET ${updateFields.join(
-      ", "
-    )} WHERE user_id = ?`;
-    updateValues.push(userId);
-
-    db.query(query, updateValues, (err, result) => {
-      if (err) return reject(err);
-
-      // Fetch updated profile
-      userModel.getUserById(userId, (fetchErr, user) => {
-        if (fetchErr) return reject(fetchErr);
-        if (!user) return reject(new Error("User not found after update"));
-        const userProfile = createUserProfile(user);
-        resolve({ result, user: userProfile });
-      });
-    });
   });
+
+  // If no fields to update, return early
+  if (Object.keys(updateData).length === 0) {
+    throw new Error("No fields to update");
+  }
+
+  // Find and update user
+  const user = await User.findByPk(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  await user.update(updateData);
+
+  // Return updated profile
+  const userProfile = createUserProfile(user.toJSON());
+  return { result: { affectedRows: 1 }, user: userProfile };
 };
+
+///////////////////////////////////////////////////////////////////////
+// ================ EXPORTS ======================================== //
+///////////////////////////////////////////////////////////////////////
 
 module.exports = { getUserProfile, updateUserProfile };

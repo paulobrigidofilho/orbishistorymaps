@@ -2,41 +2,40 @@
 // ================= ADMIN CATEGORY CONTROLLER ======================= //
 ///////////////////////////////////////////////////////////////////////
 
-// This controller handles admin category operations
+// This controller handles admin category operations using Sequelize
+
+// ======= Model Imports ======= //
+const { ProductCategory } = require("../models");
 
 ///////////////////////////////////////////////////////////////////////
 // ======================= GET ALL CATEGORIES ======================== //
 ///////////////////////////////////////////////////////////////////////
 
-const getAllCategories = (req, res) => {
-  const db = require("../config/config").db;
-  
-  const query = `
-    SELECT 
-      category_id, 
-      category_name, 
-      category_description,
-      parent_category_id,
-      is_active
-    FROM product_categories
-    WHERE is_active = TRUE
-    ORDER BY category_name ASC
-  `;
-
-  db.query(query, (err, categories) => {
-    if (err) {
-      console.error("[adminCategoryController] Error fetching categories:", err);
-      return res.status(500).json({ 
-        success: false, 
-        message: "Failed to fetch categories" 
-      });
-    }
+const getAllCategories = async (req, res) => {
+  try {
+    const categories = await ProductCategory.findAll({
+      where: { is_active: true },
+      attributes: [
+        "category_id",
+        "category_name",
+        "category_description",
+        "parent_category_id",
+        "is_active",
+      ],
+      order: [["category_name", "ASC"]],
+    });
 
     res.json({
       success: true,
       data: categories,
     });
-  });
+  } catch (error) {
+    console.error("[adminCategoryController] Error fetching categories:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch categories",
+    });
+  }
 };
 
 ///////////////////////////////////////////////////////////////////////

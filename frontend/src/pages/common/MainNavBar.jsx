@@ -13,10 +13,24 @@ import ProfileBtn from "./btn/ProfileBtn";
 import CartBtn from "./btn/CartBtn";
 import WishlistBtn from "./btn/WishlistBtn";
 
+//  ========== Context imports  ========== //
+import { useSettings } from "./context/SettingsContext";
+
 //  ========== Images imports  ========== //
 import OrbisLogo from "../../assets/common/orbislogo.png";
 
 export default function MainNavBar() {
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= CONTEXT HOOKS ========================= //
+  ///////////////////////////////////////////////////////////////////////
+
+  const { settings } = useSettings();
+
+  // Check if shop features should be disabled
+  const isShopDisabled = 
+    settings?.maintenance_mode === "site-wide" || 
+    settings?.maintenance_mode === "shop-only";
+
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
   ///////////////////////////////////////////////////////////////////////
@@ -43,10 +57,10 @@ export default function MainNavBar() {
         {/* ========================= USER NAVIGATION ========================= */}
         <div className={styles.userNav}>
           {/* Wishlist Button */}
-          <WishlistBtn />
+          <WishlistBtn disabled={isShopDisabled} />
 
           {/* Shopping Cart Button */}
-          <CartBtn />
+          <CartBtn disabled={isShopDisabled} />
 
           {/* User Profile / Authentication Button */}
           <ProfileBtn />

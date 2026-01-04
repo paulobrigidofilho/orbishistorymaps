@@ -17,37 +17,13 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* ================ BRAND ==================== */
-
-.brand {
-  display: flex;
-  align-items: center;
-}
-
-.brandLink {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  text-decoration: none;
-  color: white;
-}
-
-.brandIcon {
-  font-size: 1.5rem;
-}
-
-.brandText {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: white;
-}
-
 /* ================ NAV LINKS ==================== */
 
 .navLinks {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex: 1;
 }
 
 .navLink {

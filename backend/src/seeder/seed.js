@@ -1,19 +1,36 @@
 //////////////////////////////////////////////////////////////
 // =============== ORBIS APP - DATABASE SEEDER ============ //
-// =================== VERSION 1.0 ======================== //
+// =================== VERSION 2.0 ======================== //
 //////////////////////////////////////////////////////////////
 
-// This script sets up the initial database schema and seeds an admin user.
-// Tables: users, sessions, password_resets
+// This script sets up the initial database schema using Sequelize
+// and seeds initial data from mock JSON files.
 
 // ======= Package Imports ======== //
-const mysql = require("mysql2/promise");
+const fs = require("fs");
+const path = require("path");
+const { v4: uuidv4 } = require("uuid");
 require("dotenv").config({
   path: process.env.NODE_ENV === "production" ? ".env.prod" : ".env.dev",
 });
 
+// ======= Model Imports ======== //
+const {
+  sequelize,
+  syncDatabase,
+  User,
+  ProductCategory,
+  Product,
+  ProductImage,
+  ProductTag,
+  Inventory,
+  SiteSettings,
+  FreightConfig,
+  Post,
+} = require("../models");
+
 (async () => {
-  console.log("Starting seeding...");
+  console.log("Starting seeding with Sequelize...\n");
 
   // Validate required env vars
   const required = [
@@ -29,363 +46,444 @@ require("dotenv").config({
     }
   }
 
-  const connection = await mysql.createConnection({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-  });
-
   let hadError = false;
 
   try {
-    // ===== Create Users Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS users (
-        user_id VARCHAR(64) PRIMARY KEY,
-        user_firstname VARCHAR(100) NOT NULL,
-        user_lastname VARCHAR(100) NOT NULL,
-        user_email VARCHAR(255) NOT NULL UNIQUE,
-        user_password VARCHAR(255) NOT NULL,
-        user_nickname VARCHAR(100),
-        user_avatar VARCHAR(255),
-        user_address VARCHAR(255),
-        user_address_line_2 VARCHAR(255),
-        user_city VARCHAR(100),
-        user_state VARCHAR(100),
-        user_zipcode VARCHAR(20),
-        user_role ENUM('user', 'admin') DEFAULT 'user',
-        user_status ENUM('active', 'inactive', 'suspended') DEFAULT 'active',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        INDEX idx_role (user_role),
-        INDEX idx_status (user_status),
-        INDEX idx_email (user_email)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Users table ensured.");
+    // ===== Authenticate Database Connection ===== //
+    await sequelize.authenticate();
+    console.log("✓ Database connection established.");
 
-    // ===== Create Password Resets Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS password_resets (
-        reset_id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id VARCHAR(36) NOT NULL,
-        reset_token VARCHAR(64) NOT NULL,
-        expires_at DATETIME NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        used_at DATETIME DEFAULT NULL,
-        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-        INDEX idx_reset_token (reset_token),
-        INDEX idx_user_id (user_id),
-        INDEX idx_expires_at (expires_at)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Password resets table ensured.");
+    // ===== Sync All Models (Create Tables) ===== //
+    // Using alter:false to preserve existing data, force:false to not drop tables
+    await syncDatabase({ force: false, alter: false });
+    console.log("✓ All tables ensured via Sequelize sync.\n");
 
-    // ===== Create Product Categories Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS product_categories (
-        category_id INT AUTO_INCREMENT PRIMARY KEY,
-        category_name VARCHAR(100) NOT NULL UNIQUE,
-        category_description TEXT,
-        category_image VARCHAR(255),
-        parent_category_id INT,
-        category_slug VARCHAR(150) NOT NULL UNIQUE,
-        is_active BOOLEAN DEFAULT TRUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (parent_category_id) REFERENCES product_categories(category_id) ON DELETE SET NULL,
-        INDEX idx_parent_category (parent_category_id),
-        INDEX idx_slug (category_slug),
-        INDEX idx_active (is_active)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Product categories table ensured.");
+    // ===== Seed Users from mock-users.json ===== //
+    const mockUsersPath = path.join(__dirname, "..", "db", "mock-users.json");
+    if (fs.existsSync(mockUsersPath)) {
+      try {
+        const fileContent = fs.readFileSync(mockUsersPath, "utf8").trim();
+        if (!fileContent) {
+          console.log("mock-users.json is empty, skipping user seeding.");
+        } else {
+          const mockUsers = JSON.parse(fileContent);
+          console.log(`Found ${mockUsers.length} users in mock-users.json`);
+          
+          for (const userData of mockUsers) {
+            // Check if user already exists
+            const existing = await User.findOne({
+              where: { user_email: userData.user_email },
+            });
 
-    // ===== Create Products Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS products (
-        product_id VARCHAR(36) PRIMARY KEY,
-        product_name VARCHAR(255) NOT NULL,
-        product_description TEXT,
-        product_details TEXT,
-        product_slug VARCHAR(300) NOT NULL UNIQUE,
-        category_id INT,
-        brand VARCHAR(100),
-        price DECIMAL(10, 2) NOT NULL,
-        sale_price DECIMAL(10, 2),
-        currency VARCHAR(3) DEFAULT 'USD',
-        sku VARCHAR(100) UNIQUE,
-        weight DECIMAL(10, 2),
-        dimensions VARCHAR(100),
-        is_active BOOLEAN DEFAULT TRUE,
-        is_featured BOOLEAN DEFAULT FALSE,
-        rating_average DECIMAL(3, 2) DEFAULT 0.00,
-        rating_count INT DEFAULT 0,
-        view_count INT DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (category_id) REFERENCES product_categories(category_id) ON DELETE SET NULL,
-        INDEX idx_category (category_id),
-        INDEX idx_slug (product_slug),
-        INDEX idx_sku (sku),
-        INDEX idx_active (is_active),
-        INDEX idx_featured (is_featured),
-        INDEX idx_price (price)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Products table ensured.");
-
-    // ===== Create Product Images Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS product_images (
-        image_id INT AUTO_INCREMENT PRIMARY KEY,
-        product_id VARCHAR(36) NOT NULL,
-        image_url VARCHAR(500) NOT NULL,
-        image_alt_text VARCHAR(255),
-        is_primary BOOLEAN DEFAULT FALSE,
-        display_order INT DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
-        INDEX idx_product (product_id),
-        INDEX idx_primary (is_primary)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Product images table ensured.");
-
-    // ===== Create Product Tags Table ===== //
-    // Supports flexible tagging for advanced search and filtering
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS product_tags (
-        tag_id INT AUTO_INCREMENT PRIMARY KEY,
-        product_id VARCHAR(36) NOT NULL,
-        tag_name VARCHAR(50) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
-        INDEX idx_product (product_id),
-        INDEX idx_tag_name (tag_name),
-        UNIQUE KEY unique_product_tag (product_id, tag_name)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Product tags table ensured.");
-
-    // ===== Create Inventory Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS inventory (
-        inventory_id INT AUTO_INCREMENT PRIMARY KEY,
-        product_id VARCHAR(36) NOT NULL UNIQUE,
-        quantity_available INT NOT NULL DEFAULT 0,
-        quantity_reserved INT NOT NULL DEFAULT 0,
-        low_stock_threshold INT DEFAULT 10,
-        reorder_quantity INT DEFAULT 50,
-        last_restocked_at TIMESTAMP NULL,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
-        INDEX idx_product (product_id),
-        INDEX idx_quantity (quantity_available)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Inventory table ensured.");
-
-    // ===== Create Addresses Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS addresses (
-        address_id VARCHAR(36) PRIMARY KEY,
-        user_id VARCHAR(64) NOT NULL,
-        address_type ENUM('shipping', 'billing') NOT NULL,
-        recipient_name VARCHAR(200) NOT NULL,
-        address_line_1 VARCHAR(255) NOT NULL,
-        address_line_2 VARCHAR(255),
-        city VARCHAR(100) NOT NULL,
-        state VARCHAR(100) NOT NULL,
-        postal_code VARCHAR(20) NOT NULL,
-        country VARCHAR(100) NOT NULL DEFAULT 'USA',
-        phone_number VARCHAR(20),
-        is_default BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-        INDEX idx_user (user_id),
-        INDEX idx_type (address_type),
-        INDEX idx_default (is_default)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Addresses table ensured.");
-
-    // ===== Create Shopping Cart Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS cart (
-        cart_id VARCHAR(36) PRIMARY KEY,
-        user_id VARCHAR(64),
-        session_id VARCHAR(255),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        expires_at TIMESTAMP NULL,
-        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-        INDEX idx_user (user_id),
-        INDEX idx_session (session_id),
-        INDEX idx_expires (expires_at)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Shopping cart table ensured.");
-
-    // ===== Create Cart Items Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS cart_items (
-        cart_item_id VARCHAR(36) PRIMARY KEY,
-        cart_id VARCHAR(36) NOT NULL,
-        product_id VARCHAR(36) NOT NULL,
-        quantity INT NOT NULL DEFAULT 1,
-        price_at_addition DECIMAL(10, 2) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (cart_id) REFERENCES cart(cart_id) ON DELETE CASCADE,
-        FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
-        INDEX idx_cart (cart_id),
-        INDEX idx_product (product_id)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Cart items table ensured.");
-
-    // ===== Create Orders Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS orders (
-        order_id VARCHAR(36) PRIMARY KEY,
-        user_id VARCHAR(64) NOT NULL,
-        order_number VARCHAR(50) NOT NULL UNIQUE,
-        order_status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded') DEFAULT 'pending',
-        payment_status ENUM('pending', 'completed', 'failed', 'refunded') DEFAULT 'pending',
-        payment_method VARCHAR(50),
-        subtotal DECIMAL(10, 2) NOT NULL,
-        tax_amount DECIMAL(10, 2) DEFAULT 0.00,
-        shipping_cost DECIMAL(10, 2) DEFAULT 0.00,
-        discount_amount DECIMAL(10, 2) DEFAULT 0.00,
-        total_amount DECIMAL(10, 2) NOT NULL,
-        currency VARCHAR(3) DEFAULT 'USD',
-        shipping_address_id VARCHAR(36),
-        billing_address_id VARCHAR(36),
-        notes TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE RESTRICT,
-        FOREIGN KEY (shipping_address_id) REFERENCES addresses(address_id) ON DELETE SET NULL,
-        FOREIGN KEY (billing_address_id) REFERENCES addresses(address_id) ON DELETE SET NULL,
-        INDEX idx_user (user_id),
-        INDEX idx_order_number (order_number),
-        INDEX idx_status (order_status),
-        INDEX idx_payment_status (payment_status),
-        INDEX idx_created (created_at)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Orders table ensured.");
-
-    // ===== Create Order Items Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS order_items (
-        order_item_id VARCHAR(36) PRIMARY KEY,
-        order_id VARCHAR(36) NOT NULL,
-        product_id VARCHAR(36) NOT NULL,
-        product_name VARCHAR(255) NOT NULL,
-        product_sku VARCHAR(100),
-        quantity INT NOT NULL,
-        unit_price DECIMAL(10, 2) NOT NULL,
-        subtotal DECIMAL(10, 2) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
-        FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE RESTRICT,
-        INDEX idx_order (order_id),
-        INDEX idx_product (product_id)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Order items table ensured.");
-
-    // ===== Create Payments Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS payments (
-        payment_id VARCHAR(36) PRIMARY KEY,
-        order_id VARCHAR(36) NOT NULL,
-        payment_method VARCHAR(50) NOT NULL,
-        payment_status ENUM('pending', 'completed', 'failed', 'refunded') DEFAULT 'pending',
-        transaction_id VARCHAR(255),
-        amount DECIMAL(10, 2) NOT NULL,
-        currency VARCHAR(3) DEFAULT 'USD',
-        payment_gateway VARCHAR(50),
-        gateway_response TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
-        INDEX idx_order (order_id),
-        INDEX idx_transaction (transaction_id),
-        INDEX idx_status (payment_status)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Payments table ensured.");
-
-    // ===== Create Product Reviews Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS product_reviews (
-        review_id VARCHAR(36) PRIMARY KEY,
-        product_id VARCHAR(36) NOT NULL,
-        user_id VARCHAR(64) NOT NULL,
-        order_id VARCHAR(36),
-        rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
-        review_title VARCHAR(255),
-        review_text TEXT,
-        is_verified_purchase BOOLEAN DEFAULT FALSE,
-        is_approved BOOLEAN DEFAULT FALSE,
-        helpful_count INT DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
-        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-        FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE SET NULL,
-        INDEX idx_product (product_id),
-        INDEX idx_user (user_id),
-        INDEX idx_rating (rating),
-        INDEX idx_approved (is_approved)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Product reviews table ensured.");
-
-    // ===== Create Wishlist Table ===== //
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS wishlist (
-        wishlist_id VARCHAR(36) PRIMARY KEY,
-        user_id VARCHAR(64) NOT NULL,
-        product_id VARCHAR(36) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-        FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
-        UNIQUE KEY unique_user_product (user_id, product_id),
-        INDEX idx_user (user_id),
-        INDEX idx_product (product_id)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-    console.log("✓ Wishlist table ensured.");
-
-    const [rows] = await connection.execute(
-      "SELECT user_id FROM users WHERE user_email = ?",
-      ["admin@orbis.local"]
-    );
-    if (rows.length === 0) {
-      const adminPassword = process.env.ADMIN_DEV_PASSWORD;
-      if (!adminPassword) {
-        console.warn(
-          "ADMIN_DEV_PASSWORD not set. Skipping admin user creation."
+            if (!existing) {
+              await User.create({
+                user_id: userData.user_id,
+                user_firstname: userData.user_firstname,
+                user_lastname: userData.user_lastname,
+                user_email: userData.user_email,
+                user_password: userData.user_password,
+                user_nickname: userData.user_nickname || null,
+                user_avatar: userData.user_avatar || null,
+                user_address: userData.user_address || null,
+                user_address_line_2: userData.user_address_line_2 || null,
+                user_city: userData.user_city || null,
+                user_state: userData.user_state || null,
+                user_zipcode: userData.user_zipcode || null,
+                user_country: userData.user_country || "New Zealand",
+                user_google_place_id: userData.user_google_place_id || null,
+                user_formatted_address: userData.user_formatted_address || null,
+                user_freight_zone: userData.user_freight_zone || null,
+                user_is_tauranga: userData.user_is_tauranga || false,
+                user_role: userData.user_role || "user",
+                user_status: userData.user_status || "active",
+              });
+              console.log(`  ✓ User ${userData.user_email} seeded.`);
+            } else {
+              console.log(`  - User ${userData.user_email} already exists.`);
+            }
+          }
+          console.log("✓ Users seeding completed.\n");
+        }
+      } catch (err) {
+        console.log(
+          "Error parsing mock-users.json, skipping user seeding:",
+          err.message
         );
-      } else {
-        const bcrypt = require("bcrypt");
-        const { v4: uuidv4 } = require("uuid");
-        const hashed = await bcrypt.hash(adminPassword, 10);
-        await connection.execute(
-          `INSERT INTO users (user_id, user_firstname, user_lastname, user_email, user_password, user_nickname, user_role)
-           VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          [uuidv4(), "Admin", "User", "admin@orbis.local", hashed, "admin", "admin"]
-        );
-        console.log("Admin user seeded with 'admin' role.");
       }
     } else {
-      console.log("Admin user already exists.");
+      console.log("mock-users.json not found, skipping user seeding.\n");
+    }
+
+    // ===== Seed Products from mock-products.json ===== //
+    const mockProductsPath = path.join(__dirname, "..", "db", "mock-products.json");
+    if (fs.existsSync(mockProductsPath)) {
+      try {
+        const fileContent = fs.readFileSync(mockProductsPath, "utf8").trim();
+        if (!fileContent) {
+          console.log("mock-products.json is empty, skipping product seeding.");
+        } else {
+          const mockProducts = JSON.parse(fileContent);
+          console.log(`Found ${mockProducts.length} products in mock-products.json`);
+
+          for (const productData of mockProducts) {
+            const slug = (productData.product_name || "")
+              .toLowerCase()
+              .replace(/\s+/g, "-")
+              .replace(/[^a-z0-9-]/g, "");
+
+            // Check if product already exists
+            const existingProduct = await Product.findOne({
+              where: { product_slug: slug },
+            });
+
+            if (existingProduct) {
+              console.log(`  - Product "${productData.product_name}" already exists, skipping.`);
+              continue;
+            }
+
+            // Handle category
+            let categoryId = null;
+            if (productData.category_name) {
+              let category = await ProductCategory.findOne({
+                where: { category_name: productData.category_name },
+              });
+
+              if (!category) {
+                const categorySlug = productData.category_name
+                  .toLowerCase()
+                  .replace(/\s+/g, "-")
+                  .replace(/[^a-z0-9-]/g, "");
+
+                category = await ProductCategory.create({
+                  category_name: productData.category_name,
+                  category_slug: categorySlug,
+                  is_active: true,
+                });
+                console.log(`  ✓ Category "${productData.category_name}" created.`);
+              }
+              categoryId = category.category_id;
+            }
+
+            // Create product
+            const productId = uuidv4();
+            await Product.create({
+              product_id: productId,
+              product_name: productData.product_name,
+              product_description: productData.product_description || "",
+              product_details: productData.product_details || null,
+              product_slug: slug,
+              category_id: categoryId,
+              brand: productData.brand || "",
+              price: productData.price || 0,
+              sale_price: productData.sale_price || null,
+              currency: "USD",
+              sku: productData.sku || null,
+              weight: productData.weight || null,
+              dimensions: productData.dimensions || null,
+              is_active: true,
+              is_featured: productData.is_featured || false,
+            });
+
+            // Insert images
+            if (productData.images && Array.isArray(productData.images)) {
+              for (let i = 0; i < productData.images.length; i++) {
+                await ProductImage.create({
+                  product_id: productId,
+                  image_url: productData.images[i],
+                  is_primary: i === 0,
+                  display_order: i,
+                });
+              }
+            }
+
+            // Insert tags
+            if (productData.tags && Array.isArray(productData.tags)) {
+              for (const tag of productData.tags) {
+                await ProductTag.create({
+                  product_id: productId,
+                  tag_name: tag,
+                });
+              }
+            }
+
+            // Insert inventory
+            const qty = productData.quantity_available || 0;
+            await Inventory.create({
+              product_id: productId,
+              quantity_available: qty,
+              quantity_reserved: 0,
+              low_stock_threshold: 10,
+              reorder_quantity: 50,
+            });
+
+            console.log(`  ✓ Product "${productData.product_name}" seeded with images, tags, and inventory.`);
+          }
+          console.log("✓ Products seeding completed.\n");
+        }
+      } catch (err) {
+        console.log(
+          "Error parsing mock-products.json, skipping product seeding:",
+          err.message
+        );
+        console.error(err);
+      }
+    } else {
+      console.log("mock-products.json not found, skipping product seeding.\n");
+    }
+
+    // ===== Seed Site Settings from sitesettings.json ===== //
+    const siteSettingsPath = path.join(__dirname, "..", "db", "sitesettings.json");
+    if (fs.existsSync(siteSettingsPath)) {
+      try {
+        const fileContent = fs.readFileSync(siteSettingsPath, "utf8").trim();
+        if (!fileContent) {
+          console.log("sitesettings.json is empty, skipping settings seeding.");
+        } else {
+          const settingsData = JSON.parse(fileContent);
+          console.log(`Found ${settingsData.length} settings in sitesettings.json`);
+
+          for (const setting of settingsData) {
+            // Check if setting already exists
+            const existing = await SiteSettings.findOne({
+              where: { setting_key: setting.setting_key },
+            });
+
+            if (!existing) {
+              await SiteSettings.create({
+                setting_key: setting.setting_key,
+                setting_value: setting.setting_value,
+                setting_type: setting.setting_type || "string",
+                setting_description: setting.setting_description || null,
+                setting_category: setting.setting_category || "general",
+              });
+              console.log(`  ✓ Setting "${setting.setting_key}" seeded.`);
+            } else {
+              console.log(`  - Setting "${setting.setting_key}" already exists.`);
+            }
+          }
+          console.log("✓ Site settings seeding completed.\n");
+        }
+      } catch (err) {
+        console.log(
+          "Error parsing sitesettings.json, skipping settings seeding:",
+          err.message
+        );
+      }
+    } else {
+      console.log("sitesettings.json not found, seeding default settings...");
+      
+      // Seed default maintenance settings
+      const defaultSettings = [
+        {
+          setting_key: "maintenance_mode",
+          setting_value: "off",
+          setting_type: "string",
+          setting_description: "Site maintenance mode: off, site-wide, shop-only, registration-only",
+          setting_category: "maintenance",
+        },
+        {
+          setting_key: "maintenance_message",
+          setting_value: "We are currently performing scheduled maintenance. Please check back soon.",
+          setting_type: "string",
+          setting_description: "Message displayed during maintenance",
+          setting_category: "maintenance",
+        },
+        {
+          setting_key: "default_currency",
+          setting_value: "NZD",
+          setting_type: "string",
+          setting_description: "Default currency for the store",
+          setting_category: "store",
+        },
+        {
+          setting_key: "default_nationality",
+          setting_value: "New Zealand",
+          setting_type: "string",
+          setting_description: "Default nationality for user registration",
+          setting_category: "general",
+        },
+      ];
+
+      for (const setting of defaultSettings) {
+        const existing = await SiteSettings.findOne({
+          where: { setting_key: setting.setting_key },
+        });
+
+        if (!existing) {
+          await SiteSettings.create(setting);
+          console.log(`  ✓ Default setting "${setting.setting_key}" seeded.`);
+        } else {
+          console.log(`  - Setting "${setting.setting_key}" already exists.`);
+        }
+      }
+      console.log("✓ Default site settings seeding completed.\n");
+    }
+
+    // ===== Seed Freight Configuration ===== //
+    console.log("Seeding freight configuration...");
+    try {
+      const existingFreight = await FreightConfig.findOne();
+      
+      if (!existingFreight) {
+        await FreightConfig.create({
+          local: 12.00,
+          north_island: 12.60,        // 1.05 * 12
+          south_island: 12.96,        // 1.08 * 12
+          intl_asia: 13.80,           // 1.15 * 12
+          intl_north_america: 15.00,  // 1.25 * 12
+          intl_europe: 15.00,         // 1.25 * 12
+          intl_africa: 15.00,         // 1.25 * 12
+          intl_latin_america: 15.00,  // 1.25 * 12
+          is_free_freight_enabled: false,
+          threshold_local: 200.00,
+          threshold_national: 300.00,
+          threshold_international: 500.00,
+        });
+        console.log("  ✓ Freight configuration seeded with default values.");
+      } else {
+        console.log("  - Freight configuration already exists.");
+      }
+      console.log("✓ Freight configuration seeding completed.\n");
+    } catch (err) {
+      console.log("Error seeding freight configuration:", err.message);
+    }
+
+    // ===== Seed Sample Posts ===== //
+    console.log("Seeding sample posts...");
+    try {
+      // Find an admin user to be the author
+      const adminUser = await User.findOne({
+        where: { user_role: "admin" },
+      });
+
+      if (!adminUser) {
+        console.log("  - No admin user found, skipping post seeding.");
+      } else {
+        const samplePosts = [
+          {
+            post_title: "Welcome to Orbis History Maps",
+            post_slug: "welcome-to-orbis-history-maps",
+            post_content: `# Welcome to Orbis History Maps!
+
+We are thrilled to launch our new platform dedicated to exploring the rich tapestry of world history through interactive maps.
+
+## What You Can Expect
+
+- **Interactive Maps**: Explore historical events across different time periods
+- **Detailed Information**: Learn about civilizations, battles, and cultural movements
+- **Educational Resources**: Access curated content for students and history enthusiasts
+
+Stay tuned for more updates as we continue to expand our collection!`,
+            post_excerpt: "Discover the launch of our new interactive history maps platform, bringing the past to life through modern technology.",
+            post_status: "published",
+            post_publish_date: new Date(),
+            post_view_count: 42,
+            seo_description: "Welcome to Orbis History Maps - your gateway to exploring world history through interactive maps and educational content.",
+            seo_keywords: "history maps, world history, interactive maps, education",
+            author_id: adminUser.user_id,
+          },
+          {
+            post_title: "New Feature: Ancient Civilizations Timeline",
+            post_slug: "new-feature-ancient-civilizations-timeline",
+            post_content: `# Introducing Our Ancient Civilizations Timeline
+
+We're excited to announce a brand new feature that allows you to explore the rise and fall of ancient civilizations!
+
+## Featured Civilizations
+
+1. **Ancient Egypt** - From the Old Kingdom to Cleopatra
+2. **Mesopotamia** - The cradle of civilization
+3. **Ancient Greece** - Democracy, philosophy, and the arts
+4. **Roman Empire** - From republic to empire
+
+## How to Use
+
+Simply navigate to our timeline view and select your civilization of interest. You can zoom in and out to see different time scales.
+
+This feature is the result of months of research and development, and we hope you find it as fascinating as we do!`,
+            post_excerpt: "Explore our new timeline feature showcasing the rise and fall of ancient civilizations throughout history.",
+            post_status: "published",
+            post_publish_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+            post_view_count: 128,
+            seo_description: "Discover our new Ancient Civilizations Timeline feature - explore Egypt, Mesopotamia, Greece, and Rome.",
+            seo_keywords: "ancient civilizations, history timeline, Egypt, Greece, Rome, Mesopotamia",
+            author_id: adminUser.user_id,
+          },
+          {
+            post_title: "Behind the Scenes: Building Historical Accuracy",
+            post_slug: "behind-the-scenes-building-historical-accuracy",
+            post_content: `# How We Ensure Historical Accuracy
+
+At Orbis History Maps, we take historical accuracy seriously. Here's a look behind the scenes at our process.
+
+## Our Research Process
+
+- **Academic Sources**: We consult peer-reviewed historical journals
+- **Expert Consultation**: Collaboration with university historians
+- **Primary Sources**: Analysis of original documents and artifacts
+- **Cross-referencing**: Multiple sources for every fact
+
+## Continuous Improvement
+
+History is always being reinterpreted as new discoveries are made. We commit to:
+
+- Regular content reviews
+- Updates based on new archaeological findings
+- Community feedback integration
+
+Thank you for trusting us with your historical education!`,
+            post_excerpt: "Learn about our rigorous process for ensuring historical accuracy across all our interactive maps and content.",
+            post_status: "published",
+            post_publish_date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 14 days ago
+            post_view_count: 85,
+            seo_description: "Discover how Orbis History Maps ensures historical accuracy through rigorous research and expert consultation.",
+            seo_keywords: "historical accuracy, research methodology, history education",
+            author_id: adminUser.user_id,
+          },
+          {
+            post_title: "Upcoming: Medieval Trade Routes Feature",
+            post_slug: "upcoming-medieval-trade-routes-feature",
+            post_content: `# Coming Soon: Medieval Trade Routes
+
+We're working on an exciting new feature that will allow you to explore medieval trade networks!
+
+## What to Expect
+
+- **Silk Road**: Follow the ancient route from China to Europe
+- **Hanseatic League**: Discover northern European maritime trade
+- **Maritime Routes**: Explore Indian Ocean trade networks
+
+## Expected Launch
+
+We anticipate launching this feature in Q2 2024. Stay tuned for more details!`,
+            post_excerpt: "Preview our upcoming Medieval Trade Routes feature - explore the Silk Road, Hanseatic League, and more.",
+            post_status: "draft",
+            post_publish_date: null,
+            post_view_count: 0,
+            seo_description: "Preview the upcoming Medieval Trade Routes feature on Orbis History Maps.",
+            seo_keywords: "medieval trade, Silk Road, Hanseatic League, trade routes",
+            author_id: adminUser.user_id,
+          },
+        ];
+
+        for (const postData of samplePosts) {
+          // Check if post already exists
+          const existingPost = await Post.findOne({
+            where: { post_slug: postData.post_slug },
+          });
+
+          if (!existingPost) {
+            await Post.create(postData);
+            console.log(`  ✓ Post "${postData.post_title}" seeded.`);
+          } else {
+            console.log(`  - Post "${postData.post_title}" already exists.`);
+          }
+        }
+      }
+      console.log("✓ Sample posts seeding completed.\n");
+    } catch (err) {
+      console.log("Error seeding posts:", err.message);
+      console.error(err);
     }
 
     console.log("\n✓ Seeding completed successfully!");
@@ -393,8 +491,8 @@ require("dotenv").config({
     console.error("\n❌ Seeding error:", err);
     hadError = true;
   } finally {
-    await connection.end();
-    console.log("Seeding script finished.");
+    await sequelize.close();
+    console.log("Database connection closed.");
     process.exit(hadError ? 1 : 0);
   }
 })();

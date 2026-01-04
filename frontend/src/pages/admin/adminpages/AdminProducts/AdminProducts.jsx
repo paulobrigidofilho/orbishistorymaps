@@ -6,14 +6,22 @@
 
 //  ========== Module imports  ========== //
 import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./AdminProducts.module.css";
 
 //  ========== Component imports  ========== //
-import AdminLayout from "../../components/AdminLayout";
+import AdminManagementView from "../../components/AdminManagementView";
+import viewStyles from "../../components/AdminManagementView.module.css";
+import PriceDisplay from "../../components/PriceDisplay";
 import ProductEditModal from "./subcomponents/ProductEditModal";
 import AddProductModal from "./subcomponents/AddProductModal";
 import DeleteProductModal from "./subcomponents/DeleteProductModal";
-import { EditBtn, DeleteBtn, AddBtn, PageBtn } from "../../btn";
+import ProductRatingsModal from "./subcomponents/ProductRatingsModal";
+import { EditBtn, DeleteBtn, AddBtn } from "../../btn";
+import AdminAlertModal from "../../components/AdminAlertModal/AdminAlertModal";
+
+//  ========== Constants imports (Search)  ========== //
+import { ADMIN_PAGE_TYPES } from "../../constants/adminSearchBarConstants";
 
 //  ========== Function imports  ========== //
 import getAllProducts from "../../functions/getAllProducts";
@@ -26,12 +34,23 @@ import formatDateDMY from "../../helpers/formatDateDMY";
 import { ERROR_MESSAGES } from "../../constants/adminErrorMessages";
 import { SUCCESS_MESSAGES } from "../../constants/adminSuccessMessages";
 import { getStockLevelClass } from "../../constants/adminConstants";
+import { 
+  ADMIN_PRODUCT_ALERT_MESSAGES, 
+  ADMIN_ERROR_ALERT_MESSAGES 
+} from "../../constants/adminAlertModalConstants";
 
 ///////////////////////////////////////////////////////////////////////
 // ====================== ADMIN PRODUCTS PAGE ======================== //
 ///////////////////////////////////////////////////////////////////////
 
 export default function AdminProducts() {
+  ///////////////////////////////////////////////////////////////////////
+  // ========================= HOOKS ================================= //
+  ///////////////////////////////////////////////////////////////////////
+
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   ///////////////////////////////////////////////////////////////////////
   // ========================= STATE VARIABLES ======================= //
   ///////////////////////////////////////////////////////////////////////
@@ -47,10 +66,10 @@ export default function AdminProducts() {
     totalPages: 0,
   });
   const [filters, setFilters] = useState({
-    search: "",
-    category_id: "",
-    is_active: "",
-    is_featured: "",
+    search: searchParams.get("search") || "",
+    category_id: searchParams.get("category_id") || "",
+    is_active: searchParams.get("is_active") || "",
+    is_featured: searchParams.get("is_featured") || "",
   });
   const [sortConfig, setSortConfig] = useState({
     field: "created_at",
@@ -64,6 +83,16 @@ export default function AdminProducts() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isRatingsModalOpen, setIsRatingsModalOpen] = useState(false);
+  const [selectedProductForRatings, setSelectedProductForRatings] = useState(null);
+
+  // AdminAlertModal state for confirmations
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    config: {},
+    onConfirm: null,
+    isLoading: false,
+  });
 
   ///////////////////////////////////////////////////////////////////////
   // ======================= HELPER FUNCTIONS ======================== //
@@ -132,33 +161,64 @@ export default function AdminProducts() {
   // ======================= EVENT HANDLERS ========================== //
   ///////////////////////////////////////////////////////////////////////
 
-  const handleStatusChange = async (productId, newStatus) => {
-    if (
-      !window.confirm(
-        `Change product status to ${newStatus ? "Active" : "Inactive"}?`
-      )
-    )
-      return;
+  // Close alert modal helper
+  const closeAlertModal = () => {
+    setAlertModal({ isOpen: false, config: {}, onConfirm: null, isLoading: false });
+  };
 
+  // Show error alert helper
+  const showErrorAlert = (errorMessage) => {
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_ERROR_ALERT_MESSAGES.GENERIC_ERROR(errorMessage),
+      onConfirm: closeAlertModal,
+      isLoading: false,
+    });
+  };
+
+  // Request status change - opens confirmation modal
+  const handleStatusChange = async (productId, newStatus) => {
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_PRODUCT_ALERT_MESSAGES.CHANGE_STATUS(newStatus),
+      onConfirm: () => confirmStatusChange(productId, newStatus),
+      isLoading: false,
+    });
+  };
+
+  // Confirm status change
+  const confirmStatusChange = async (productId, newStatus) => {
+    setAlertModal(prev => ({ ...prev, isLoading: true }));
     try {
       await updateProduct(productId, { is_active: newStatus });
       fetchProducts();
+      closeAlertModal();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      closeAlertModal();
+      showErrorAlert(err.message);
     }
   };
 
+  // Request featured change - opens confirmation modal
   const handleFeaturedChange = async (productId, newFeatured) => {
-    if (
-      !window.confirm(`${newFeatured ? "Feature" : "Unfeature"} this product?`)
-    )
-      return;
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_PRODUCT_ALERT_MESSAGES.TOGGLE_FEATURED(newFeatured),
+      onConfirm: () => confirmFeaturedChange(productId, newFeatured),
+      isLoading: false,
+    });
+  };
 
+  // Confirm featured change
+  const confirmFeaturedChange = async (productId, newFeatured) => {
+    setAlertModal(prev => ({ ...prev, isLoading: true }));
     try {
       await updateProduct(productId, { is_featured: newFeatured });
       fetchProducts();
+      closeAlertModal();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      closeAlertModal();
+      showErrorAlert(err.message);
     }
   };
 
@@ -183,11 +243,6 @@ export default function AdminProducts() {
       return { field, order: newOrder };
     });
     setPagination((prev) => ({ ...prev, page: 1 }));
-  };
-
-  const getSortIcon = (field) => {
-    if (sortConfig.field !== field) return "↕";
-    return sortConfig.order === "asc" ? "↑" : "↓";
   };
 
   // Add Modal handlers
@@ -242,305 +297,175 @@ export default function AdminProducts() {
       setProductToDelete(null);
       fetchProducts();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showErrorAlert(err.message);
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  // Ratings Modal handlers
+  const handleOpenRatingsModal = (product) => {
+    setSelectedProductForRatings(product);
+    setIsRatingsModalOpen(true);
+  };
+
+  const handleCloseRatingsModal = () => {
+    setIsRatingsModalOpen(false);
+    setSelectedProductForRatings(null);
   };
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
   ///////////////////////////////////////////////////////////////////////
 
+  // Prepare dynamic options for categories filter
+  const categoryOptions = categories.map((category) => ({
+    value: category.category_id,
+    label: category.category_name,
+  }));
+
+  // Column definitions for the products table
+  const columns = [
+    { key: "id", label: "ID", sortable: true, sortField: "product_id" },
+    { key: "product", label: "Product", sortable: true, sortField: "product_name" },
+    { key: "sku", label: "SKU", sortable: true, sortField: "sku" },
+    { key: "category", label: "Category", sortable: false },
+    { key: "price", label: "Price", sortable: true, sortField: "price" },
+    { key: "stock", label: "Stock", sortable: true, sortField: "quantity_available" },
+    { key: "views", label: "Views", sortable: true, sortField: "view_count" },
+    { key: "rating", label: "Rating", sortable: true, sortField: "rating_average" },
+    { key: "wishlists", label: "Wishlists", sortable: false },
+    { key: "status", label: "Status", sortable: false },
+    { key: "featured", label: "Featured", sortable: false },
+    { key: "created", label: "Created", sortable: true, sortField: "created_at" },
+    { key: "actions", label: "Actions", sortable: false },
+  ];
+
+  // Render function for table rows
+  const renderRow = (product) => (
+    <tr key={product.product_id}>
+      <td className={styles.idCell}>{product.product_id}</td>
+      <td>
+        <div className={styles.productInfo}>
+          <strong>{product.product_name}</strong>
+          {product.brand && <span className={styles.brand}>{product.brand}</span>}
+        </div>
+      </td>
+      <td>{product.sku || "N/A"}</td>
+      <td>
+        <span className={styles.categoryBadge}>{product.category_name || "—"}</span>
+      </td>
+      <td>
+        <PriceDisplay
+          price={product.price}
+          salePrice={product.sale_price}
+          size="small"
+        />
+      </td>
+      <td>
+        <span
+          className={`${styles.stock} ${
+            styles[getStockLevelClass(product.quantity_available || 0)]
+          }`}
+        >
+          {product.quantity_available || 0}
+        </span>
+      </td>
+      <td className={styles.viewsCell}>{product.view_count || 0}</td>
+      <td>
+        <button
+          className={styles.ratingCellBtn}
+          onClick={() => handleOpenRatingsModal(product)}
+          title="View rating breakdown"
+        >
+          <span className={styles.ratingAvg}>
+            ⭐ {parseFloat(product.rating_average || 0).toFixed(1)}
+          </span>
+          <span className={styles.ratingCount}>({product.rating_count || 0})</span>
+        </button>
+      </td>
+      <td>
+        <button
+          className={styles.wishlistCountBtn}
+          onClick={() => navigate(`/admin/wishlists?search=${encodeURIComponent(product.product_name)}`)}
+          title="View wishlist details"
+        >
+          ❤️ {product.wishlist_count || 0}
+        </button>
+      </td>
+      <td>
+        <select
+          value={product.is_active ? "true" : "false"}
+          onChange={(e) =>
+            handleStatusChange(product.product_id, e.target.value === "true")
+          }
+          className={`${viewStyles.inlineSelect} ${
+            product.is_active ? viewStyles.active : viewStyles.inactive
+          }`}
+        >
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+      </td>
+      <td>
+        <select
+          value={product.is_featured ? "true" : "false"}
+          onChange={(e) =>
+            handleFeaturedChange(product.product_id, e.target.value === "true")
+          }
+          className={`${styles.inlineSelect} ${
+            product.is_featured ? styles.selectFeatured : styles.selectNotFeatured
+          }`}
+        >
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      </td>
+      <td>{formatDateDMY(product.created_at)}</td>
+      <td>
+        <div className={viewStyles.actions}>
+          <EditBtn onClick={() => handleEditProduct(product)} title="Edit product" />
+          <DeleteBtn onClick={() => handleDeleteProduct(product)} title="Delete product" />
+        </div>
+      </td>
+    </tr>
+  );
+
   return (
-    <AdminLayout>
-      <div className={styles.productsPage}>
-        <div className={styles.header}>
-          <h1>Product Management</h1>
-          <AddBtn onClick={handleOpenAddModal}>+ Add Product</AddBtn>
-        </div>
-
-        {/* Filters */}
-        <div className={styles.filters}>
-          <input
-            type="text"
-            placeholder="Search by name or SKU..."
-            value={filters.search}
-            onChange={handleSearchChange}
-            className={styles.searchInput}
-          />
-
-          <select
-            value={filters.category_id}
-            onChange={(e) => handleFilterChange("category_id", e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="">All Categories</option>
-            {categories.map((category) => (
-              <option key={category.category_id} value={category.category_id}>
-                {category.category_name}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={filters.is_active}
-            onChange={(e) => handleFilterChange("is_active", e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="">All Status</option>
-            <option value="true">Active</option>
-            <option value="false">Inactive</option>
-          </select>
-
-          <select
-            value={filters.is_featured}
-            onChange={(e) => handleFilterChange("is_featured", e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="">All Featured</option>
-            <option value="true">Featured</option>
-            <option value="false">Not Featured</option>
-          </select>
-        </div>
-
-        {/* Error Message */}
-        {error && <div className={styles.error}>{error}</div>}
-
-        {/* Loading State */}
-        {loading && <div className={styles.loading}>Loading products...</div>}
-
-        {/* Products Table */}
-        {!loading && products.length > 0 && (
-          <div className={styles.tableContainer}>
-            <table className={styles.productsTable}>
-              <thead>
-                <tr>
-                  <th
-                    className={styles.sortable}
-                    onClick={() => handleSort("product_id")}
-                  >
-                    ID{" "}
-                    <span className={styles.sortIcon}>
-                      {getSortIcon("product_id")}
-                    </span>
-                  </th>
-                  <th
-                    className={styles.sortable}
-                    onClick={() => handleSort("product_name")}
-                  >
-                    Product{" "}
-                    <span className={styles.sortIcon}>
-                      {getSortIcon("product_name")}
-                    </span>
-                  </th>
-                  <th
-                    className={styles.sortable}
-                    onClick={() => handleSort("sku")}
-                  >
-                    SKU{" "}
-                    <span className={styles.sortIcon}>
-                      {getSortIcon("sku")}
-                    </span>
-                  </th>
-                  <th>Category</th>
-                  <th
-                    className={styles.sortable}
-                    onClick={() => handleSort("price")}
-                  >
-                    Price{" "}
-                    <span className={styles.sortIcon}>
-                      {getSortIcon("price")}
-                    </span>
-                  </th>
-                  <th
-                    className={styles.sortable}
-                    onClick={() => handleSort("quantity_available")}
-                  >
-                    Stock{" "}
-                    <span className={styles.sortIcon}>
-                      {getSortIcon("quantity_available")}
-                    </span>
-                  </th>
-                  <th
-                    className={styles.sortable}
-                    onClick={() => handleSort("view_count")}
-                  >
-                    Views{" "}
-                    <span className={styles.sortIcon}>
-                      {getSortIcon("view_count")}
-                    </span>
-                  </th>
-                  <th
-                    className={styles.sortable}
-                    onClick={() => handleSort("rating_average")}
-                  >
-                    Rating{" "}
-                    <span className={styles.sortIcon}>
-                      {getSortIcon("rating_average")}
-                    </span>
-                  </th>
-                  <th>Status</th>
-                  <th>Featured</th>
-                  <th
-                    className={styles.sortable}
-                    onClick={() => handleSort("created_at")}
-                  >
-                    Created{" "}
-                    <span className={styles.sortIcon}>
-                      {getSortIcon("created_at")}
-                    </span>
-                  </th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr key={product.product_id}>
-                    <td className={styles.idCell}>{product.product_id}</td>
-                    <td>
-                      <div className={styles.productInfo}>
-                        <strong>{product.product_name}</strong>
-                        {product.brand && (
-                          <span className={styles.brand}>{product.brand}</span>
-                        )}
-                      </div>
-                    </td>
-                    <td>{product.sku || "N/A"}</td>
-                    <td>
-                      <span className={styles.categoryBadge}>
-                        {product.category_name || "—"}
-                      </span>
-                    </td>
-                    <td>
-                      <div className={styles.priceCell}>
-                        <span
-                          className={
-                            product.sale_price ? styles.originalPrice : ""
-                          }
-                        >
-                          ${parseFloat(product.price).toFixed(2)}
-                        </span>
-                        {product.sale_price && (
-                          <span className={styles.salePrice}>
-                            ${parseFloat(product.sale_price).toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      <span
-                        className={`${styles.stock} ${
-                          styles[
-                            getStockLevelClass(product.quantity_available || 0)
-                          ]
-                        }`}
-                      >
-                        {product.quantity_available || 0}
-                      </span>
-                    </td>
-                    <td className={styles.viewsCell}>
-                      {product.view_count || 0}
-                    </td>
-                    <td>
-                      <div className={styles.ratingCell}>
-                        <span className={styles.ratingAvg}>
-                          ⭐{" "}
-                          {parseFloat(product.rating_average || 0).toFixed(1)}
-                        </span>
-                        <span className={styles.ratingCount}>
-                          ({product.rating_count || 0})
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <select
-                        value={product.is_active ? "true" : "false"}
-                        onChange={(e) =>
-                          handleStatusChange(
-                            product.product_id,
-                            e.target.value === "true"
-                          )
-                        }
-                        className={`${styles.inlineSelect} ${
-                          product.is_active
-                            ? styles.selectActive
-                            : styles.selectInactive
-                        }`}
-                      >
-                        <option value="true">Active</option>
-                        <option value="false">Inactive</option>
-                      </select>
-                    </td>
-                    <td>
-                      <select
-                        value={product.is_featured ? "true" : "false"}
-                        onChange={(e) =>
-                          handleFeaturedChange(
-                            product.product_id,
-                            e.target.value === "true"
-                          )
-                        }
-                        className={`${styles.inlineSelect} ${
-                          product.is_featured
-                            ? styles.selectFeatured
-                            : styles.selectNotFeatured
-                        }`}
-                      >
-                        <option value="true">Yes</option>
-                        <option value="false">No</option>
-                      </select>
-                    </td>
-                    <td>{formatDateDMY(product.created_at)}</td>
-                    <td>
-                      <div className={styles.actionButtons}>
-                        <EditBtn
-                          onClick={() => handleEditProduct(product)}
-                          title="Edit product"
-                        />
-                        <DeleteBtn
-                          onClick={() => handleDeleteProduct(product)}
-                          title="Delete product"
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && products.length === 0 && (
-          <div className={styles.emptyState}>
-            <p>No products found</p>
-            <AddBtn onClick={handleOpenAddModal}>Add Your First Product</AddBtn>
-          </div>
-        )}
-
-        {/* Pagination */}
-        {pagination.totalPages > 1 && (
-          <div className={styles.pagination}>
-            <PageBtn
-              onClick={() => handlePageChange(pagination.page - 1)}
-              disabled={pagination.page === 1}
-            >
-              Previous
-            </PageBtn>
-            <span className={styles.pageInfo}>
-              Page {pagination.page} of {pagination.totalPages}
-            </span>
-            <PageBtn
-              onClick={() => handlePageChange(pagination.page + 1)}
-              disabled={pagination.page === pagination.totalPages}
-            >
-              Next
-            </PageBtn>
-          </div>
-        )}
-      </div>
-
+    <AdminManagementView
+      // Page configuration
+      pageType={ADMIN_PAGE_TYPES.PRODUCTS}
+      title="Product Management"
+      headerAction={<AddBtn onClick={handleOpenAddModal}>+ Add Product</AddBtn>}
+      // Search and filter props
+      searchValue={filters.search}
+      onSearchChange={(value) => {
+        setFilters((prev) => ({ ...prev, search: value }));
+        setPagination((prev) => ({ ...prev, page: 1 }));
+      }}
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      dynamicOptions={{ category_id: categoryOptions }}
+      // Loading and error states
+      loading={loading}
+      error={error}
+      loadingText="Loading products..."
+      // Data and pagination
+      data={products}
+      pagination={pagination}
+      onPageChange={handlePageChange}
+      // Empty state
+      emptyMessage="No products found"
+      emptyHint={
+        <AddBtn onClick={handleOpenAddModal}>Add Your First Product</AddBtn>
+      }
+      // Table configuration
+      columns={columns}
+      renderRow={renderRow}
+      // Sorting
+      sortConfig={sortConfig}
+      onSort={handleSort}
+    >
       {/* Add Product Modal */}
       <AddProductModal
         isOpen={isAddModalOpen}
@@ -566,6 +491,28 @@ export default function AdminProducts() {
         onConfirm={handleConfirmDelete}
         isDeleting={isDeleting}
       />
-    </AdminLayout>
+
+      {/* Product Ratings Modal */}
+      <ProductRatingsModal
+        product={selectedProductForRatings}
+        isOpen={isRatingsModalOpen}
+        onClose={handleCloseRatingsModal}
+      />
+
+      {/* Admin Alert Modal for Confirmations */}
+      <AdminAlertModal
+        isOpen={alertModal.isOpen}
+        onClose={closeAlertModal}
+        onConfirm={alertModal.onConfirm}
+        type={alertModal.config.type}
+        title={alertModal.config.title}
+        message={alertModal.config.message}
+        confirmText={alertModal.config.confirmText}
+        cancelText={alertModal.config.cancelText}
+        showCancel={alertModal.config.showCancel !== false}
+        icon={alertModal.config.icon}
+        isLoading={alertModal.isLoading}
+      />
+    </AdminManagementView>
   );
 }

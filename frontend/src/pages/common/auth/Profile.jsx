@@ -1,11 +1,10 @@
-///////////////////////////////////
-// ===== PROFILE COMPONENT ===== //
-///////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ======================= PROFILE COMPONENT ======================= //
+///////////////////////////////////////////////////////////////////////
 
 // This component allows users to view and edit their profile information
 
 //  ========== Module imports  ========== //
-
 import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -16,14 +15,19 @@ import PersonalDetailsDiv from "./components/PersonalDetailsDiv";
 import ProfileDiv from "./components/ProfileDiv";
 import FullAddressDiv from "./components/FullAddressDiv";
 
+//  ========== Button imports  ========== //
+import { SubmitBtn } from "./btn";
+
 //  ========== Function imports  ========== //
-import capitalizeWords from "./functions/capitalizeWords";
 import handleDeleteAvatar from "./functions/handleDeleteAvatar";
 import handleProfileAvatarChange from "./functions/handleProfileAvatarChange";
 import handleProfileSubmit from "./functions/handleProfileSubmit";
 import fetchProfileData from "./functions/fetchProfileData";
 import handleCancelAvatarSelection from "./functions/handleCancelAvatarSelection";
 import handleSubmitAvatar from "./functions/handleSubmitAvatar";
+
+//  ========== Helper imports  ========== //
+import capitalizeWords from "./helpers/capitalizeWords";
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= PROFILE COMPONENT ===================== //
@@ -49,25 +53,25 @@ function Profile() {
   const [city, setCity] = useState("");
   const [stateName, setStateName] = useState("");
   const [zipCode, setZipCode] = useState("");
+  const [country, setCountry] = useState("New Zealand");
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [avatarError, setAvatarError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // --- Component State ---
-  const [error, setError] = useState("");
-  const [avatarError, setAvatarError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [currentUserId, setCurrentUserId] = useState("");
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
-
-  // --- Context and Routing ---
-  const { user, setUser } = useContext(AuthContext);
+  // Get profile ID from URL params or use logged-in user's ID
   const { userId: profileId } = useParams();
+  const { user, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   ///////////////////////////////////////////////////////////////////////
-  // ========================= USE EFFECT HOOK ======================= //
+  // ========================= USE EFFECTS =========================== //
   ///////////////////////////////////////////////////////////////////////
+
   useEffect(() => {
     const loadProfile = async () => {
-      if (profileId && profileId !== "undefined") {
+      if (profileId) {
         setIsLoading(true);
 
         const setters = {
@@ -83,6 +87,7 @@ function Profile() {
           setCity,
           setStateName,
           setZipCode,
+          setCountry,
           setCurrentUserId,
           setError,
         };
@@ -160,6 +165,7 @@ function Profile() {
       city,
       stateName,
       zipCode,
+      country,
       currentUserId,
     };
 
@@ -258,25 +264,23 @@ function Profile() {
         setStateName={setStateName}
         zipCode={zipCode}
         setZipCode={setZipCode}
+        country={country}
+        setCountry={setCountry}
         capitalizeWords={capitalizeWords}
         readOnly={!isOwnProfile}
       />
 
       {/* Only show Save Changes button if it's the user's own profile */}
       {isOwnProfile && (
-        <button type="submit" className={styles.submitButton}>
-          Save Changes
-        </button>
+        <SubmitBtn variant="submit">Save Changes</SubmitBtn>
       )}
 
       {/* Always show Return Home button */}
-      <button
-        type="button"
+      <SubmitBtn 
+        variant="home" 
+        type="button" 
         onClick={() => navigate("/")}
-        className={styles.homeButton}
-      >
-        Return Home
-      </button>
+      />
 
       {/* Display general error messages */}
       {error && !successMessage && <div className={styles.error}>{error}</div>}

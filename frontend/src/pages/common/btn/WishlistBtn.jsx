@@ -10,6 +10,9 @@ import { useState, useEffect, useContext } from "react";
 import { NavLink } from "react-router-dom";
 import styles from "../MainNavBar.module.css";
 
+//  ========== Component imports  ========== //
+import FadeNotification from "../components/FadeNotification";
+
 //  ========== Function imports  ========== //
 import getUserWishlist from "../wishlist/functions/getUserWishlist";
 
@@ -20,13 +23,14 @@ import { AuthContext } from "../context/AuthContext";
 // =================== WISHLIST BUTTON =============================== //
 ///////////////////////////////////////////////////////////////////////
 
-const WishlistBtn = () => {
+const WishlistBtn = ({ disabled = false }) => {
   ///////////////////////////////////////////////////////////////////////
   // ========================= STATE VARIABLES ======================= //
   ///////////////////////////////////////////////////////////////////////
 
   const { user } = useContext(AuthContext);
   const [itemCount, setItemCount] = useState(0);
+  const [showNotification, setShowNotification] = useState(false);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -69,17 +73,41 @@ const WishlistBtn = () => {
     }
   };
 
+  const handleClick = (e) => {
+    if (disabled) {
+      e.preventDefault();
+      setShowNotification(true);
+    }
+  };
+
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
   ///////////////////////////////////////////////////////////////////////
 
   return (
-    <NavLink to="/wishlist" className={styles.wishlistButton}>
-      <i className="material-icons">favorite</i>
-      {itemCount > 0 && (
-        <span className={styles.wishlistBadge}>{itemCount}</span>
+    <>
+      <NavLink 
+        to="/wishlist" 
+        className={`${styles.wishlistButton} ${disabled ? styles.disabled : ""}`}
+        onClick={handleClick}
+      >
+        <i className="material-icons">favorite</i>
+        {itemCount > 0 && (
+          <span className={styles.wishlistBadge}>{itemCount}</span>
+        )}
+      </NavLink>
+      
+      {showNotification && (
+        <FadeNotification
+          key={Date.now()}
+          type="warning"
+          text="Disabled during maintenance"
+          duration={3000}
+          position="top"
+          onComplete={() => setShowNotification(false)}
+        />
       )}
-    </NavLink>
+    </>
   );
 };
 

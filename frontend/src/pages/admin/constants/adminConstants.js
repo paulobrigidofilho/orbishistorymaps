@@ -24,17 +24,70 @@ export const STAT_CARDS = [
     key: "activeOrders",
     to: "/admin/orders",
   },
+  // Note: Reviews card is now handled separately by ReviewStatCard
+  {
+    icon: "❤️",
+    label: "Wishlisted Products",
+    key: "productsWishlisted",
+    to: "/admin/wishlists",
+  },
   {
     icon: "💰",
     label: "Total Revenue",
     key: "totalRevenue",
-    formatter: (value) => `$${value.toFixed(2)}`,
+    formatter: (value) => `NZD $${value.toFixed(2)}`,
     to: "/admin/orders",
   },
 ];
 
+/////////////////////////////////////////////////////////////////////////
+// =================== REVIEW STAT CARD CONFIG ======================= //
+/////////////////////////////////////////////////////////////////////////
+
+// Configuration for the review stat card with breakdown
+export const REVIEW_STAT_CARD = {
+  icon: "⭐",
+  label: "Total Reviews",
+  to: "/admin/reviews",
+  breakdownLabels: {
+    approved: "Approved",
+    pending: "Pending",
+  },
+  breakdownColors: {
+    approved: "#22c55e", // Green
+    pending: "#f59e0b", // Amber/Orange
+  },
+};
+
+/////////////////////////////////////////////////////////////////////////
+// =================== POST STAT CARD CONFIG ========================= //
+/////////////////////////////////////////////////////////////////////////
+
+// Configuration for the post stat card with breakdown
+export const POST_STAT_CARD = {
+  icon: "📝",
+  label: "Total Posts",
+  to: "/admin/posts",
+  breakdownLabels: {
+    published: "Published",
+    scheduled: "Scheduled",
+    draft: "Draft",
+  },
+  breakdownColors: {
+    published: "#22c55e", // Green
+    scheduled: "#f59e0b", // Amber/Orange
+    draft: "#6b7280", // Gray
+  },
+};
+
 // Dashboard action cards configuration
 export const ACTION_CARDS = [
+  {
+    icon: "📝",
+    title: "Manage Posts",
+    description: "Create and manage blog posts",
+    to: "/admin/posts",
+  },
   {
     icon: "👥",
     title: "Manage Users",
@@ -52,6 +105,18 @@ export const ACTION_CARDS = [
     title: "View Orders",
     description: "Track and manage orders",
     to: "/admin/orders",
+  },
+  {
+    icon: "⭐",
+    title: "Manage Reviews",
+    description: "View, approve, or delete reviews",
+    to: "/admin/reviews",
+  },
+  {
+    icon: "❤️",
+    title: "View Wishlists",
+    description: "Track product wishlist popularity",
+    to: "/admin/wishlists",
   },
   {
     icon: "⚙️",

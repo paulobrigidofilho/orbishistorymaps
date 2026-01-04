@@ -5,10 +5,12 @@
 /**
  * CHART PURPOSE:
  * Visual representation of the complete shop and cart flow including
- * guest shopping, authenticated shopping, cart merge, and checkout.
+ * guest shopping, authenticated shopping, cart merge, checkout with
+ * Google Address Autocomplete and freight zone calculation.
  * 
  * RELATED DOCUMENT: /docs/flows/shop-cart-flow.md
- * LAST UPDATED: December 29, 2025
+ * LAST UPDATED: January 4, 2026
+ * VERSION: 2.0 (Freight & Address Integration)
  */
 
 ---
@@ -79,9 +81,14 @@ graph TD
     UpdateCartDB --> DispatchEvent[Dispatch cartUpdated]:::gold
     DispatchEvent --> Checkout
     
-    Checkout --> ShippingForm[Enter Shipping Address]:::black
-    ShippingForm --> ValidateAddr{Valid Address?}:::gold
-    ValidateAddr -->|No| ShippingForm
+    Checkout --> AddressAutocomplete[Google Address Autocomplete]:::google
+    AddressAutocomplete --> SelectAddress[User Selects Address]:::black
+    SelectAddress --> FreightCalc[POST /freight/calculate-from-address]:::gold
+    FreightCalc --> ZoneDetect[Detect Freight Zone]:::black
+    ZoneDetect --> FreightCost[Calculate Freight Cost]:::gold
+    FreightCost --> DisplayFreight[FreightCostDisplay Component]:::black
+    DisplayFreight --> ValidateAddr{Valid Address?}:::gold
+    ValidateAddr -->|No| AddressAutocomplete
     ValidateAddr -->|Yes| PaymentPage[Payment Method]:::black
     
     PaymentPage --> SelectPayment[Select Payment Type]:::gold
@@ -97,6 +104,102 @@ graph TD
     classDef gold fill:#D4AF37,stroke:#000,stroke-width:2px,color:#000
     classDef black fill:#1a1a1a,stroke:#D4AF37,stroke-width:2px,color:#D4AF37
     classDef error fill:#cc0000,stroke:#000,stroke-width:2px,color:#fff
+    classDef google fill:#4285F4,stroke:#000,stroke-width:2px,color:#fff
+```
+
+---
+
+## 🚚 Freight Calculation Sequence Diagram ✨
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant AC as AddressAutocomplete
+    participant GP as Google Places API
+    participant FE as Frontend
+    participant BE as Backend
+    participant ZH as ZoneDetectionHelper
+    participant FS as FreightService
+    participant DB as Database
+
+    U->>AC: Start typing address
+    AC->>GP: getPlacePredictions(input)
+    GP-->>AC: Autocomplete suggestions
+    AC-->>U: Display dropdown
+    
+    U->>AC: Select address
+    AC->>GP: getPlaceDetails(place_id)
+    GP-->>AC: Full address data
+    AC->>FE: Address selected event
+    
+    FE->>BE: POST /api/freight/calculate-from-address
+    Note over FE,BE: Body: { city, country, cart_total }
+    
+    BE->>ZH: detectZone(city, country)
+    
+    alt New Zealand Address
+        ZH->>ZH: Check if Tauranga/Mount Maunganui
+        ZH-->>BE: zone: "local"
+    else North Island NZ
+        ZH->>ZH: Match against NZ_NORTH_ISLAND_CITIES
+        ZH-->>BE: zone: "north_island"
+    else South Island NZ
+        ZH->>ZH: Match against NZ_SOUTH_ISLAND_CITIES
+        ZH-->>BE: zone: "south_island"
+    else International
+        ZH->>ZH: Map country to international zone
+        ZH-->>BE: zone: "intl_*"
+    end
+    
+    BE->>DB: Get FreightConfig for zone
+    DB-->>BE: { base_rate, free_threshold, per_kg_rate }
+    
+    BE->>FS: calculateFreight(zone, config, cart_total)
+    FS->>FS: Check if cart_total >= free_threshold
+    FS-->>BE: { finalCost, isFreeShipping, zone }
+    
+    BE-->>FE: Freight calculation response
+    FE->>FE: Display FreightCostDisplay component
+    FE-->>U: Show freight cost or "FREE SHIPPING"
+```
+
+---
+
+## 🌏 Zone Detection Logic
+
+```mermaid
+flowchart TD
+    Start[Address Input] --> Country{Country?}
+    
+    Country -->|New Zealand| NZCheck{City Check}
+    NZCheck -->|Tauranga/Mount Maunganui| Local[🏠 Local Zone<br/>Cheapest rates]
+    NZCheck -->|Auckland/Wellington/etc| NorthIsland[🏝️ North Island<br/>Standard NZ rates]
+    NZCheck -->|Christchurch/Dunedin/etc| SouthIsland[🗻 South Island<br/>Standard NZ rates]
+    
+    Country -->|Australia| IntlAsia[🌏 International Asia]
+    Country -->|USA/Canada| IntlNA[🌎 International North America]
+    Country -->|UK/Portugal| IntlEU[🌍 International Europe]
+    Country -->|Brazil| IntlLA[🌎 International Latin America]
+    Country -->|China| IntlAsia
+    Country -->|Other| IntlOther[🌐 Default International]
+    
+    Local --> Rate1[Base: $5.00<br/>Free threshold: $50]
+    NorthIsland --> Rate2[Base: $12.00<br/>Free threshold: $150]
+    SouthIsland --> Rate3[Base: $15.00<br/>Free threshold: $150]
+    IntlAsia --> Rate4[Base: $35.00<br/>Free threshold: $300]
+    IntlNA --> Rate5[Base: $40.00<br/>Free threshold: $350]
+    IntlEU --> Rate6[Base: $45.00<br/>Free threshold: $350]
+    IntlLA --> Rate7[Base: $50.00<br/>Free threshold: $400]
+    IntlOther --> Rate8[Base: $55.00<br/>Free threshold: $400]
+    
+    style Local fill:#22c55e,color:#000
+    style NorthIsland fill:#3b82f6,color:#fff
+    style SouthIsland fill:#3b82f6,color:#fff
+    style IntlAsia fill:#f59e0b,color:#000
+    style IntlNA fill:#ef4444,color:#fff
+    style IntlEU fill:#ef4444,color:#fff
+    style IntlLA fill:#ef4444,color:#fff
+    style IntlOther fill:#6b7280,color:#fff
 ```
 
 ---
@@ -108,6 +211,7 @@ graph TD
 | 🟡 Gold (#D4AF37) | Pages, major decision points, system actions |
 | ⬛ Black (#1a1a1a) | User actions, component interactions, database operations |
 | 🔴 Red (#cc0000) | Error states, authentication required prompts |
+| 🔵 Blue (#4285F4) | Google APIs integration |
 
 ---
 
@@ -132,6 +236,12 @@ graph TD
 - **Purpose:** Ensure valid shipping details
 - **Invalid:** Return to form with errors
 - **Valid:** Proceed to payment
+
+### 4. Freight Zone Detection (ZoneDetect)
+- **Purpose:** Calculate shipping cost based on destination
+- **Local:** Tauranga/Mount Maunganui (cheapest)
+- **Domestic:** North Island / South Island (standard NZ rates)
+- **International:** Region-based pricing
 
 ---
 

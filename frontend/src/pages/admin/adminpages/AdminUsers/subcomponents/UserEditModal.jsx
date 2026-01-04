@@ -11,6 +11,9 @@ import styles from "./UserEditModal.module.css";
 //  ========== Button imports  ========== //
 import { CloseBtn, CancelBtn, SaveBtn } from "../../../btn";
 
+//  ========== Component imports  ========== //
+import FullAddressDiv from "../../../../common/auth/components/FullAddressDiv";
+
 //  ========== Function imports  ========== //
 import getChangedUserFields from "../../../helpers/getChangedUserFields";
 import uploadUserAvatar from "../../../functions/uploadUserAvatar";
@@ -22,6 +25,9 @@ import validateAvatarFile from "../../../validators/validateAvatarFile";
 //  ========== Constants imports  ========== //
 import { SUCCESS_MESSAGES, DEFAULT_AVATAR } from "../../../constants/adminSuccessMessages";
 import { ERROR_MESSAGES } from "../../../constants/adminErrorMessages";
+
+//  ========== Helper imports  ========== //
+import capitalizeWords from "../../../../common/auth/helpers/capitalizeWords";
 
 ///////////////////////////////////////////////////////////////////////
 // ==================== USER EDIT MODAL COMPONENT ==================== //
@@ -37,14 +43,18 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
     lastName: "",
     nickname: "",
     avatar: "",
-    address: "",
-    addressLine2: "",
-    city: "",
-    state: "",
-    zipCode: "",
     password: "",
     confirmPassword: "",
   });
+  
+  // Separate address state to work with FullAddressDiv
+  const [address, setAddress] = useState("");
+  const [addressLine2, setAddressLine2] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zipCode, setZipCode] = useState("");
+  const [country, setCountry] = useState("New Zealand");
+  
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
@@ -67,14 +77,16 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
         lastName: user.lastName || "",
         nickname: user.nickname || "",
         avatar: user.avatar || "",
-        address: user.address || "",
-        addressLine2: user.addressLine2 || "",
-        city: user.city || "",
-        state: user.state || "",
-        zipCode: user.zipCode || "",
         password: "", // Never pre-fill password
         confirmPassword: "", // Never pre-fill confirm password
       });
+      // Set address fields separately
+      setAddress(user.address || "");
+      setAddressLine2(user.addressLine2 || "");
+      setCity(user.city || "");
+      setState(user.state || "");
+      setZipCode(user.zipCode || "");
+      setCountry(user.country || "New Zealand");
       // Reset avatar states when user changes
       setAvatarFile(null);
       setAvatarPreview(null);
@@ -103,13 +115,30 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
   };
 
   const validateForm = () => {
-    const newErrors = validateUserEditForm(formData);
+    const fullFormData = {
+      ...formData,
+      address,
+      addressLine2,
+      city,
+      state,
+      zipCode,
+    };
+    const newErrors = validateUserEditForm(fullFormData);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const getChangedFields = () => {
-    return getChangedUserFields(formData, user);
+    const fullFormData = {
+      ...formData,
+      address,
+      addressLine2,
+      city,
+      state,
+      zipCode,
+      country,
+    };
+    return getChangedUserFields(fullFormData, user);
   };
 
   // Avatar handling functions
@@ -219,14 +248,16 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
       lastName: "",
       nickname: "",
       avatar: "",
-      address: "",
-      addressLine2: "",
-      city: "",
-      state: "",
-      zipCode: "",
       password: "",
       confirmPassword: "",
     });
+    // Reset address fields
+    setAddress("");
+    setAddressLine2("");
+    setCity("");
+    setState("");
+    setZipCode("");
+    setCountry("New Zealand");
     setErrors({});
     setSuccessMessage("");
     // Reset avatar states
@@ -244,7 +275,7 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay} onClick={handleClose}>
+    <div className={styles.modalOverlay}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>Edit User Profile</h2>
@@ -408,65 +439,26 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
             </div>
           </div>
 
-          {/* Address Information */}
+          {/* Address Information - Using FullAddressDiv with Autocomplete */}
           <div className={styles.formSection}>
             <h3 className={styles.sectionTitle}>Address Information</h3>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="address">Address Line 1</label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
+            <div className={styles.addressWrapper}>
+              <FullAddressDiv
+                address={address}
+                setAddress={setAddress}
+                addressLine2={addressLine2}
+                setAddressLine2={setAddressLine2}
+                city={city}
+                setCity={setCity}
+                stateName={state}
+                setStateName={setState}
+                zipCode={zipCode}
+                setZipCode={setZipCode}
+                country={country}
+                setCountry={setCountry}
+                capitalizeWords={capitalizeWords}
+                readOnly={false}
               />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="addressLine2">Address Line 2</label>
-              <input
-                type="text"
-                id="addressLine2"
-                name="addressLine2"
-                value={formData.addressLine2}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label htmlFor="city">City</label>
-                <input
-                  type="text"
-                  id="city"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="state">State</label>
-                <input
-                  type="text"
-                  id="state"
-                  name="state"
-                  value={formData.state}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="zipCode">Zip Code</label>
-                <input
-                  type="text"
-                  id="zipCode"
-                  name="zipCode"
-                  value={formData.zipCode}
-                  onChange={handleInputChange}
-                />
-              </div>
             </div>
           </div>
 
@@ -482,7 +474,7 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }) {
 
           {/* Modal Actions */}
           <div className={styles.modalActions}>
-            <CancelBtn onClick={handleClose} disabled={loading} />
+            <CancelBtn onClick={handleClose} disabled={loading}>Close</CancelBtn>
             <SaveBtn loading={loading} />
           </div>
         </form>

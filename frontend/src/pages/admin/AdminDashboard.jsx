@@ -12,6 +12,8 @@ import styles from "./AdminDashboard.module.css";
 import AdminLayout from "./components/AdminLayout";
 import StatCard from "./components/StatCard";
 import ActionCard from "./components/ActionCard";
+import ReviewStatCard from "./components/ReviewStatCard";
+import PostStatCard from "./components/PostStatCard";
 
 //  ========== Function imports  ========== //
 import fetchStats from "./functions/fetchStats";
@@ -34,6 +36,13 @@ export default function AdminDashboard() {
     totalProducts: 0,
     activeOrders: 0,
     totalRevenue: 0,
+    totalReviews: 0,
+    approvedReviews: 0,
+    pendingReviews: 0,
+    totalPosts: 0,
+    publishedPosts: 0,
+    scheduledPosts: 0,
+    draftPosts: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -56,16 +65,42 @@ export default function AdminDashboard() {
 
         {/* Stats Cards */}
         <div className={styles.statsGrid}>
-          {STAT_CARDS.map((card) => (
+          {/* Post Stat Card with breakdown - FIRST */}
+          <PostStatCard
+            total={stats.totalPosts}
+            published={stats.publishedPosts}
+            scheduled={stats.scheduledPosts}
+            draft={stats.draftPosts}
+            isLoading={loading}
+          />
+
+          {/* Render first 3 stat cards (Users, Products, Orders) */}
+          {STAT_CARDS.slice(0, 3).map((card) => (
             <StatCard
               key={card.key}
               icon={card.icon}
               label={card.label}
-              value={
-                card.formatter
-                  ? card.formatter(stats[card.key])
-                  : stats[card.key]
-              }
+              value={card.formatter ? card.formatter(stats[card.key]) : stats[card.key]}
+              isLoading={loading}
+              to={card.to}
+            />
+          ))}
+
+          {/* Review Stat Card with breakdown */}
+          <ReviewStatCard
+            total={stats.totalReviews}
+            approved={stats.approvedReviews}
+            pending={stats.pendingReviews}
+            isLoading={loading}
+          />
+
+          {/* Render remaining stat cards (Wishlists, Revenue) */}
+          {STAT_CARDS.slice(3).map((card) => (
+            <StatCard
+              key={card.key}
+              icon={card.icon}
+              label={card.label}
+              value={card.formatter ? card.formatter(stats[card.key]) : stats[card.key]}
               isLoading={loading}
               to={card.to}
             />

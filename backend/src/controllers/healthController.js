@@ -7,12 +7,11 @@
 
 // ======= Module imports ======= //
 const { getHealthStatus } = require("../services/healthService");
-const config = require("../config/config");
 
 // ======= Health Check Function ======= //
 const health = async (req, res) => {
   try {
-    const status = await getHealthStatus({ db: config.db });
+    const status = await getHealthStatus();
     const httpCode = status.status === "ok" ? 200 : 503;
     return res.status(httpCode).json(status);
   } catch (err) {

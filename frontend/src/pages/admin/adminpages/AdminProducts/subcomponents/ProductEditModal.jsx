@@ -11,6 +11,7 @@ import styles from "./ProductEditModal.module.css";
 //  ========== Component imports  ========== //
 import TagInput from "./TagInput";
 import { CloseBtn, CancelBtn, SaveBtn, UploadBtn } from "../../../btn";
+import AdminAlertModal from "../../../components/AdminAlertModal/AdminAlertModal";
 
 //  ========== Function imports  ========== //
 import getProductById from "../../../functions/getProductById";
@@ -30,6 +31,7 @@ import validateEditProductImage from "../../../validators/validateEditProductIma
 import { SUCCESS_MESSAGES } from "../../../constants/adminSuccessMessages";
 import { ERROR_MESSAGES } from "../../../constants/adminErrorMessages";
 import { PRODUCT_IMAGE_LIMIT } from "../../../constants/adminConstants";
+import { ADMIN_PRODUCT_ALERT_MESSAGES } from "../../../constants/adminAlertModalConstants";
 
 ///////////////////////////////////////////////////////////////////////
 // =================== PRODUCT EDIT MODAL COMPONENT ================== //
@@ -68,6 +70,13 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
 
   // Tag-specific state
   const [tagError, setTagError] = useState("");
+
+  // Admin alert modal state for confirmations
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    config: {},
+    onConfirm: null,
+  });
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
@@ -202,13 +211,25 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
   };
 
   const handleImageDelete = async (imageId) => {
-    if (!window.confirm("Delete this image?")) return;
+    setAlertModal({
+      isOpen: true,
+      config: ADMIN_PRODUCT_ALERT_MESSAGES.DELETE_IMAGE,
+      onConfirm: () => confirmImageDelete(imageId),
+    });
+  };
+
+  const confirmImageDelete = async (imageId) => {
+    setAlertModal({ isOpen: false, config: {}, onConfirm: null });
     try {
       await deleteProductImage(imageId);
       await fetchProductDetails(); // Refresh images
     } catch (err) {
       setImageError(err.message || "Failed to delete image");
     }
+  };
+
+  const closeAlertModal = () => {
+    setAlertModal({ isOpen: false, config: {}, onConfirm: null });
   };
 
   const handleCancelImageSelection = () => {
@@ -311,8 +332,8 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay} onClick={handleClose}>
-      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
           <h2>Edit Product</h2>
           <CloseBtn onClick={handleClose} />
@@ -409,7 +430,7 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
                 <label htmlFor="price">
-                  Price ($) <span className={styles.required}>*</span>
+                  Price (NZD $) <span className={styles.required}>*</span>
                 </label>
                 <input
                   type="number"
@@ -427,7 +448,7 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="sale_price">Sale Price ($)</label>
+                <label htmlFor="sale_price">Sale Price (NZD $)</label>
                 <input
                   type="number"
                   id="sale_price"
@@ -602,6 +623,20 @@ export default function ProductEditModal({ product, isOpen, onClose, onSave, cat
             <SaveBtn loading={loading} />
           </div>
         </form>
+
+        {/* Admin Alert Modal for Delete Confirmations */}
+        <AdminAlertModal
+          isOpen={alertModal.isOpen}
+          onClose={closeAlertModal}
+          onConfirm={alertModal.onConfirm}
+          type={alertModal.config.type}
+          title={alertModal.config.title}
+          message={alertModal.config.message}
+          confirmText={alertModal.config.confirmText}
+          cancelText={alertModal.config.cancelText}
+          showCancel={alertModal.config.showCancel !== false}
+          icon={alertModal.config.icon}
+        />
       </div>
     </div>
   );

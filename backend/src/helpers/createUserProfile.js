@@ -22,6 +22,7 @@ const createUserProfile = (user) => {
     city: user.user_city || "",
     state: user.user_state || "",
     zipCode: user.user_zipcode || "",
+    country: user.user_country || "New Zealand",
     role: user.user_role || "user",
     status: user.user_status || "active",
     password: user.user_password || null,

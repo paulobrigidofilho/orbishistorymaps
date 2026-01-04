@@ -1,0 +1,58 @@
+[
+  {
+    "setting_key": "maintenance_mode",
+    "setting_value": "off",
+    "setting_type": "string",
+    "setting_description": "Site maintenance mode: off, site-wide, shop-only, registration-only",
+    "setting_category": "maintenance"
+  },
+  {
+    "setting_key": "maintenance_message",
+    "setting_value": "We are currently performing scheduled maintenance. Please check back soon.",
+    "setting_type": "string",
+    "setting_description": "Message displayed during maintenance",
+    "setting_category": "maintenance"
+  },
+  {
+    "setting_key": "default_currency",
+    "setting_value": "NZD",
+    "setting_type": "string",
+    "setting_description": "Default currency for the store",
+    "setting_category": "store"
+  },
+  {
+    "setting_key": "default_nationality",
+    "setting_value": "New Zealand",
+    "setting_type": "string",
+    "setting_description": "Default nationality for user registration",
+    "setting_category": "general"
+  },
+  {
+    "setting_key": "site_name",
+    "setting_value": "Orbis",
+    "setting_type": "string",
+    "setting_description": "Name of the website",
+    "setting_category": "general"
+  },
+  {
+    "setting_key": "contact_email",
+    "setting_value": "support@orbis.com",
+    "setting_type": "string",
+    "setting_description": "Contact email for customer support",
+    "setting_category": "general"
+  },
+  {
+    "setting_key": "allow_guest_checkout",
+    "setting_value": "true",
+    "setting_type": "boolean",
+    "setting_description": "Allow users to checkout without creating an account",
+    "setting_category": "store"
+  },
+  {
+    "setting_key": "registration_enabled",
+    "setting_value": "true",
+    "setting_type": "boolean",
+    "setting_description": "Allow new user registrations",
+    "setting_category": "features"
+  }
+]

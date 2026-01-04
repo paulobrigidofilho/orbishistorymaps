@@ -1,82 +1,120 @@
-////////////////////////////////////////////////
-// ======== ADMIN STATS SERVICE ============== //
-////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ================ ADMIN STATS SERVICE (SEQUELIZE) ================ //
+///////////////////////////////////////////////////////////////////////
 
 // This service provides statistics for the admin dashboard
 
 // ======= Module Imports ======= //
-const db = require("../config/config").db;
+const { fn, col, Op } = require("sequelize");
 
-// ======= Constants Imports ======= //
-const { ADMIN_ERRORS } = require("../constants/adminMessages");
+// ======= Model Imports ======= //
+const { User, Product, Order, ProductReview, Post } = require("../models");
 
-///////////////////////////////////
-// ===== SERVICE FUNCTIONS ===== //
-///////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ================ SERVICE FUNCTIONS ============================== //
+///////////////////////////////////////////////////////////////////////
 
 // ===== getStats Function ===== //
 // Retrieves dashboard statistics
 
 const getStats = async () => {
-  return new Promise((resolve, reject) => {
-    // Run multiple queries in parallel using Promise.all
-    const queries = {
-      totalUsers: new Promise((res, rej) => {
-        db.query("SELECT COUNT(*) as count FROM users", (err, result) => {
-          if (err) return rej(err);
-          res(result[0].count);
-        });
-      }),
-      totalProducts: new Promise((res, rej) => {
-        db.query("SELECT COUNT(*) as count FROM products", (err, result) => {
-          if (err) return rej(err);
-          res(result[0].count);
-        });
-      }),
-      activeOrders: new Promise((res, rej) => {
-        db.query(
-          "SELECT COUNT(*) as count FROM orders WHERE order_status IN ('pending', 'processing', 'shipped')",
-          (err, result) => {
-            if (err) return rej(err);
-            res(result[0].count);
-          }
-        );
-      }),
-      totalRevenue: new Promise((res, rej) => {
-        db.query(
-          "SELECT COALESCE(SUM(total_amount), 0) as revenue FROM orders WHERE order_status = 'delivered'",
-          (err, result) => {
-            if (err) return rej(err);
-            res(parseFloat(result[0].revenue));
-          }
-        );
-      }),
-    };
+  // Run multiple queries in parallel using Promise.all
+  const [
+    totalUsers,
+    totalProducts,
+    activeOrders,
+    revenueResult,
+    totalReviews,
+    approvedReviews,
+    pendingReviews,
+    totalPosts,
+    publishedPosts,
+    scheduledPosts,
+    draftPosts,
+  ] = await Promise.all([
+    // Total users
+    User.count(),
+    
+    // Total products
+    Product.count(),
+    
+    // Active orders (pending, processing, shipped)
+    Order.count({
+      where: {
+        order_status: {
+          [Op.in]: ["pending", "processing", "shipped"],
+        },
+      },
+    }),
+    
+    // Total revenue from delivered orders
+    Order.findOne({
+      where: { order_status: "delivered" },
+      attributes: [[fn("COALESCE", fn("SUM", col("total_amount")), 0), "revenue"]],
+      raw: true,
+    }),
 
-    Promise.all([
-      queries.totalUsers,
-      queries.totalProducts,
-      queries.activeOrders,
-      queries.totalRevenue,
-    ])
-      .then(([totalUsers, totalProducts, activeOrders, totalRevenue]) => {
-        resolve({
-          totalUsers,
-          totalProducts,
-          activeOrders,
-          totalRevenue,
-        });
-      })
-      .catch((err) => {
-        console.error("Error fetching admin stats:", err);
-        reject(err);
-      });
-  });
+    // Total reviews
+    ProductReview.count(),
+
+    // Approved reviews
+    ProductReview.count({
+      where: { is_approved: true },
+    }),
+
+    // Pending reviews
+    ProductReview.count({
+      where: { is_approved: false },
+    }),
+
+    // Total posts
+    Post.count(),
+
+    // Truly published posts (published and date is now or past)
+    Post.count({
+      where: {
+        post_status: "published",
+        [Op.or]: [
+          { post_publish_date: null },
+          { post_publish_date: { [Op.lte]: new Date() } }
+        ]
+      },
+    }),
+
+    // Scheduled posts (published but date is in future)
+    Post.count({
+      where: {
+        post_status: "published",
+        post_publish_date: { [Op.gt]: new Date() }
+      },
+    }),
+
+    // Draft posts
+    Post.count({
+      where: { post_status: "draft" },
+    }),
+  ]);
+
+  return {
+    totalUsers,
+    totalProducts,
+    activeOrders,
+    totalRevenue: parseFloat(revenueResult?.revenue || 0),
+    // Review stats
+    totalReviews,
+    approvedReviews,
+    pendingReviews,
+    // Post stats
+    totalPosts,
+    publishedPosts,
+    scheduledPosts,
+    draftPosts,
+  };
 };
 
-///////////////////////////////////
-// ===== MODULE EXPORTS ======== //
-///////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// ================ EXPORTS ======================================== //
+///////////////////////////////////////////////////////////////////////
 
 module.exports = {
   getStats,

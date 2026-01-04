@@ -1,0 +1,108 @@
+/* ============================== */
+/* ===== LOGIN REQUIRED STYLES ===== */
+/* ============================== */
+
+.loginRequiredContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 2rem;
+  text-align: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  max-width: 500px;
+  margin: 2rem auto;
+}
+
+/* ============================== */
+/* ===== ICON WRAPPER ===== */
+/* ============================== */
+
+.iconWrapper {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================== */
+/* ===== TEXT STYLES ===== */
+/* ============================== */
+
+.title {
+  font-size: 1.75rem;
+  color: #2c3e50;
+  margin: 0 0 0.75rem 0;
+  font-weight: 700;
+}
+
+.message {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.6;
+  max-width: 350px;
+}
+
+/* ============================== */
+/* ===== BUTTON STYLES ===== */
+/* ============================== */
+
+.loginButton {
+  padding: 0.875rem 2.5rem;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.loginButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+}
+
+.loginButton:active {
+  transform: translateY(0);
+}
+
+/* ============================== */
+/* ===== RESPONSIVE DESIGN ===== */
+/* ============================== */
+
+@media (max-width: 768px) {
+  .loginRequiredContainer {
+    margin: 1rem;
+    padding: 1.5rem;
+    min-height: 350px;
+  }
+
+  .iconWrapper {
+    width: 80px;
+    height: 80px;
+  }
+
+  .iconWrapper i {
+    font-size: 3rem !important;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .message {
+    font-size: 1rem;
+  }
+}

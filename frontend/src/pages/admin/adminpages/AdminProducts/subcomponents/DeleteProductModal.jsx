@@ -46,7 +46,7 @@ export default function DeleteProductModal({ product, isOpen, onClose, onConfirm
             <br />
             <span>SKU: {product.sku || "N/A"}</span>
             <br />
-            <span>Price: ${product.price}</span>
+            <span>Price: NZD ${parseFloat(product.price).toFixed(2)}</span>
           </div>
           <p className={styles.warningDetails}>
             This will permanently remove the product and:

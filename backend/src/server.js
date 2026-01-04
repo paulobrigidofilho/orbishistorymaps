@@ -53,8 +53,23 @@ const orderRoutes = require("./routes/orderRoutes.js");
 const adminUserRoutes = require("./routes/adminUserRoutes.js");
 const adminProductRoutes = require("./routes/adminProductRoutes.js");
 const adminStatsRoutes = require("./routes/adminStatsRoutes.js");
+const adminOrderRoutes = require("./routes/adminOrderRoutes.js");
+const adminWishlistRoutes = require("./routes/adminWishlistRoutes.js");
+const adminReviewRoutes = require("./routes/adminReviewRoutes.js");
+const adminSettingsRoutes = require("./routes/adminSettingsRoutes.js");
+const reviewRoutes = require("./routes/reviewRoutes.js");
+const freightRoutes = require("./routes/freightRoutes.js");
+const postFeedRoutes = require("./routes/postFeedRoutes.js");
+const adminPostFeedRoutes = require("./routes/adminPostFeedRoutes.js");
 
 // ====================== Routes Setup ============================= //
+
+// Review routes - mounted early to ensure public product reviews route works
+app.use("/api/reviews", reviewRoutes);
+
+// Post feed routes - public
+app.use("/api/posts", postFeedRoutes);
+
 app.use("/api", registerUserRoutes);
 app.use("/api", loginUserRoutes);
 app.use("/api", profileRoutes);
@@ -67,6 +82,12 @@ app.use("/api/orders", orderRoutes);
 app.use("/api", adminUserRoutes);
 app.use("/api", adminProductRoutes);
 app.use("/api", adminStatsRoutes);
+app.use("/api", adminWishlistRoutes);
+app.use("/api", adminReviewRoutes);
+app.use("/api", adminOrderRoutes);
+app.use("/api", adminSettingsRoutes);
+app.use("/api", adminPostFeedRoutes);
+app.use("/api", freightRoutes);
 app.use("/health", healthRoutes);
 
 ///////////////////////////////////////////////////////////////////////
@@ -75,6 +96,7 @@ app.use("/health", healthRoutes);
 
 app.use("/uploads/avatars", express.static(config.staticPaths.avatars));
 app.use("/uploads/products", express.static(config.staticPaths.products));
+app.use("/uploads/posts", express.static(config.staticPaths.posts || "uploads/posts"));
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= SERVER START ========================== //
@@ -88,21 +110,41 @@ app.use("/uploads/products", express.static(config.staticPaths.products));
     console.log("Session store initialization complete.");
   }
 
-  // Ensure DB is reachable before accepting requests
-  await new Promise((resolve) => {
-    const checkDb = () => {
-      config.db.query("SELECT 1", (err) => {
-        if (err) {
-          console.log("Database not ready yet, retrying in 1000ms...");
-          setTimeout(checkDb, 1000);
-        } else {
-          console.log("Database is ready.");
-          resolve();
-        }
-      });
-    };
-    checkDb();
-  });
+  // Initialize Sequelize and ensure DB is reachable before accepting requests
+  const { testConnection } = require("./config/sequelizeConfig");
+  const { syncDatabase } = require("./models");
+
+  try {
+    // Test Sequelize connection
+    console.log("Testing Sequelize database connection...");
+    await testConnection();
+    console.log("Sequelize database connection successful.");
+
+    // Sync models (in development, this ensures tables exist)
+    // In production, use migrations instead
+    if (process.env.NODE_ENV !== "production") {
+      console.log("Syncing Sequelize models...");
+      await syncDatabase();
+      console.log("Sequelize models synced.");
+    }
+  } catch (error) {
+    console.error("Failed to initialize Sequelize:", error);
+    // Fall back to raw MySQL check for backward compatibility
+    await new Promise((resolve) => {
+      const checkDb = () => {
+        config.db.query("SELECT 1", (err) => {
+          if (err) {
+            console.log("Database not ready yet, retrying in 1000ms...");
+            setTimeout(checkDb, 1000);
+          } else {
+            console.log("Database is ready (fallback check).");
+            resolve();
+          }
+        });
+      };
+      checkDb();
+    });
+  }
 
   app.listen(port, () => {
     const env =

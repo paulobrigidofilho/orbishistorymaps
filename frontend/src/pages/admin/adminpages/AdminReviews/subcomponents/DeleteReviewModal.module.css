@@ -1,0 +1,170 @@
+/* ============================================================ */
+/* ============== DELETE REVIEW MODAL STYLES ================= */
+/* ============================================================ */
+
+.modalOverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	padding: 1rem;
+}
+
+.modalContent {
+	background: white;
+	border-radius: 16px;
+	width: 100%;
+	max-width: 450px;
+	max-height: 90vh;
+	overflow-y: auto;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.modalHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1.5rem;
+	border-bottom: 1px solid #e5e7eb;
+	background: #fef2f2;
+}
+
+.modalHeader h2 {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #dc2626;
+	margin: 0;
+}
+
+.closeButton {
+	width: 36px;
+	height: 36px;
+	border: none;
+	background: none;
+	color: #6b7280;
+	font-size: 1.5rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 8px;
+	transition: all 0.2s;
+}
+
+.closeButton:hover {
+	background: #fee2e2;
+	color: #dc2626;
+}
+
+.modalBody {
+	padding: 2rem;
+	text-align: center;
+}
+
+.warningIcon {
+	font-size: 4rem;
+	margin-bottom: 1rem;
+}
+
+.warningText {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #1f2937;
+	margin-bottom: 1rem;
+}
+
+.reviewInfo {
+	background: #f9fafb;
+	padding: 1rem;
+	border-radius: 8px;
+	margin-bottom: 1.5rem;
+	color: #1f2937;
+	font-size: 0.95rem;
+	text-align: left;
+}
+
+.reviewInfo strong {
+	color: #1f2937;
+	font-size: 1rem;
+}
+
+.irreversibleWarning {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #dc2626;
+	background: #fef2f2;
+	padding: 0.75rem;
+	border-radius: 8px;
+	margin: 0;
+}
+
+.modalFooter {
+	display: flex;
+	gap: 1rem;
+	padding: 1.5rem;
+	border-top: 1px solid #e5e7eb;
+	background: #f9fafb;
+}
+
+.cancelButton {
+	flex: 1;
+	padding: 0.875rem 1.5rem;
+	background: white;
+	border: 1px solid #d1d5db;
+	border-radius: 8px;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #374151;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.cancelButton:hover:not(:disabled) {
+	background: #f9fafb;
+	border-color: #9ca3af;
+}
+
+.cancelButton:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.deleteButton {
+	flex: 1;
+	padding: 0.875rem 1.5rem;
+	background: #dc2626;
+	border: none;
+	border-radius: 8px;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: white;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.deleteButton:hover:not(:disabled) {
+	background: #b91c1c;
+}
+
+.deleteButton:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}

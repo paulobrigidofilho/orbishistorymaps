@@ -1,0 +1,180 @@
+/* ============================================================ */
+/* ================ ADMIN REVIEWS STYLES ====================== */
+/* ============================================================ */
+
+.reviewsPage {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* ================ TABLE ==================== */
+
+.tableContainer {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.reviewsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reviewsTable thead {
+  background: #f9fafb;
+}
+
+.reviewsTable th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.reviewsTable td {
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.reviewsTable tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* ================ STARS ==================== */
+
+.stars {
+  color: #fbbf24;
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+}
+
+/* ================ BADGES ==================== */
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.approved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ================ ACTIONS ==================== */
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ================ STATES ==================== */
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #f9fafb;
+  border-radius: 12px;
+  color: #6b7280;
+}
+
+.emptyState p:first-child {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.emptyHint {
+  font-size: 0.875rem;
+}
+
+/* ================ PAGINATION ==================== */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.pageInfo {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* ================ CLICKABLE/HOVERABLE ELEMENTS ==================== */
+
+.clickableProduct {
+  cursor: pointer;
+  color: #3b82f6;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.clickableProduct:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.hoverableUser {
+  cursor: pointer;
+  color: #374151;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.hoverableUser:hover {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+/* ============================================================ */
+/* ================ END ADMIN REVIEWS STYLES ================== */
+/* ============================================================ */
+

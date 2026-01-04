@@ -47,6 +47,7 @@ const fetchProfileData = async (profileId, setters) => {
       setters.setCity(payload.city || "");
       setters.setStateName(payload.state || ""); // backend uses `state`
       setters.setZipCode(payload.zipCode || "");
+      setters.setCountry?.(payload.country || "New Zealand"); // Country with default
       setters.setCurrentUserId(payload.id || payload._id || profileId || "");
       setters.setError("");
 

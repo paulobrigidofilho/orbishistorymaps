@@ -1,0 +1,150 @@
+/***************************************************************/
+/* ================ SMART ADDRESS INPUT STYLES =============== */
+/***************************************************************/
+
+.smartAddressInput {
+  position: relative;
+  width: 100%;
+}
+
+/* ================ INPUT ==================== */
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  padding-right: 36px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+.input.readOnly {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  color: #666;
+}
+
+.input::placeholder {
+  color: #999;
+}
+
+/* ================ LOADING INDICATOR ==================== */
+
+.loadingIndicator {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e0e0e0;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================ DROPDOWN ==================== */
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* ================ SUGGESTION ITEM ==================== */
+
+.suggestion {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.suggestion:hover,
+.suggestion.highlighted {
+  background-color: #f5f5f5;
+}
+
+.mainText {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.secondaryText {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* ================ SCROLLBAR ==================== */
+
+.dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.dropdown::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.dropdown::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* ================ MOBILE RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+  .dropdown {
+    max-height: 250px;
+  }
+
+  .suggestion {
+    padding: 12px 14px;
+  }
+
+  .mainText {
+    font-size: 0.9rem;
+  }
+
+  .secondaryText {
+    font-size: 0.75rem;
+  }
+}

@@ -10,30 +10,30 @@ import { NavLink } from "react-router-dom";
 import styles from "../MainNavBar.module.css";
 import getCart from "../../shop/functions/cartService/getCart";
 
-const CartBtn = () => {
+//  ========== Component imports  ========== //
+import FadeNotification from "../components/FadeNotification";
+
+const CartBtn = ({ disabled = false }) => {
   ///////////////////////////////////////////////////////////////////////
   // ========================= STATE VARIABLES ======================= //
   ///////////////////////////////////////////////////////////////////////
 
   const [itemCount, setItemCount] = useState(0);
+  const [showNotification, setShowNotification] = useState(false);
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= USE EFFECT HOOK ======================= //
   ///////////////////////////////////////////////////////////////////////
 
-  // Fetch cart data on mount and set up periodic refresh
+  // Fetch cart data on mount and listen for cart update events
   useEffect(() => {
     fetchCartCount();
 
-    // Refresh cart count every 5 seconds
-    const interval = setInterval(fetchCartCount, 5000);
-
-    // Listen for cart update events
+    // Listen for cart update events (event-based, no polling)
     const handleCartUpdate = () => fetchCartCount();
     window.addEventListener("cartUpdated", handleCartUpdate);
 
     return () => {
-      clearInterval(interval);
       window.removeEventListener("cartUpdated", handleCartUpdate);
     };
   }, []);
@@ -53,17 +53,41 @@ const CartBtn = () => {
     }
   };
 
+  const handleClick = (e) => {
+    if (disabled) {
+      e.preventDefault();
+      setShowNotification(true);
+    }
+  };
+
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
   ///////////////////////////////////////////////////////////////////////
 
   return (
-    <NavLink to="/cart" className={styles.cartButton}>
-      <i className="material-icons">shopping_cart</i>
-      {itemCount > 0 && (
-        <span className={styles.cartBadge}>{itemCount}</span>
+    <>
+      <NavLink 
+        to="/cart" 
+        className={`${styles.cartButton} ${disabled ? styles.disabled : ""}`}
+        onClick={handleClick}
+      >
+        <i className="material-icons">shopping_cart</i>
+        {itemCount > 0 && (
+          <span className={styles.cartBadge}>{itemCount}</span>
+        )}
+      </NavLink>
+      
+      {showNotification && (
+        <FadeNotification
+          key={Date.now()}
+          type="warning"
+          text="Disabled during maintenance"
+          duration={3000}
+          position="top"
+          onComplete={() => setShowNotification(false)}
+        />
       )}
-    </NavLink>
+    </>
   );
 };
 

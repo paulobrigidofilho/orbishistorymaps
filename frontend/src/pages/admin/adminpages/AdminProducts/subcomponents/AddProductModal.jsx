@@ -280,8 +280,8 @@ export default function AddProductModal({ isOpen, onClose, onSave, categories = 
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay} onClick={handleClose}>
-      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
           <h2>Add New Product</h2>
           <CloseBtn onClick={handleClose} />
@@ -398,7 +398,7 @@ export default function AddProductModal({ isOpen, onClose, onSave, categories = 
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
                 <label htmlFor="add-price">
-                  Price ($) <span className={styles.required}>*</span>
+                  Price (NZD $) <span className={styles.required}>*</span>
                 </label>
                 <input
                   type="number"
@@ -417,7 +417,7 @@ export default function AddProductModal({ isOpen, onClose, onSave, categories = 
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="add-sale_price">Sale Price ($)</label>
+                <label htmlFor="add-sale_price">Sale Price (NZD $)</label>
                 <input
                   type="number"
                   id="add-sale_price"

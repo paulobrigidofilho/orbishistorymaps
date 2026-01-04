@@ -31,7 +31,7 @@ export default function validateProductForm(formData, imageCount = 0) {
   } else if (parseFloat(formData.price) < 0) {
     errors.price = "Price cannot be negative";
   } else if (parseFloat(formData.price) > 999999.99) {
-    errors.price = "Price cannot exceed $999,999.99";
+    errors.price = "Price cannot exceed NZD $999,999.99";
   }
 
   // ===== Sale Price validation (optional) ===== //

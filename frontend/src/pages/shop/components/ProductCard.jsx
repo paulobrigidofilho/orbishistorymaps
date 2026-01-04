@@ -5,12 +5,13 @@
 // This component displays a single product in the product grid
 
 //  ========== Module imports  ========== //
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./ProductCard.module.css";
 
 //  ========== Component imports  ========== //
 import WishlistToggleBtn from "../../common/wishlist/components/WishlistToggleBtn";
+import RatingModal from "./RatingModal";
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= PRODUCT CARD ============================ //
@@ -20,6 +21,11 @@ import WishlistToggleBtn from "../../common/wishlist/components/WishlistToggleBt
 const DEFAULT_PRODUCT_IMAGE = "/assets/common/default-product-img.png";
 
 const ProductCard = ({ product }) => {
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingBreakdown, setRatingBreakdown] = useState({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+  const [totalRatings, setTotalRatings] = useState(0);
+  const navigate = useNavigate();
+
   // Calculate if product is on sale
   const isOnSale = product.sale_price && parseFloat(product.sale_price) < parseFloat(product.price);
   const displayPrice = isOnSale ? parseFloat(product.sale_price) : parseFloat(product.price);
@@ -29,6 +35,43 @@ const ProductCard = ({ product }) => {
   
   // Get product image with fallback to default
   const productImage = product.primary_image || DEFAULT_PRODUCT_IMAGE;
+
+  // Fetch rating breakdown when modal opens
+  useEffect(() => {
+    if (showRatingModal && product.product_id) {
+      const fetchBreakdown = async () => {
+        try {
+          const res = await fetch(`/api/reviews/product/${product.product_id}/breakdown`);
+          if (res.ok) {
+            const data = await res.json();
+            setTotalRatings(data.totalReviews || 0);
+            // Convert counts to percentages
+            const total = data.totalReviews || 0;
+            if (total > 0) {
+              setRatingBreakdown({
+                5: Math.round((data.breakdown[5] / total) * 100),
+                4: Math.round((data.breakdown[4] / total) * 100),
+                3: Math.round((data.breakdown[3] / total) * 100),
+                2: Math.round((data.breakdown[2] / total) * 100),
+                1: Math.round((data.breakdown[1] / total) * 100),
+              });
+            } else {
+              setRatingBreakdown({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching rating breakdown:", error);
+        }
+      };
+      fetchBreakdown();
+    }
+  }, [showRatingModal, product.product_id]);
+
+  const handleSeeAllComments = (e) => {
+    e.stopPropagation();
+    setShowRatingModal(false);
+    navigate(`/shop/product/${product.product_slug}#reviews`);
+  };
 
   ///////////////////////////////////////////////////////////////////////
   // ========================= JSX BELOW ============================= //
@@ -40,7 +83,6 @@ const ProductCard = ({ product }) => {
       <div className={styles.wishlistBtnWrapper}>
         <WishlistToggleBtn productId={product.product_id} />
       </div>
-
       <Link to={`/shop/product/${product.product_slug}`} className={styles.productLink}>
         {/* Product Image */}
         <div className={styles.imageContainer}>
@@ -54,26 +96,22 @@ const ProductCard = ({ product }) => {
             onError={(e) => { e.target.src = DEFAULT_PRODUCT_IMAGE; }}
           />
         </div>
-
         {/* Product Info */}
         <div className={styles.productInfo}>
           <h3 className={styles.productName}>{product.product_name}</h3>
-          
           {/* Category */}
           {product.category_name && (
             <p className={styles.category}>{product.category_name}</p>
           )}
-
           {/* Price */}
           <div className={styles.priceContainer}>
-            <span className={styles.currentPrice}>${displayPrice.toFixed(2)}</span>
+            <span className={styles.currentPrice}>NZD ${displayPrice.toFixed(2)}</span>
             {isOnSale && (
               <span className={styles.originalPrice}>
-                ${parseFloat(product.price).toFixed(2)}
+                NZD ${parseFloat(product.price).toFixed(2)}
               </span>
             )}
           </div>
-
           {/* Stock Status */}
           {product.quantity_available <= 0 && (
             <p className={styles.outOfStock}>Out of Stock</p>
@@ -81,10 +119,13 @@ const ProductCard = ({ product }) => {
           {product.quantity_available > 0 && product.quantity_available < 10 && (
             <p className={styles.lowStock}>Only {product.quantity_available} left!</p>
           )}
-
           {/* Rating */}
           {parseFloat(product.rating_average) > 0 && (
-            <div className={styles.rating}>
+            <div
+              className={styles.rating}
+              style={{ cursor: "pointer" }}
+              onClick={e => { e.preventDefault(); setShowRatingModal(true); }}
+            >
               <span className={styles.stars}>
                 {"★".repeat(Math.round(parseFloat(product.rating_average)))}
                 {"☆".repeat(5 - Math.round(parseFloat(product.rating_average)))}
@@ -94,6 +135,14 @@ const ProductCard = ({ product }) => {
           )}
         </div>
       </Link>
+      <RatingModal
+        open={showRatingModal}
+        onClose={() => setShowRatingModal(false)}
+        average={parseFloat(product.rating_average) || 0}
+        total={totalRatings}
+        breakdown={ratingBreakdown}
+        onSeeAllComments={handleSeeAllComments}
+      />
     </div>
   );
 };
