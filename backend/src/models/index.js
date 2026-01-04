@@ -26,6 +26,7 @@ const ProductReview = require("./ProductReview");
 const Wishlist = require("./Wishlist");
 const SiteSettings = require("./SiteSettings");
 const FreightConfig = require("./FreightConfig");
+const Post = require("./Post");
 
 ///////////////////////////////////////////////////////////////////////
 // ================ MODEL ASSOCIATIONS ============================= //
@@ -103,6 +104,10 @@ Order.belongsTo(Address, { as: "billingAddress", foreignKey: "billing_address_id
 Order.hasMany(ProductReview, { as: "reviews", foreignKey: "order_id", onDelete: "SET NULL" });
 ProductReview.belongsTo(Order, { as: "order", foreignKey: "order_id" });
 
+// ===== Post Associations ===== //
+User.hasMany(Post, { as: "posts", foreignKey: "author_id", onDelete: "CASCADE" });
+Post.belongsTo(User, { as: "author", foreignKey: "author_id" });
+
 ///////////////////////////////////////////////////////////////////////
 // ================ SYNC FUNCTION ================================== //
 ///////////////////////////////////////////////////////////////////////
@@ -150,4 +155,5 @@ module.exports = {
   Wishlist,
   SiteSettings,
   FreightConfig,
+  Post,
 };

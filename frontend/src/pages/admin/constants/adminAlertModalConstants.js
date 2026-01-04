@@ -232,6 +232,56 @@ export const ADMIN_REVIEW_ALERT_MESSAGES = {
 };
 
 ///////////////////////////////////////////////////////////////////////
+// =================== POST MANAGEMENT MESSAGES ====================== //
+///////////////////////////////////////////////////////////////////////
+
+/**
+ * Alert messages for admin post management
+ */
+export const ADMIN_POST_ALERT_MESSAGES = {
+  TOGGLE_STATUS: (newStatus) => ({
+    title: newStatus === "published" ? "Publish Post" : "Unpublish Post",
+    message: `${newStatus === "published" ? "Publish" : "Unpublish"} this post?`,
+    confirmText: newStatus === "published" ? "Publish" : "Unpublish",
+    cancelText: "Cancel",
+    type: ADMIN_ALERT_MODAL_TYPES.CONFIRM,
+    icon: newStatus === "published" ? "publish" : "unpublished",
+  }),
+  DELETE_POST: {
+    title: "Delete Post",
+    message: "Are you sure you want to delete this post? This action cannot be undone.",
+    confirmText: "Delete",
+    cancelText: "Cancel",
+    type: ADMIN_ALERT_MODAL_TYPES.DANGER,
+    icon: "delete",
+  },
+  POST_CREATED: {
+    title: "Post Created",
+    message: "Post has been successfully created.",
+    confirmText: "OK",
+    showCancel: false,
+    type: ADMIN_ALERT_MODAL_TYPES.SUCCESS,
+    icon: "check_circle",
+  },
+  POST_UPDATED: {
+    title: "Post Updated",
+    message: "Post has been successfully updated.",
+    confirmText: "OK",
+    showCancel: false,
+    type: ADMIN_ALERT_MODAL_TYPES.SUCCESS,
+    icon: "check_circle",
+  },
+  POST_DELETED: {
+    title: "Post Deleted",
+    message: "Post has been successfully deleted.",
+    confirmText: "OK",
+    showCancel: false,
+    type: ADMIN_ALERT_MODAL_TYPES.SUCCESS,
+    icon: "check_circle",
+  },
+};
+
+///////////////////////////////////////////////////////////////////////
 // =================== GENERAL ERROR MESSAGES ======================== //
 ///////////////////////////////////////////////////////////////////////
 

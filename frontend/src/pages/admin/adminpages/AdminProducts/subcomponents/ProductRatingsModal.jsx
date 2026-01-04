@@ -98,8 +98,8 @@ export default function ProductRatingsModal({ product, isOpen, onClose }) {
   const breakdown = ratingsData?.breakdown || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
 
   return (
-    <div className={styles.modalOverlay} onClick={handleClose}>
-      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContent}>
         {/* Header */}
         <div className={styles.modalHeader}>
           <h2>Rating Breakdown</h2>

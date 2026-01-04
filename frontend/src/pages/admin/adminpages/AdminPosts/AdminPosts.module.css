@@ -1,0 +1,175 @@
+/* ============================================================ */
+/* ================ ADMIN POSTS STYLES ======================== */
+/* ============================================================ */
+
+.postsPage {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* ================ ID CELL ==================== */
+
+.idCell {
+  font-weight: 600;
+  color: #6b7280;
+  min-width: 50px;
+}
+
+/* ================ POST INFO ==================== */
+
+.postInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.postTitle {
+  display: block;
+  font-weight: 600;
+  color: #1a1a1a;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.postExcerpt {
+  font-size: 0.8rem;
+  color: #6b7280;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ================ AUTHOR ==================== */
+
+.authorName {
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+/* ================ STATUS BADGE ==================== */
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.statusBadge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.statusPublished {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.statusPublished:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.statusDraft {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+}
+
+.statusDraft:hover {
+  background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+}
+
+/* ================ VIEWS CELL ==================== */
+
+.viewsCell {
+  text-align: center;
+}
+
+.viewCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+/* ================ TABLE RESPONSIVE ==================== */
+
+@media (max-width: 1200px) {
+  .postTitle {
+    max-width: 200px;
+  }
+
+  .postExcerpt {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .postsPage {
+    padding: 1rem;
+  }
+
+  .postTitle {
+    max-width: 150px;
+  }
+
+  .statusBadge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+  }
+}
+
+/* ================ INLINE SELECT ==================== */
+
+.inlineSelect {
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.inlineSelect:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.selectPublished {
+  background-color: #d1fae5;
+  border-color: #10b981;
+  color: #047857;
+}
+
+.selectDraft {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  color: #4b5563;
+}

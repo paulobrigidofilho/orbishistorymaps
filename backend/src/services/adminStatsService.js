@@ -8,7 +8,7 @@
 const { fn, col, Op } = require("sequelize");
 
 // ======= Model Imports ======= //
-const { User, Product, Order, ProductReview } = require("../models");
+const { User, Product, Order, ProductReview, Post } = require("../models");
 
 ///////////////////////////////////////////////////////////////////////
 // ================ SERVICE FUNCTIONS ============================== //
@@ -27,6 +27,9 @@ const getStats = async () => {
     totalReviews,
     approvedReviews,
     pendingReviews,
+    totalPosts,
+    publishedPosts,
+    draftPosts,
   ] = await Promise.all([
     // Total users
     User.count(),
@@ -62,6 +65,19 @@ const getStats = async () => {
     ProductReview.count({
       where: { is_approved: false },
     }),
+
+    // Total posts
+    Post.count(),
+
+    // Published posts
+    Post.count({
+      where: { post_status: "published" },
+    }),
+
+    // Draft posts
+    Post.count({
+      where: { post_status: "draft" },
+    }),
   ]);
 
   return {
@@ -73,6 +89,10 @@ const getStats = async () => {
     totalReviews,
     approvedReviews,
     pendingReviews,
+    // Post stats
+    totalPosts,
+    publishedPosts,
+    draftPosts,
   };
 };
 

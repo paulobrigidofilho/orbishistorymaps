@@ -1,0 +1,152 @@
+/* ============================================================ */
+/* ============== DELETE POST MODAL STYLES ==================== */
+/* ============================================================ */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 450px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================ MODAL HEADER ==================== */
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fef2f2;
+}
+
+.modalHeader h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #dc2626;
+  margin: 0;
+}
+
+/* ================ MODAL BODY ==================== */
+
+.modalBody {
+  padding: 2rem;
+  text-align: center;
+}
+
+.warningIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.warningText {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.postInfo {
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.postInfo strong {
+  color: #1f2937;
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.postStatus {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.postViews {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.warningDetails {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+.deletionList {
+  text-align: left;
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.deletionList li {
+  margin-bottom: 0.25rem;
+}
+
+.irreversibleWarning {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #dc2626;
+  background: #fef2f2;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin: 0;
+}
+
+/* ================ MODAL FOOTER ==================== */
+
+.modalFooter {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  justify-content: flex-end;
+}
+
+/* ================ RESPONSIVE ==================== */
+
+@media (max-width: 480px) {
+  .modalContent {
+    margin: 0.5rem;
+    max-width: calc(100% - 1rem);
+  }
+
+  .modalBody {
+    padding: 1.5rem;
+  }
+}

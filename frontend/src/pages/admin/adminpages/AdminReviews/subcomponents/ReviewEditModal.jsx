@@ -84,8 +84,8 @@ export default function ReviewEditModal({ review, isOpen, onClose, onSave }) {
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay} onClick={handleClose}>
-      <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
           <h2>Edit Review</h2>
           <CloseBtn onClick={handleClose} />

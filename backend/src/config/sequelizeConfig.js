@@ -38,6 +38,11 @@ const sequelize = new Sequelize(
       timestamps: true,
       underscored: true,
       freezeTableName: true,
+      charset: "utf8mb4",
+      collate: "utf8mb4_unicode_ci",
+    },
+    dialectOptions: {
+      charset: "utf8mb4",
     },
   }
 );

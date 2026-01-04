@@ -15,6 +15,13 @@ export const adminNavBarButtons = [
     show: () => true,
   },
   {
+    key: "posts",
+    to: "/admin/posts",
+    icon: "📝",
+    label: "Posts",
+    show: () => true,
+  },
+  {
     key: "users",
     to: "/admin/users",
     icon: "👥",

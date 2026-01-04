@@ -13,6 +13,7 @@ import AdminLayout from "./components/AdminLayout";
 import StatCard from "./components/StatCard";
 import ActionCard from "./components/ActionCard";
 import ReviewStatCard from "./components/ReviewStatCard";
+import PostStatCard from "./components/PostStatCard";
 
 //  ========== Function imports  ========== //
 import fetchStats from "./functions/fetchStats";
@@ -38,6 +39,9 @@ export default function AdminDashboard() {
     totalReviews: 0,
     approvedReviews: 0,
     pendingReviews: 0,
+    totalPosts: 0,
+    publishedPosts: 0,
+    draftPosts: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -60,6 +64,14 @@ export default function AdminDashboard() {
 
         {/* Stats Cards */}
         <div className={styles.statsGrid}>
+          {/* Post Stat Card with breakdown - FIRST */}
+          <PostStatCard
+            total={stats.totalPosts}
+            published={stats.publishedPosts}
+            draft={stats.draftPosts}
+            isLoading={loading}
+          />
+
           {/* Render first 3 stat cards (Users, Products, Orders) */}
           {STAT_CARDS.slice(0, 3).map((card) => (
             <StatCard

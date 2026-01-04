@@ -59,10 +59,35 @@ export const REVIEW_STAT_CARD = {
   },
 };
 
+/////////////////////////////////////////////////////////////////////////
+// =================== POST STAT CARD CONFIG ========================= //
+/////////////////////////////////////////////////////////////////////////
+
+// Configuration for the post stat card with breakdown
+export const POST_STAT_CARD = {
+  icon: "📝",
+  label: "Total Posts",
+  to: "/admin/posts",
+  breakdownLabels: {
+    published: "Published",
+    draft: "Draft",
+  },
+  breakdownColors: {
+    published: "#22c55e", // Green
+    draft: "#6b7280", // Gray
+  },
+};
+
 // Dashboard action cards configuration
 export const ACTION_CARDS = [
   {
-    icon: "👥",
+    icon: "�",
+    title: "Manage Posts",
+    description: "Create and manage blog posts",
+    to: "/admin/posts",
+  },
+  {
+    icon: "�👥",
     title: "Manage Users",
     description: "View and manage user accounts",
     to: "/admin/users",

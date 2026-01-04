@@ -13,7 +13,7 @@ export default function DeleteReviewModal({ review, isOpen, onClose, onConfirm, 
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         {/* Modal Header */}
         <div className={styles.modalHeader}>
           <h2>Delete Review</h2>

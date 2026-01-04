@@ -84,6 +84,14 @@ export default function NavBarProfileBtn() {
           </div>
           <div className={styles.dropdownDivider}></div>
           <NavLink
+            to="/"
+            className={styles.dropdownItem}
+            onClick={() => setIsProfileDropdownOpen(false)}
+          >
+            <span className={styles.dropdownIcon}>🏠</span>
+            Home
+          </NavLink>
+          <NavLink
             to={`/profile/${user?.id}`}
             className={styles.dropdownItem}
             onClick={() => setIsProfileDropdownOpen(false)}

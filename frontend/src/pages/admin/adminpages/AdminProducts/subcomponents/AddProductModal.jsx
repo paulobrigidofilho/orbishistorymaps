@@ -280,8 +280,8 @@ export default function AddProductModal({ isOpen, onClose, onSave, categories = 
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay} onClick={handleClose}>
-      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
           <h2>Add New Product</h2>
           <CloseBtn onClick={handleClose} />

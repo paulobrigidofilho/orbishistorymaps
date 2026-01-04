@@ -7,7 +7,6 @@
 
 //  ========== Module imports  ========== //
 
-import { Link } from "react-router-dom";
 import styles from "./AdminNavBar.module.css";
 // ======= Button/Constants Imports ======= //
 
@@ -22,14 +21,6 @@ import NavBarProfileBtn from "../btn/NavBarProfileBtn";
 export default function AdminNavBar() {
   return (
     <nav className={styles.adminNavBar}>
-      {/* Logo / Brand */}
-      <div className={styles.brand}>
-        <Link to="/admin" className={styles.brandLink}>
-          <span className={styles.brandIcon}>⚙️</span>
-          <span className={styles.brandText}>Orbis Admin</span>
-        </Link>
-      </div>
-
       {/* Navigation Links */}
       <div className={styles.navLinks}>
         {adminNavBarButtons
@@ -45,13 +36,8 @@ export default function AdminNavBar() {
           ))}
       </div>
 
-      {/* Right Section - Shop Link & Profile */}
+      {/* Right Section - Profile */}
       <div className={styles.rightSection}>
-        {/* Home Link */}
-        <Link to="/" className={styles.shopLink}>
-          <span className={styles.navIcon}>🏠</span>
-          Home
-        </Link>
         {/* Profile Dropdown */}
         <NavBarProfileBtn />
       </div>

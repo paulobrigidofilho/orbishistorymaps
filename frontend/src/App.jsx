@@ -34,6 +34,7 @@ import AdminOrders from "./pages/admin/adminpages/AdminOrders/AdminOrders.jsx";
 import AdminSettings from "./pages/admin/adminpages/AdminSettings/AdminSettings.jsx";
 import AdminReviews from "./pages/admin/adminpages/AdminReviews/AdminReviews.jsx";
 import AdminWishlists from "./pages/admin/adminpages/AdminWishlists/AdminWishlists.jsx";
+import AdminPosts from "./pages/admin/adminpages/AdminPosts/AdminPosts.jsx";
 
 // ========== Route Guard Components  ========== //
 
@@ -81,6 +82,7 @@ function App() {
             
             {/* Admin Routes (always accessible for admins) */}
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/posts" element={<AdminPosts />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/products" element={<AdminProducts />} />
             <Route path="/admin/products/new" element={<AdminProductForm />} />

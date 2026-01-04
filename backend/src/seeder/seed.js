@@ -26,6 +26,7 @@ const {
   Inventory,
   SiteSettings,
   FreightConfig,
+  Post,
 } = require("../models");
 
 (async () => {
@@ -345,6 +346,144 @@ const {
       console.log("✓ Freight configuration seeding completed.\n");
     } catch (err) {
       console.log("Error seeding freight configuration:", err.message);
+    }
+
+    // ===== Seed Sample Posts ===== //
+    console.log("Seeding sample posts...");
+    try {
+      // Find an admin user to be the author
+      const adminUser = await User.findOne({
+        where: { user_role: "admin" },
+      });
+
+      if (!adminUser) {
+        console.log("  - No admin user found, skipping post seeding.");
+      } else {
+        const samplePosts = [
+          {
+            post_title: "Welcome to Orbis History Maps",
+            post_slug: "welcome-to-orbis-history-maps",
+            post_content: `# Welcome to Orbis History Maps!
+
+We are thrilled to launch our new platform dedicated to exploring the rich tapestry of world history through interactive maps.
+
+## What You Can Expect
+
+- **Interactive Maps**: Explore historical events across different time periods
+- **Detailed Information**: Learn about civilizations, battles, and cultural movements
+- **Educational Resources**: Access curated content for students and history enthusiasts
+
+Stay tuned for more updates as we continue to expand our collection!`,
+            post_excerpt: "Discover the launch of our new interactive history maps platform, bringing the past to life through modern technology.",
+            post_status: "published",
+            post_publish_date: new Date(),
+            post_view_count: 42,
+            seo_description: "Welcome to Orbis History Maps - your gateway to exploring world history through interactive maps and educational content.",
+            seo_keywords: "history maps, world history, interactive maps, education",
+            author_id: adminUser.user_id,
+          },
+          {
+            post_title: "New Feature: Ancient Civilizations Timeline",
+            post_slug: "new-feature-ancient-civilizations-timeline",
+            post_content: `# Introducing Our Ancient Civilizations Timeline
+
+We're excited to announce a brand new feature that allows you to explore the rise and fall of ancient civilizations!
+
+## Featured Civilizations
+
+1. **Ancient Egypt** - From the Old Kingdom to Cleopatra
+2. **Mesopotamia** - The cradle of civilization
+3. **Ancient Greece** - Democracy, philosophy, and the arts
+4. **Roman Empire** - From republic to empire
+
+## How to Use
+
+Simply navigate to our timeline view and select your civilization of interest. You can zoom in and out to see different time scales.
+
+This feature is the result of months of research and development, and we hope you find it as fascinating as we do!`,
+            post_excerpt: "Explore our new timeline feature showcasing the rise and fall of ancient civilizations throughout history.",
+            post_status: "published",
+            post_publish_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+            post_view_count: 128,
+            seo_description: "Discover our new Ancient Civilizations Timeline feature - explore Egypt, Mesopotamia, Greece, and Rome.",
+            seo_keywords: "ancient civilizations, history timeline, Egypt, Greece, Rome, Mesopotamia",
+            author_id: adminUser.user_id,
+          },
+          {
+            post_title: "Behind the Scenes: Building Historical Accuracy",
+            post_slug: "behind-the-scenes-building-historical-accuracy",
+            post_content: `# How We Ensure Historical Accuracy
+
+At Orbis History Maps, we take historical accuracy seriously. Here's a look behind the scenes at our process.
+
+## Our Research Process
+
+- **Academic Sources**: We consult peer-reviewed historical journals
+- **Expert Consultation**: Collaboration with university historians
+- **Primary Sources**: Analysis of original documents and artifacts
+- **Cross-referencing**: Multiple sources for every fact
+
+## Continuous Improvement
+
+History is always being reinterpreted as new discoveries are made. We commit to:
+
+- Regular content reviews
+- Updates based on new archaeological findings
+- Community feedback integration
+
+Thank you for trusting us with your historical education!`,
+            post_excerpt: "Learn about our rigorous process for ensuring historical accuracy across all our interactive maps and content.",
+            post_status: "published",
+            post_publish_date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 14 days ago
+            post_view_count: 85,
+            seo_description: "Discover how Orbis History Maps ensures historical accuracy through rigorous research and expert consultation.",
+            seo_keywords: "historical accuracy, research methodology, history education",
+            author_id: adminUser.user_id,
+          },
+          {
+            post_title: "Upcoming: Medieval Trade Routes Feature",
+            post_slug: "upcoming-medieval-trade-routes-feature",
+            post_content: `# Coming Soon: Medieval Trade Routes
+
+We're working on an exciting new feature that will allow you to explore medieval trade networks!
+
+## What to Expect
+
+- **Silk Road**: Follow the ancient route from China to Europe
+- **Hanseatic League**: Discover northern European maritime trade
+- **Maritime Routes**: Explore Indian Ocean trade networks
+
+## Expected Launch
+
+We anticipate launching this feature in Q2 2024. Stay tuned for more details!`,
+            post_excerpt: "Preview our upcoming Medieval Trade Routes feature - explore the Silk Road, Hanseatic League, and more.",
+            post_status: "draft",
+            post_publish_date: null,
+            post_view_count: 0,
+            seo_description: "Preview the upcoming Medieval Trade Routes feature on Orbis History Maps.",
+            seo_keywords: "medieval trade, Silk Road, Hanseatic League, trade routes",
+            author_id: adminUser.user_id,
+          },
+        ];
+
+        for (const postData of samplePosts) {
+          // Check if post already exists
+          const existingPost = await Post.findOne({
+            where: { post_slug: postData.post_slug },
+          });
+
+          if (!existingPost) {
+            await Post.create(postData);
+            console.log(`  ✓ Post "${postData.post_title}" seeded.`);
+          } else {
+            console.log(`  - Post "${postData.post_title}" already exists.`);
+          }
+        }
+      }
+      console.log("✓ Sample posts seeding completed.\n");
+    } catch (err) {
+      console.log("Error seeding posts:", err.message);
+      console.error(err);
     }
 
     console.log("\n✓ Seeding completed successfully!");

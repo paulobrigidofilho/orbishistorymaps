@@ -59,11 +59,16 @@ const adminReviewRoutes = require("./routes/adminReviewRoutes.js");
 const adminSettingsRoutes = require("./routes/adminSettingsRoutes.js");
 const reviewRoutes = require("./routes/reviewRoutes.js");
 const freightRoutes = require("./routes/freightRoutes.js");
+const postFeedRoutes = require("./routes/postFeedRoutes.js");
+const adminPostFeedRoutes = require("./routes/adminPostFeedRoutes.js");
 
 // ====================== Routes Setup ============================= //
 
 // Review routes - mounted early to ensure public product reviews route works
 app.use("/api/reviews", reviewRoutes);
+
+// Post feed routes - public
+app.use("/api/posts", postFeedRoutes);
 
 app.use("/api", registerUserRoutes);
 app.use("/api", loginUserRoutes);
@@ -81,6 +86,7 @@ app.use("/api", adminWishlistRoutes);
 app.use("/api", adminReviewRoutes);
 app.use("/api", adminOrderRoutes);
 app.use("/api", adminSettingsRoutes);
+app.use("/api", adminPostFeedRoutes);
 app.use("/api", freightRoutes);
 app.use("/health", healthRoutes);
 
@@ -90,6 +96,7 @@ app.use("/health", healthRoutes);
 
 app.use("/uploads/avatars", express.static(config.staticPaths.avatars));
 app.use("/uploads/products", express.static(config.staticPaths.products));
+app.use("/uploads/posts", express.static(config.staticPaths.posts || "uploads/posts"));
 
 ///////////////////////////////////////////////////////////////////////
 // ========================= SERVER START ========================== //

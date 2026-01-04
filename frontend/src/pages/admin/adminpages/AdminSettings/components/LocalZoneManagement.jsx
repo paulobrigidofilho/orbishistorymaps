@@ -187,8 +187,8 @@ export default function LocalZoneManagement({ showNotification: parentShowNotifi
 
       {/* Modal */}
       {showModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
             <div className={styles.modalHeader}>
               <h3>Set Local Origin City</h3>
               <button
