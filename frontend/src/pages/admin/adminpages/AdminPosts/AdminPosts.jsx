@@ -33,6 +33,7 @@ import {
 
 //  ========== Helper imports  ========== //
 import formatDateDMY from "../../helpers/formatDateDMY";
+import { getPostVisualStatus } from "./helpers/getPostVisualStatus";
 
 ///////////////////////////////////////////////////////////////////////
 // ====================== ADMIN POSTS PAGE =========================== //
@@ -269,15 +270,25 @@ export default function AdminPosts() {
         <button
           onClick={() => handleStatusToggle(post)}
           className={`${styles.statusBadge} ${
-            post.post_status === "published"
-              ? styles.statusPublished
-              : styles.statusDraft
+            (() => {
+              const visualStatus = getPostVisualStatus(post);
+              return visualStatus === "published"
+                ? styles.statusPublished
+                : visualStatus === "scheduled"
+                ? styles.statusScheduled
+                : styles.statusDraft;
+            })()
           }`}
           title={`Click to ${post.post_status === "published" ? "unpublish" : "publish"}`}
         >
-          {post.post_status === "published"
-            ? POST_LABELS.STATUS.PUBLISHED
-            : POST_LABELS.STATUS.DRAFT}
+          {(() => {
+            const visualStatus = getPostVisualStatus(post);
+            return visualStatus === "published"
+              ? POST_LABELS.STATUS.PUBLISHED
+              : visualStatus === "scheduled"
+              ? POST_LABELS.STATUS.SCHEDULED
+              : POST_LABELS.STATUS.DRAFT;
+          })()}
         </button>
       </td>
       <td>

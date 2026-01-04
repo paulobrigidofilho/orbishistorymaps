@@ -29,6 +29,7 @@ const getStats = async () => {
     pendingReviews,
     totalPosts,
     publishedPosts,
+    scheduledPosts,
     draftPosts,
   ] = await Promise.all([
     // Total users
@@ -69,9 +70,23 @@ const getStats = async () => {
     // Total posts
     Post.count(),
 
-    // Published posts
+    // Truly published posts (published and date is now or past)
     Post.count({
-      where: { post_status: "published" },
+      where: {
+        post_status: "published",
+        [Op.or]: [
+          { post_publish_date: null },
+          { post_publish_date: { [Op.lte]: new Date() } }
+        ]
+      },
+    }),
+
+    // Scheduled posts (published but date is in future)
+    Post.count({
+      where: {
+        post_status: "published",
+        post_publish_date: { [Op.gt]: new Date() }
+      },
     }),
 
     // Draft posts
@@ -92,6 +107,7 @@ const getStats = async () => {
     // Post stats
     totalPosts,
     publishedPosts,
+    scheduledPosts,
     draftPosts,
   };
 };

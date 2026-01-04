@@ -70,10 +70,12 @@ export const POST_STAT_CARD = {
   to: "/admin/posts",
   breakdownLabels: {
     published: "Published",
+    scheduled: "Scheduled",
     draft: "Draft",
   },
   breakdownColors: {
     published: "#22c55e", // Green
+    scheduled: "#f59e0b", // Amber/Orange
     draft: "#6b7280", // Gray
   },
 };

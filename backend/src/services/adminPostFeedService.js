@@ -54,14 +54,45 @@ const getAllPosts = async (options = {}) => {
   const whereClause = {};
 
   if (status && status !== "all") {
-    whereClause.post_status = status;
+    if (status === "scheduled") {
+      // Scheduled posts: published status with future date
+      whereClause.post_status = "published";
+      whereClause.post_publish_date = { [Op.gt]: new Date() };
+    } else if (status === "published") {
+      // True published posts: published status with past/current date or null
+      whereClause.post_status = "published";
+      whereClause[Op.or] = [
+        { post_publish_date: null },
+        { post_publish_date: { [Op.lte]: new Date() } }
+      ];
+    } else {
+      // Draft or any other status
+      whereClause.post_status = status;
+    }
   }
 
   if (search) {
-    whereClause[Op.or] = [
-      { post_title: { [Op.like]: `%${search}%` } },
-      { post_content: { [Op.like]: `%${search}%` } },
-    ];
+    // Use Op.and to combine with existing conditions
+    const searchCondition = {
+      [Op.or]: [
+        { post_title: { [Op.like]: `%${search}%` } },
+        { post_content: { [Op.like]: `%${search}%` } },
+      ]
+    };
+    
+    // If whereClause already has Op.or (from published filter), wrap in Op.and
+    if (whereClause[Op.or]) {
+      const existingOr = whereClause[Op.or];
+      delete whereClause[Op.or];
+      Object.assign(whereClause, {
+        [Op.and]: [
+          { [Op.or]: existingOr },
+          searchCondition
+        ]
+      });
+    } else {
+      Object.assign(whereClause, searchCondition);
+    }
   }
 
   const { count, rows } = await Post.findAndCountAll({
@@ -223,14 +254,36 @@ const togglePostStatus = async (postId) => {
 // Gets post statistics for dashboard
 
 const getPostStats = async () => {
+  const { Op } = require("sequelize");
+  
   const totalPosts = await Post.count();
-  const publishedPosts = await Post.count({ where: { post_status: "published" } });
+  
+  // Truly published posts (published and date is now or past)
+  const publishedPosts = await Post.count({
+    where: {
+      post_status: "published",
+      [Op.or]: [
+        { post_publish_date: null },
+        { post_publish_date: { [Op.lte]: new Date() } }
+      ]
+    }
+  });
+  
+  // Scheduled posts (published but date is in future)
+  const scheduledPosts = await Post.count({
+    where: {
+      post_status: "published",
+      post_publish_date: { [Op.gt]: new Date() }
+    }
+  });
+  
   const draftPosts = await Post.count({ where: { post_status: "draft" } });
   const totalViews = await Post.sum("post_view_count") || 0;
 
   return {
     totalPosts,
     publishedPosts,
+    scheduledPosts,
     draftPosts,
     totalViews,
   };

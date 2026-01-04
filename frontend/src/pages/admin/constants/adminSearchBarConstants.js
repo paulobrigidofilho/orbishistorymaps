@@ -157,6 +157,7 @@ export const POST_FILTERS_CONFIG = [
     options: [
       { value: "all", label: "All Status" },
       { value: "published", label: "Published" },
+      { value: "scheduled", label: "Scheduled" },
       { value: "draft", label: "Draft" },
     ],
   },

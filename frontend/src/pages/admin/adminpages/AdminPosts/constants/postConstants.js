@@ -40,7 +40,15 @@ export const POST_LABELS = {
   // Status labels
   STATUS: {
     PUBLISHED: "Published",
+    SCHEDULED: "Scheduled",
     DRAFT: "Draft",
+  },
+  
+  // Status colors (for badges)
+  STATUS_COLORS: {
+    PUBLISHED: "#22c55e", // Green
+    SCHEDULED: "#f59e0b", // Amber/Orange
+    DRAFT: "#6b7280", // Gray
   },
   
   // Button labels
@@ -95,6 +103,7 @@ export const POST_FILTERS = {
   STATUS_OPTIONS: [
     { value: "all", label: "All Status" },
     { value: "published", label: "Published" },
+    { value: "scheduled", label: "Scheduled" },
     { value: "draft", label: "Draft" },
   ],
   

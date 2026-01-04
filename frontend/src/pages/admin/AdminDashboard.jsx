@@ -41,6 +41,7 @@ export default function AdminDashboard() {
     pendingReviews: 0,
     totalPosts: 0,
     publishedPosts: 0,
+    scheduledPosts: 0,
     draftPosts: 0,
   });
   const [loading, setLoading] = useState(true);
@@ -68,6 +69,7 @@ export default function AdminDashboard() {
           <PostStatCard
             total={stats.totalPosts}
             published={stats.publishedPosts}
+            scheduled={stats.scheduledPosts}
             draft={stats.draftPosts}
             isLoading={loading}
           />

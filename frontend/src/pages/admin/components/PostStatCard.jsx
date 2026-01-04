@@ -19,10 +19,11 @@ import { POST_STAT_CARD } from "../constants/adminConstants";
 ///////////////////////////////////////////////////////////////////////
 
 /**
- * PostStatCard - Displays post statistics with published/draft breakdown
+ * PostStatCard - Displays post statistics with published/scheduled/draft breakdown
  * @param {Object} props - Component props
  * @param {number} props.total - Total number of posts
  * @param {number} props.published - Number of published posts
+ * @param {number} props.scheduled - Number of scheduled posts
  * @param {number} props.draft - Number of draft posts
  * @param {boolean} props.isLoading - Loading state
  * @returns {React.ReactElement} The post stat card component
@@ -30,6 +31,7 @@ import { POST_STAT_CARD } from "../constants/adminConstants";
 export default function PostStatCard({ 
   total = 0, 
   published = 0, 
+  scheduled = 0,
   draft = 0, 
   isLoading = false 
 }) {
@@ -63,6 +65,16 @@ export default function PostStatCard({
             <div className={styles.breakdownItem}>
               <span 
                 className={styles.dot} 
+                style={{ backgroundColor: POST_STAT_CARD.breakdownColors.scheduled }}
+              />
+              <span className={styles.breakdownLabel}>
+                {POST_STAT_CARD.breakdownLabels.scheduled}:
+              </span>
+              <span className={styles.breakdownValue}>{scheduled}</span>
+            </div>
+            <div className={styles.breakdownItem}>
+              <span 
+                className={styles.dot} 
                 style={{ backgroundColor: POST_STAT_CARD.breakdownColors.draft }}
               />
               <span className={styles.breakdownLabel}>
@@ -84,6 +96,7 @@ export default function PostStatCard({
 PostStatCard.propTypes = {
   total: PropTypes.number,
   published: PropTypes.number,
+  scheduled: PropTypes.number,
   draft: PropTypes.number,
   isLoading: PropTypes.bool,
 };
